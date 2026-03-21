@@ -1,0 +1,157 @@
+"""
+Brand Battle — FastAPI Application
+AI-powered product comparison and deal discovery platform.
+
+Run: uvicorn main:app --reload --port 8000
+Docs: http://localhost:8000/docs
+"""
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
+import time
+
+from config import settings
+from database import init_db
+
+
+# ─── Lifespan ────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown events."""
+    # Startup
+    print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    init_db()
+    print("✅ Database initialized")
+
+    # Auto-seed in debug mode
+    if settings.DEBUG:
+        try:
+            from seed_data import seed_database
+            seed_database()
+        except Exception as e:
+            print(f"⚠️  Seed skipped: {e}")
+
+    yield
+
+    # Shutdown
+    print("👋 Shutting down")
+
+
+# ─── App ─────────────────────────────────────────────────────────────
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    description=(
+        "AI-powered product comparison and deal discovery platform. "
+        "Compare products, find the best deals, track prices, and get "
+        "personalized recommendations across Amazon, Flipkart, and more."
+    ),
+    version=settings.APP_VERSION,
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# ─── CORS ────────────────────────────────────────────────────────────
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ─── Request timing middleware ───────────────────────────────────────
+
+@app.middleware("http")
+async def add_process_time(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = f"{process_time:.4f}"
+    return response
+
+
+# ─── Register Routers ───────────────────────────────────────────────
+
+from routers.auth import router as auth_router
+from routers.products import router as products_router
+from routers.compare import router as compare_router
+from routers.ai import router as ai_router
+from routers.deals import router as deals_router
+from routers.alerts import router as alerts_router
+from routers.alerts import notifications_router
+from routers.admin import router as admin_router
+from routers.brands import router as brands_router
+
+app.include_router(auth_router)
+app.include_router(products_router)
+app.include_router(compare_router)
+app.include_router(ai_router)
+app.include_router(deals_router)
+app.include_router(alerts_router)
+app.include_router(notifications_router)
+app.include_router(admin_router)
+app.include_router(brands_router)
+
+
+# ─── Root Endpoints ─────────────────────────────────────────────────
+
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "name": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "status": "running",
+        "docs": "/docs",
+        "description": "AI-powered product comparison & deal discovery platform",
+    }
+
+
+@app.get("/health", tags=["Root"])
+async def health_check():
+    return {"status": "healthy", "version": settings.APP_VERSION}
+
+
+@app.get("/api/stats", tags=["Root"])
+async def get_stats():
+    """Public-facing platform statistics."""
+    from sqlalchemy import func
+    from database import SessionLocal
+    from models import Product, Brand, Deal, Comparison, User
+
+    db = SessionLocal()
+    try:
+        return {
+            "total_products": db.query(func.count(Product.id)).filter(Product.is_active == True).scalar() or 0,
+            "total_brands": db.query(func.count(Brand.id)).scalar() or 0,
+            "active_deals": db.query(func.count(Deal.id)).filter(Deal.status == "active").scalar() or 0,
+            "total_comparisons": db.query(func.count(Comparison.id)).scalar() or 0,
+            "total_users": db.query(func.count(User.id)).scalar() or 0,
+            "platforms_tracked": 7,
+        }
+    finally:
+        db.close()
+
+
+# ─── Error Handlers ──────────────────────────────────────────────────
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=404,
+        content={"detail": "Resource not found", "path": str(request.url)},
+    )
+
+
+@app.exception_handler(500)
+async def server_error_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+    )
