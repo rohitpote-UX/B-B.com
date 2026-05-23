@@ -34,7 +34,7 @@ export default function Footer() {
     <footer className="bg-theme-bg pt-48 pb-20 border-t border-theme-border">
       <div className="w-full max-w-[1536px] mx-auto px-8 md:px-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-24">
-          
+
           {/* Brand Info */}
           <div className="md:col-span-5 lg:col-span-4">
             <Link to="/" className="text-xl font-medium tracking-tight font-[var(--font-display)] block mb-6">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import { DEALS, PLATFORMS } from '../data/demoData'
+import { DEALS, PLATFORMS, formatPrice } from '../data/demoData'
 
 export default function DealsPage() {
   const [filter, setFilter] = useState('all')
@@ -86,8 +86,8 @@ export default function DealsPage() {
                     {/* Price + Arrow */}
                     <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-x-6">
                        <div className="text-left md:text-right">
-                          <p className="text-[1.125rem] font-medium text-theme-text">${deal.product.bestPrice}</p>
-                          <p className="text-[0.875rem] text-theme-muted line-through">${deal.product.originalPrice}</p>
+                          <p className="text-[1.125rem] font-medium text-theme-text">{formatPrice(deal.product.bestPrice)}</p>
+                          <p className="text-[0.875rem] text-theme-muted line-through">{formatPrice(deal.product.originalPrice)}</p>
                        </div>
                        <ArrowRight className="w-5 h-5 text-theme-dim group-hover:text-theme-text transition-colors shrink-0" strokeWidth={1.5} />
                     </div>

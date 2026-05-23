@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal, ArrowRight } from 'lucide-react'
-import { PRODUCTS, PLATFORMS } from '../data/demoData'
+import { PRODUCTS, PLATFORMS, formatPrice } from '../data/demoData'
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -11,6 +11,7 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState('relevance')
   const [showFilters, setShowFilters] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (selectedCategory !== 'all') {
@@ -67,6 +68,23 @@ export default function SearchPage() {
                  <SlidersHorizontal className="w-5 h-5" />
               </button>
            </form>
+
+            {/* Always-visible Category Filter Pills */}
+            <div className="mt-8 flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+              {categories.map(cat => (
+                <button key={cat} type="button" onClick={() => {
+                    setSelectedCategory(cat)
+                    setQuery('')
+                    setSearchParams({})
+                  }}
+                  className={`shrink-0 px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.12em] border transition-all duration-300 rounded-[2px] ${
+                    selectedCategory === cat 
+                      ? 'bg-theme-text text-theme-bg border-theme-text' 
+                      : 'bg-transparent text-theme-secondary border-theme-border hover:border-theme-text hover:text-theme-text'
+                  }`}
+                >{cat === 'all' ? 'Everything' : cat}</button>
+              ))}
+            </div>
         </div>
 
         {/* Filters Panel */}
@@ -141,19 +159,19 @@ export default function SearchPage() {
                   {product.dealScore >= 85 && (
                      <div className="absolute top-6 left-6 z-10 text-[0.75rem] font-medium uppercase tracking-[0.15em] bg-theme-text text-theme-bg px-4 py-1.5">Hot Deal</div>
                   )}
-                  <img src={product.image} alt={product.name} />
+                  <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700" />
                 </div>
                 <div>
                   <h3 className="text-[1.125rem] font-medium text-theme-text tracking-tight mb-2">{product.name}</h3>
                   <p className="text-[0.875rem] text-theme-secondary mb-4">{product.brand}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[1.125rem] font-medium text-theme-text">${product.bestPrice}</span>
-                    <span className="text-[0.875rem] text-theme-muted line-through">${product.originalPrice}</span>
-                  </div>
+                   <div className="flex items-center justify-between">
+                     <span className="text-[1.125rem] font-medium text-theme-text">{formatPrice(product.bestPrice)}</span>
+                     <span className="text-[0.875rem] text-theme-muted line-through">{formatPrice(product.originalPrice)}</span>
+                   </div>
                 </div>
                 {/* Minimal Compare CTA on Hover */}
                 <div className="mt-6 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                   <button onClick={(e) => { e.preventDefault(); window.location.href = `/compare?products=${product.id}` }} className="text-[0.75rem] font-medium uppercase tracking-wider text-theme-secondary hover:text-theme-text flex items-center gap-2">
+                   <button onClick={(e) => { e.preventDefault(); navigate(`/compare?p1=${product.id}`) }} className="text-[0.75rem] font-medium uppercase tracking-wider text-theme-secondary hover:text-theme-text flex items-center gap-2">
                      Compare <ArrowRight className="w-3 h-3" />
                    </button>
                 </div>

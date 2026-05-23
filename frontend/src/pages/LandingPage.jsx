@@ -2,7 +2,7 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Star } from 'lucide-react'
-import { PRODUCTS, DEALS } from '../data/demoData'
+import { PRODUCTS, DEALS, formatPrice } from '../data/demoData'
 
 const TESTIMONIALS = [
   {
@@ -81,7 +81,7 @@ export default function LandingPage() {
               transition={{ duration: 1.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="relative w-full aspect-[3/4] bg-theme-elevated flex items-center justify-center p-8"
             >
-               <img src={PRODUCTS[0].image} alt="Featured Product" className="w-full h-full object-contain filter drop-shadow-2xl" />
+               <img src={PRODUCTS[0].image} alt="Featured Product" className="w-full h-full object-contain filter drop-shadow-2xl mix-blend-screen" />
                <div className="absolute bottom-10 left-10 text-[0.75rem] font-medium uppercase tracking-[0.15em]">Featured</div>
                <div className="absolute bottom-10 right-10 text-[0.75rem] font-medium uppercase tracking-[0.15em] text-theme-text">{PRODUCTS[0].name}</div>
             </motion.div>
@@ -113,7 +113,7 @@ export default function LandingPage() {
                     <h3 className="text-[1.25rem] font-medium text-theme-text tracking-tight mb-3">{product.name}</h3>
                     <p className="text-[1rem] text-theme-secondary mb-6">{product.brand}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-[1.25rem] font-medium text-theme-text">${product.bestPrice}</span>
+                      <span className="text-[1.25rem] font-medium text-theme-text">{formatPrice(product.bestPrice)}</span>
                     </div>
                   </div>
                 </Link>
@@ -181,8 +181,8 @@ export default function LandingPage() {
                              <p className="text-[0.75rem] font-medium uppercase tracking-[0.15em] text-theme-secondary">{deal.product.brand}</p>
                           </div>
                           <div className="text-right">
-                             <p className="text-[1.25rem] font-medium text-theme-text">${deal.product.bestPrice}</p>
-                             <p className="text-[1rem] text-theme-muted line-through">${deal.product.originalPrice}</p>
+                             <p className="text-[1.25rem] font-medium text-theme-text">{formatPrice(deal.product.bestPrice)}</p>
+                             <p className="text-[1rem] text-theme-muted line-through">{formatPrice(deal.product.originalPrice)}</p>
                           </div>
                        </div>
                     </Link>

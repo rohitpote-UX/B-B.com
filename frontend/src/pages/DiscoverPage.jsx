@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Share2, RefreshCcw } from 'lucide-react'
-import { PRODUCTS } from '../data/demoData'
+import { PRODUCTS, formatPrice } from '../data/demoData'
 
 export default function DiscoverPage() {
   const navigate = useNavigate()
@@ -99,7 +99,7 @@ export default function DiscoverPage() {
   const handleShare = async (product) => {
     const shareData = {
       title: `Brand Battle: ${product.name}`,
-      text: `Found a massive deal on the ${product.name} for $${product.bestPrice}!`,
+      text: `Found a massive deal on the ${product.name} for $${product.bestPrice} (₹${Math.round(product.bestPrice * 84).toLocaleString()})!`,
       url: window.location.origin + `/product/${product.id}`
     }
     if (navigator.share) {
@@ -128,7 +128,7 @@ export default function DiscoverPage() {
 
       {extendedFeed.map((product, index) => {
          const isActive = index === activeIdx
-         const isLiked = likedItems.has(product.uniqueId)
+         const isLiked = likedItems.has(product.id) || likedItems.has(product.id.toString())
 
          return (
            <div key={product.uniqueId} className="w-full h-screen h-[100dvh] snap-center relative flex items-center justify-center sm:p-8 z-10 overflow-hidden">
@@ -164,16 +164,17 @@ export default function DiscoverPage() {
                             className="absolute left-0 right-0 h-[1px] bg-theme-text/20 z-0 shadow-[0_2px_20px_var(--color-theme-text)] pointer-events-none"
                          />
                          
-                         <div className="absolute inset-0 flex items-center justify-center p-8 pb-48">
-                            <img src={product.image} className="w-full h-auto max-h-[50vh] object-contain mix-blend-normal z-10 filter drop-shadow-2xl hover:scale-110 transition-transform duration-[2s] ease-out" />
+                         {/* Premium Framed Image Showcase Box */}
+                         <div className="absolute top-20 left-6 right-6 h-[38%] bg-theme-bg/40 backdrop-blur-md border border-theme-border/50 rounded-2xl flex items-center justify-center p-4 z-10 overflow-hidden group/img">
+                            <img src={product.image} className="max-w-full max-h-full object-contain filter drop-shadow-2xl group-hover/img:scale-105 transition-transform duration-[2s] ease-out mix-blend-normal" />
                          </div>
                          
-                         {/* Product Information Overlay */}
-                         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between w-full h-[60%] bg-gradient-to-t from-theme-bg via-theme-bg/80 to-transparent z-20 p-6 pt-24 pb-safe">
+                         {/* Product Information Overlay with higher opacity background gradient */}
+                         <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between w-full h-[54%] bg-gradient-to-t from-theme-bg via-theme-bg/95 to-transparent z-20 p-6 pt-12 pb-safe">
                             
-                            {/* Left Text & Deals */}
-                            <div className="flex-1 pr-4">
-                               <h2 className="text-[1.75rem] font-[var(--font-display)] font-medium leading-[1.1] text-theme-text tracking-tight mb-2">{product.name}</h2>
+                            {/* Left Text & Deals - min-w-0 guarantees flexible layout width */}
+                            <div className="flex-1 min-w-0 pr-4">
+                               <h2 className="text-[1.6rem] font-[var(--font-display)] font-medium leading-[1.15] text-theme-text tracking-tight mb-2 line-clamp-2 break-words" title={product.name}>{product.name}</h2>
                                <p className="text-[0.875rem] text-theme-secondary mb-6 line-clamp-2 pr-4">{product.specs.processor || product.specs.panel || 'Premium hardware engineered for uncompromising performance and precision.'}</p>
                                
                                <div className="flex flex-col gap-3">
@@ -183,7 +184,7 @@ export default function DiscoverPage() {
                                         <div className="text-[0.65rem] font-medium uppercase tracking-[0.1em] text-theme-secondary flex items-center gap-1">
                                            Best Deal Discovered
                                         </div>
-                                        <div className="text-[1.75rem] font-[var(--font-display)] font-medium text-theme-text leading-none mt-1 group-hover:text-[#22c55e] transition-colors">${product.bestPrice}</div>
+                                        <div className="text-[1.75rem] font-[var(--font-display)] font-medium text-theme-text leading-none mt-1 group-hover:text-[#22c55e] transition-colors">{formatPrice(product.bestPrice)}</div>
                                      </div>
                                      <div className="ml-auto px-3 py-1.5 bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20 text-[0.65rem] font-medium uppercase tracking-widest rounded-full">Amazon</div>
                                   </div>
@@ -192,20 +193,20 @@ export default function DiscoverPage() {
                                   <div className="flex items-center gap-2 mt-2 w-full">
                                      <div className="flex-1 flex justify-between items-center py-2 px-3 bg-theme-bg/50 backdrop-blur-md border border-theme-border rounded-[4px]">
                                         <span className="text-[0.65rem] uppercase tracking-widest text-theme-muted">Best Buy</span>
-                                        <span className="text-[0.75rem] font-medium text-theme-secondary">${product.bestPrice + 49}</span>
+                                        <span className="text-[0.75rem] font-medium text-theme-secondary">{formatPrice(product.bestPrice + 49)}</span>
                                      </div>
                                      <div className="flex-1 flex justify-between items-center py-2 px-3 bg-theme-bg/50 backdrop-blur-md border border-theme-border rounded-[4px]">
                                         <span className="text-[0.65rem] uppercase tracking-widest text-theme-muted">Target</span>
-                                        <span className="text-[0.75rem] font-medium text-theme-secondary">${product.bestPrice + 99}</span>
+                                        <span className="text-[0.75rem] font-medium text-theme-secondary">{formatPrice(product.bestPrice + 99)}</span>
                                      </div>
                                   </div>
                                </div>
                             </div>
                             
-                            {/* Interaction Strip (Reels Style) */}
-                            <div className="flex flex-col gap-4 items-center pb-2 pl-2">
+                            {/* Interaction Strip (Reels Style) - shrink-0 prevents layout squashing */}
+                            <div className="flex flex-col gap-4 items-center pb-2 pl-2 shrink-0 z-30">
                                <button 
-                                  onClick={() => toggleLike(product.uniqueId)} 
+                                  onClick={() => toggleLike(product.id)} 
                                   className="group flex flex-col items-center gap-1"
                                >
                                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${isLiked ? 'bg-theme-text text-theme-bg shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'bg-theme-bg/80 backdrop-blur-md border border-theme-border text-theme-text hover:bg-theme-strong'}`}>
