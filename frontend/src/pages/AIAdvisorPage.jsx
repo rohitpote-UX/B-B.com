@@ -1,258 +1,382 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Zap, Bot, User } from 'lucide-react'
-import { PRODUCTS, PLATFORMS, formatPrice } from '../data/demoData'
+import {
+  ArrowRight, Zap, Bot, User, Sparkles, Brain, X, Trash2,
+  ChevronRight, Send, Search, Cpu
+} from 'lucide-react'
+import { processQuery, loadMemory, saveMemory, QUICK_CHIPS } from '../data/aiEngine'
+import AIResponseCard from '../components/AIResponseCard'
 
-const SUGGESTIONS = ['Best headphones for mixing', 'Minimalist laptop under $1500', 'Top rated wireless audio', 'Nike vs Adidas durability', 'Budget smartphone under $300']
-
-function findRecs(query) {
-  const q = query.toLowerCase()
-  let r = [...PRODUCTS]
-  
-  const bm = q.match(/under\s*\$?(\d+)/i) || q.match(/below\s*\$?(\d+)/i)
-  if (bm) r = r.filter(p => p.bestPrice <= parseInt(bm[1]))
-  
-  const categories = [...new Set(PRODUCTS.map(p => p.category.toLowerCase()))]
-  let targetCategory = null
-
-  // 1. Direct Category Name Match
-  for (const cat of categories) {
-    if (q.includes(cat) || (cat.endsWith('s') && q.includes(cat.slice(0, -1)))) {
-      targetCategory = cat; break
-    }
-  }
-  
-  // 2. High-Accuracy NLP Keyword Mapping (Bounded to prevent overlaps)
-  if (!targetCategory) {
-    if (q.match(/\b(phone|smartphone|mobile|cell|iphone|galaxy)\b/i)) targetCategory = 'smartphones'
-    else if (q.match(/\b(laptop|macbook|pc|computer|desktop)\b/i)) targetCategory = 'laptops'
-    else if (q.match(/\b(shoe|sneaker|kicks|footwear|runner)\b/i)) targetCategory = 'shoes'
-    else if (q.match(/\b(headphone|earbud|audio|music|sound|airpods)\b/i)) targetCategory = 'headphones'
-    else if (q.match(/\b(tv|television|oled|screen|display)\b/i)) targetCategory = 'electronics'
-    else if (q.match(/\b(watch|luxury|rolex|timepiece)\b/i)) targetCategory = 'premium products'
-    else if (q.match(/\b(vacuum|cleaner|appliance|home)\b/i)) targetCategory = 'home appliance'
-    else if (q.match(/\b(shirt|dress|jeans|pants|wear|apparel|clothes)\b/i)) targetCategory = 'mens wear'
-    else if (q.match(/\b(toothpaste|brush|essential|daily)\b/i)) targetCategory = 'everyday essential'
-  }
-
-  // 3. Entity Resolution: Check if brand or exact name was explicitly requested
-  const exactProducts = r.filter(p => q.includes(p.brand.toLowerCase()) || q.includes(p.name.toLowerCase().split(' ')[0]))
-  
-  if (exactProducts.length > 0) {
-      r = exactProducts
-  } else if (targetCategory) {
-      r = r.filter(p => p.category.toLowerCase() === targetCategory)
-  }
-
-  r.sort((a, b) => (b.rating * b.dealScore) - (a.rating * a.dealScore))
-  return r.slice(0, 3)
-}
-
-function analyzeDeal(product) {
-  if (!product || !product.prices || product.prices.length === 0) return ''
-  const prices = [...product.prices].sort((a, b) => a.price - b.price)
-  const best = prices[0]
-  const worst = prices[prices.length - 1]
-  const saved = (worst.price - best.price).toFixed(2)
-  const percent = Math.round((saved / worst.price) * 100)
-  
-  let r = `\n\n⚡ AI DEAL SCANNER:`
-  r += `\nAnalyzed ${prices.length} distinct merchant platforms and established arbitrage.`
-  r += `\n→ BEST PRICE: $${best.price} (₹${Math.round(best.price * 84).toLocaleString()}) via ${PLATFORMS[best.platform]?.name || best.platform.toUpperCase()}`
-  if (prices.length > 1) {
-    r += `\n→ WORST PRICE: $${worst.price} (₹${Math.round(worst.price * 84).toLocaleString()}) via ${PLATFORMS[worst.platform]?.name || worst.platform.toUpperCase()}`
-    r += `\n→ OPTIMAL SAVINGS: $${saved} (₹${Math.round(saved * 84).toLocaleString()}) (${percent}% differential)`
-  }
-  return r
-}
-
-function genResp(query, products) {
-  if (!products.length) return `⚠ Query unrecognized. No specifications found matching "${query}". Please adjust parameters.`
-  const top = products[0]
-  let r = `Analysis complete for: "${query}".\n\n`
-  r += `★ PRIMARY RECOMMENDATION:\n${top.name}\nScore: ${top.dealScore}/100 | Rating: ${top.rating}/5.0 | Verification: Authentic`
-  r += analyzeDeal(top)
-  if (products.length > 1) {
-     r += `\n\n◆ MARKET ALTERNATIVES:`
-     products.slice(1).map(p => {
-        r += `\n  → ${p.name} ($${p.bestPrice} / ₹${Math.round(p.bestPrice * 84).toLocaleString()}) — Score: ${p.dealScore}/100`
-     })
-  }
-  return r
-}
+// ── Typing animation steps ──
+const TYPING_STEPS = [
+  'Understanding your needs...',
+  'Searching 1,400+ products...',
+  'Ranking with AI scoring...',
+  'Building recommendation...',
+]
 
 export default function AIAdvisorPage() {
-  const [messages, setMessages] = useState(() => {
-    const interest = localStorage.getItem('bb_user_interest')
-    let content = "◉ SYSTEM ONLINE\n\nAlgorithm ready for queries. State requirements, budget, or specifications.\n\nTry asking me:\n→ \"Best laptop under $1000\"\n→ \"Compare headphones for music production\"\n→ \"Budget smartphone with great camera\""
-    let products = []
-    
-    if (interest) {
-      const categoryProducts = [...PRODUCTS].filter(p => p.category.toLowerCase() === interest.toLowerCase()).sort((a,b) => b.dealScore - a.dealScore)
-      if (categoryProducts.length > 0) {
-         const top = categoryProducts[0]
-         products = [top]
-         content = `◉ SYSTEM ONLINE\n\nI noticed you were recently exploring ${interest.toUpperCase()}.\nI immediately ran a background scan across all known platforms for this category.\n\n★ TOP NEGOTIATED DEAL: ${top.name}`
-         content += analyzeDeal(top)
-         content += `\n\nWould you like to lock this deal in immediately, or should we compare other alternatives?`
-      } else {
-         content = `◉ SYSTEM ONLINE\n\nI noticed you were recently exploring ${interest.toUpperCase()}. Would you like me to run a deep-dive benchmark on the top-rated models in that tier, hunt for hidden clearance deals, or are we shifting focus to a new category today?`
-      }
-    }
-    return [{ role: 'assistant', content, products }]
-  })
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [typingStep, setTypingStep] = useState(0)
+  const [memory, setMemory] = useState(() => loadMemory())
+  const [showMemory, setShowMemory] = useState(false)
   const scrollContainerRef = useRef(null)
+  const inputRef = useRef(null)
 
-  useEffect(() => { 
-     if (scrollContainerRef.current) {
+  // Auto-scroll on new messages
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      setTimeout(() => {
         scrollContainerRef.current.scrollTo({
-           top: scrollContainerRef.current.scrollHeight,
-           behavior: 'smooth'
+          top: scrollContainerRef.current.scrollHeight,
+          behavior: 'smooth'
         })
-     }
+      }, 100)
+    }
   }, [messages, typing])
 
+  // Welcome message based on memory
+  const welcomeMessage = useMemo(() => {
+    if (memory.queryCount > 0 && memory.lastCategory) {
+      return `Welcome back! I remember you were looking at ${memory.lastCategory}. Want me to find something similar, or exploring something new today?`
+    }
+    if (memory.preferredBrands?.length > 0) {
+      return `Hey! I know you like ${memory.preferredBrands.map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(', ')}. Want me to find the best deals from those brands?`
+    }
+    return "Hey! I'm your AI shopping advisor. Tell me what you're looking for, and I'll find the perfect match from 1,400+ products across all major platforms."
+  }, [memory])
+
+  // Typing animation stepper
+  useEffect(() => {
+    if (!typing) return
+    setTypingStep(0)
+    const timers = TYPING_STEPS.map((_, i) =>
+      setTimeout(() => setTypingStep(i), i * 400)
+    )
+    return () => timers.forEach(clearTimeout)
+  }, [typing])
+
+  // Send query
   const send = async (text = input) => {
-    if (!text.trim()) return
-    setMessages(p => [...p, { role: 'user', content: text.trim() }])
-    setInput(''); setTyping(true)
-    await new Promise(r => setTimeout(r, 1200 + Math.random() * 800))
-    const products = findRecs(text)
-    setMessages(p => [...p, { role: 'assistant', content: genResp(text, products), products }])
+    const trimmed = text.trim()
+    if (!trimmed) return
+
+    // Add user message
+    setMessages(prev => [...prev, { role: 'user', content: trimmed }])
+    setInput('')
+    setTyping(true)
+
+    // Simulate AI processing time
+    await new Promise(r => setTimeout(r, 1200 + Math.random() * 600))
+
+    // Run AI pipeline
+    const { response, memory: updatedMemory } = processQuery(trimmed)
+
+    // Add AI response
+    setMessages(prev => [...prev, { role: 'assistant', data: response }])
+    setMemory(updatedMemory)
     setTyping(false)
+
+    // Focus input for next query
+    inputRef.current?.focus()
   }
 
+  const clearChat = () => {
+    setMessages([])
+  }
+
+  const clearMemory = () => {
+    const blank = { preferredBrands: [], budgetRange: null, useCases: [], categoriesExplored: [], queryCount: 0, lastCategory: null }
+    saveMemory(blank)
+    setMemory(blank)
+  }
+
+  const hasConversation = messages.length > 0
+
   return (
-    <div className="min-h-screen pt-32 pb-40 flex flex-col items-center px-4">
-      
-      {/* Title */}
-      <div className="w-full max-w-4xl mb-8">
-        <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] block mb-4 text-theme-muted">Intelligence</span>
-        <h1 className="text-[2rem] sm:text-[3rem] font-[var(--font-display)] font-medium leading-[1.1] tracking-tight text-theme-text mb-4">AI Advisor.</h1>
-        <p className="text-[1rem] text-theme-secondary max-w-xl">Ask me anything about products, deals, or comparisons. I'll analyze real market data to give you the best recommendation.</p>
-      </div>
+    <div className="min-h-screen pt-32 pb-20 flex flex-col items-center px-4">
 
-      <div className="w-full max-w-4xl flex flex-col h-[70vh] border border-theme-border bg-theme-bg rounded-sm overflow-hidden">
-         
-         <div className="border-b border-theme-border px-6 py-4 lg:px-10 flex justify-between items-center bg-theme-elevated">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
-              <span className="text-[0.7rem] font-medium uppercase tracking-[0.15em] text-theme-text">Brand Battle Intelligence Terminal</span>
+      {/* ══════ HEADER ══════ */}
+      <div className="w-full max-w-4xl mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-theme-muted">Intelligence Engine</span>
+              <span className="px-2 py-0.5 rounded-full bg-[#22c55e15] border border-[#22c55e25] text-[0.5rem] font-bold text-[#22c55e] uppercase tracking-widest">v3.0</span>
             </div>
-            <span className="text-[0.6rem] text-theme-muted uppercase tracking-widest whitespace-nowrap">v2.0 · Active</span>
-         </div>
+            <h1 className="text-[2rem] sm:text-[3rem] font-[var(--font-display)] font-medium leading-[1.1] tracking-tight text-theme-text">AI Advisor.</h1>
+          </div>
 
-         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 lg:p-10 space-y-8 relative">
-            <AnimatePresence>
-              {messages.map((msg, i) => (
-                <motion.div 
-                  key={i} 
-                  initial={{ opacity: 0, y: 10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                   {msg.role === 'assistant' && (
-                     <div className="w-8 h-8 rounded-full bg-theme-elevated border border-theme-border flex items-center justify-center shrink-0 mt-1">
-                       <Bot className="w-4 h-4 text-[#22c55e]" />
-                     </div>
-                   )}
-                   
-                   <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-1' : ''}`}>
-                     <div className={`px-5 py-4 rounded-lg ${
-                       msg.role === 'user' 
-                         ? 'bg-theme-text text-theme-bg ml-auto' 
-                         : 'bg-theme-elevated border border-theme-border text-theme-text'
-                     }`}>
-                       {msg.content.split('\n').map((line, j) => (
-                          <p key={j} className={`min-h-[1.2em] text-[0.85rem] leading-relaxed font-[var(--font-mono,monospace)] ${
-                            line.startsWith('★') || line.startsWith('◆') || line.startsWith('◉') || line.startsWith('⚡') || line.startsWith('⚠')
-                              ? 'font-semibold mt-1' 
-                              : line.startsWith('→') 
-                                ? 'pl-2 text-inherit opacity-80' 
-                                : ''
-                          }`}>{line || '\u00A0'}</p>
-                       ))}
-                     </div>
-                     
-                     {msg.products?.length > 0 && (
-                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                           {msg.products.map((p, pIdx) => (
-                              <Link key={p.id} to={`/product/${p.id}`} className="bg-theme-elevated border border-theme-border rounded-lg p-4 group hover:border-theme-strong transition-all duration-300 relative overflow-hidden">
-                                 
-                                 {pIdx === 0 && (
-                                    <div className="absolute top-3 left-3 z-10">
-                                       <div className="bg-[#22c55e] text-black text-[0.5rem] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
-                                          ★ Best Pick
-                                       </div>
-                                    </div>
-                                 )}
-                                 
-                                 <div className="aspect-square bg-theme-bg rounded-md flex items-center justify-center p-4 mb-3 overflow-hidden">
-                                    <img src={p.image} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                                 </div>
-                                 <p className="text-[0.65rem] uppercase tracking-wider text-theme-muted truncate mb-0.5">{p.brand}</p>
-                                 <p className="font-medium text-theme-text text-[0.8rem] truncate mb-2">{p.name}</p>
-                                 <div className="flex justify-between items-center text-[0.75rem]">
-                                    <span className="text-theme-text font-medium">{formatPrice(p.bestPrice)}</span>
-                                    <ArrowRight className="w-3 h-3 text-theme-dim group-hover:text-theme-text transition-colors" />
-                                 </div>
-                              </Link>
-                           ))}
-                        </div>
-                     )}
-                   </div>
+          {/* Memory indicator */}
+          <button onClick={() => setShowMemory(!showMemory)} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-theme-border bg-theme-elevated hover:border-theme-strong transition-all">
+            <Brain className="w-4 h-4 text-[#a855f7]" />
+            <span className="text-[0.6rem] font-bold uppercase tracking-widest text-theme-muted hidden sm:block">Memory</span>
+            {memory.queryCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-[#a855f7] text-white text-[0.5rem] font-bold flex items-center justify-center">{memory.queryCount}</span>
+            )}
+          </button>
+        </div>
 
-                   {msg.role === 'user' && (
-                     <div className="w-8 h-8 rounded-full bg-theme-text flex items-center justify-center shrink-0 mt-1 order-2">
-                       <User className="w-4 h-4 text-theme-bg" />
-                     </div>
-                   )}
-                </motion.div>
-              ))}
-              {typing && (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4 items-start">
-                    <div className="w-8 h-8 rounded-full bg-theme-elevated border border-theme-border flex items-center justify-center shrink-0">
-                      <Bot className="w-4 h-4 text-[#22c55e]" />
-                    </div>
-                    <div className="bg-theme-elevated border border-theme-border rounded-lg px-5 py-4 flex items-center gap-2.5">
-                       <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
-                       <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" style={{ animationDelay: '0.2s' }} />
-                       <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" style={{ animationDelay: '0.4s' }} />
-                       <span className="text-[0.75rem] text-theme-muted uppercase tracking-widest ml-2">Processing</span>
-                    </div>
-                 </motion.div>
-              )}
-            </AnimatePresence>
-         </div>
-
-         <div className="border-t border-theme-border p-4 lg:px-10 bg-theme-bg">
-            <form onSubmit={e => { e.preventDefault(); send() }} className="flex items-center gap-4 bg-theme-elevated border border-theme-border rounded-lg px-4 py-3 focus-within:border-theme-strong transition-colors">
-               <Zap className="w-4 h-4 text-[#22c55e] shrink-0" />
-               <input 
-                  type="text" 
-                  value={input} 
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Ask about any product, deal, or comparison..."
-                  className="flex-1 bg-transparent text-theme-text placeholder:text-theme-dim text-[0.875rem] focus:outline-none"
-                  autoFocus
-               />
-               <button type="submit" disabled={!input.trim()} className="text-[0.75rem] uppercase tracking-widest font-medium text-theme-muted hover:text-theme-text disabled:opacity-20 disabled:cursor-not-allowed transition-colors px-3 py-1.5 border border-theme-border rounded-md hover:border-theme-strong">
-                  Send
-               </button>
-            </form>
-         </div>
+        <p className="text-[0.9rem] text-theme-secondary max-w-xl mt-3 leading-relaxed">
+          Your AI-powered buying intelligence. Ask anything about products — I analyze real data, not guesses.
+        </p>
       </div>
 
-      <div className="w-full max-w-4xl mt-5 flex gap-2.5 overflow-x-auto pb-4 hide-scrollbar">
-         {SUGGESTIONS.map((s, i) => (
-            <button key={i} onClick={() => send(s)} className="shrink-0 px-4 py-2 border border-theme-border text-[0.65rem] uppercase tracking-widest text-theme-muted hover:text-theme-text hover:border-theme-text transition-colors rounded-full bg-theme-bg hover:bg-theme-elevated">
-               {s}
+      {/* ══════ MEMORY PANEL ══════ */}
+      <AnimatePresence>
+        {showMemory && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="w-full max-w-4xl overflow-hidden mb-4"
+          >
+            <div className="bg-theme-elevated border border-[#a855f720] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-[#a855f7]" />
+                  <span className="text-[0.65rem] font-bold uppercase tracking-[0.15em] text-[#a855f7]">AI Memory</span>
+                </div>
+                <button onClick={clearMemory} className="flex items-center gap-1 text-[0.6rem] text-theme-dim hover:text-[#ef4444] transition-colors uppercase tracking-widest">
+                  <Trash2 className="w-3 h-3" /> Clear
+                </button>
+              </div>
+
+              {memory.queryCount === 0 ? (
+                <p className="text-[0.75rem] text-theme-dim italic">No memory yet. Start chatting and I'll learn your preferences!</p>
+              ) : (
+                <div className="space-y-3">
+                  {memory.preferredBrands.length > 0 && (
+                    <div>
+                      <p className="text-[0.6rem] text-theme-dim uppercase tracking-widest mb-1.5">Favorite Brands</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {memory.preferredBrands.map((b, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-full bg-[#3b82f612] border border-[#3b82f625] text-[0.6rem] font-medium text-[#3b82f6] capitalize">{b}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {memory.useCases.length > 0 && (
+                    <div>
+                      <p className="text-[0.6rem] text-theme-dim uppercase tracking-widest mb-1.5">Interests</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {memory.useCases.map((uc, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-full bg-[#22c55e12] border border-[#22c55e25] text-[0.6rem] font-medium text-[#22c55e] capitalize">{uc}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {memory.categoriesExplored.length > 0 && (
+                    <div>
+                      <p className="text-[0.6rem] text-theme-dim uppercase tracking-widest mb-1.5">Categories Explored</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {memory.categoriesExplored.map((cat, i) => (
+                          <span key={i} className="px-2.5 py-1 rounded-full bg-[#f59e0b12] border border-[#f59e0b25] text-[0.6rem] font-medium text-[#f59e0b]">{cat}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {memory.budgetRange && (
+                    <p className="text-[0.7rem] text-theme-secondary">Budget preference: <span className="font-medium text-theme-text">under ${memory.budgetRange}</span></p>
+                  )}
+                  <p className="text-[0.6rem] text-theme-dim">{memory.queryCount} queries processed</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══════ CHAT CONTAINER ══════ */}
+      <div className="w-full max-w-4xl flex flex-col flex-1 min-h-[65vh] border border-theme-border bg-theme-bg rounded-2xl overflow-hidden">
+
+        {/* Chat Header */}
+        <div className="border-b border-theme-border px-5 py-3 flex justify-between items-center bg-theme-elevated/50">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#22c55e20] to-[#3b82f620] flex items-center justify-center border border-[#22c55e20]">
+                <Sparkles className="w-4 h-4 text-[#22c55e]" />
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#22c55e] border-2 border-theme-elevated" />
+            </div>
+            <div>
+              <span className="text-[0.7rem] font-bold text-theme-text block">BrandBattle AI</span>
+              <span className="text-[0.55rem] text-[#22c55e] uppercase tracking-widest">Online · AI-Powered Buying Intelligence</span>
+            </div>
+          </div>
+          {hasConversation && (
+            <button onClick={clearChat} className="flex items-center gap-1 text-[0.6rem] text-theme-dim hover:text-theme-text transition-colors uppercase tracking-widest px-2 py-1 rounded-lg hover:bg-theme-subtle">
+              <Trash2 className="w-3 h-3" /> Clear
             </button>
-         ))}
+          )}
+        </div>
+
+        {/* Messages Area */}
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 lg:p-8 space-y-6 relative">
+
+          {/* Welcome State */}
+          {!hasConversation && !typing && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-12 text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#22c55e15] to-[#a855f715] flex items-center justify-center border border-[#22c55e15] mb-6"
+              >
+                <Sparkles className="w-10 h-10 text-[#22c55e]" />
+              </motion.div>
+
+              <h2 className="text-[1.5rem] font-[var(--font-display)] font-medium text-theme-text mb-3">What are you shopping for?</h2>
+              <p className="text-[0.85rem] text-theme-secondary max-w-md mb-8 leading-relaxed">{welcomeMessage}</p>
+
+              {/* Quick Chip Grid */}
+              <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+                {QUICK_CHIPS.map((chip, i) => (
+                  <motion.button
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 + i * 0.04 }}
+                    onClick={() => send(chip.query)}
+                    className="group flex items-center gap-1.5 px-4 py-2 rounded-xl border border-theme-border bg-theme-elevated hover:border-[#22c55e40] hover:bg-[#22c55e05] transition-all duration-300 text-[0.7rem] font-medium text-theme-muted hover:text-[#22c55e]"
+                  >
+                    <span>{chip.label}</span>
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Suggestion examples */}
+              <div className="mt-8 text-[0.7rem] text-theme-dim max-w-md">
+                <p className="mb-2 text-[0.6rem] uppercase tracking-widest">Try asking:</p>
+                <div className="space-y-1.5">
+                  {['"Best laptop for students under $600"', '"Gaming phone with great battery"', '"Compare Sony vs Bose headphones"', '"Budget 4K TV for streaming"'].map((q, i) => (
+                    <button key={i} onClick={() => send(q.replace(/"/g, ''))} className="block w-full text-left px-3 py-2 rounded-lg hover:bg-theme-elevated transition-colors text-theme-secondary hover:text-theme-text">
+                      <ChevronRight className="w-3 h-3 inline mr-1.5 text-theme-dim" />{q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Conversation Messages */}
+          <AnimatePresence>
+            {messages.map((msg, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {/* Bot Avatar */}
+                {msg.role === 'assistant' && (
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#22c55e20] to-[#3b82f620] border border-[#22c55e20] flex items-center justify-center shrink-0 mt-1">
+                    <Sparkles className="w-4 h-4 text-[#22c55e]" />
+                  </div>
+                )}
+
+                <div className={`max-w-[90%] min-w-[200px] ${msg.role === 'user' ? 'order-1' : ''}`}>
+                  {msg.role === 'user' ? (
+                    /* User message bubble */
+                    <div className="bg-theme-text text-theme-bg px-5 py-3 rounded-2xl rounded-br-sm">
+                      <p className="text-[0.85rem] leading-relaxed">{msg.content}</p>
+                    </div>
+                  ) : (
+                    /* AI structured response */
+                    <AIResponseCard data={msg.data} />
+                  )}
+                </div>
+
+                {/* User Avatar */}
+                {msg.role === 'user' && (
+                  <div className="w-8 h-8 rounded-xl bg-theme-text flex items-center justify-center shrink-0 mt-1 order-2">
+                    <User className="w-4 h-4 text-theme-bg" />
+                  </div>
+                )}
+              </motion.div>
+            ))}
+
+            {/* Typing Indicator */}
+            {typing && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#22c55e20] to-[#3b82f620] border border-[#22c55e20] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#22c55e]" />
+                </div>
+                <div className="bg-theme-elevated border border-theme-border rounded-2xl px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map(j => (
+                        <motion.span
+                          key={j}
+                          className="w-2 h-2 rounded-full bg-[#22c55e]"
+                          animate={{ opacity: [0.3, 1, 0.3] }}
+                          transition={{ duration: 1, repeat: Infinity, delay: j * 0.2 }}
+                        />
+                      ))}
+                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={typingStep}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        className="text-[0.7rem] text-theme-muted"
+                      >
+                        {TYPING_STEPS[typingStep]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ══════ INPUT BAR ══════ */}
+        <div className="border-t border-theme-border p-4 lg:px-8 bg-theme-bg/80 backdrop-blur-sm">
+          {/* Quick chips below chat (only after first message) */}
+          {hasConversation && (
+            <div className="flex gap-1.5 overflow-x-auto mb-3 pb-1 hide-scrollbar -mx-1 px-1">
+              {QUICK_CHIPS.slice(0, 8).map((chip, i) => (
+                <button
+                  key={i}
+                  onClick={() => send(chip.query)}
+                  className="shrink-0 px-3 py-1.5 rounded-lg border border-theme-border text-[0.6rem] font-medium text-theme-muted hover:text-[#22c55e] hover:border-[#22c55e30] transition-all bg-theme-elevated"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <form onSubmit={e => { e.preventDefault(); send() }} className="flex items-center gap-3">
+            <div className="flex-1 flex items-center gap-3 bg-theme-elevated border border-theme-border rounded-xl px-4 py-3 focus-within:border-[#22c55e40] focus-within:shadow-[0_0_20px_rgba(34,197,94,0.05)] transition-all">
+              <Search className="w-4 h-4 text-theme-dim shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder="Ask about any product, deal, or comparison..."
+                className="flex-1 bg-transparent text-theme-text placeholder:text-theme-dim text-[0.85rem] focus:outline-none"
+                disabled={typing}
+              />
+            </div>
+            <motion.button
+              type="submit"
+              disabled={!input.trim() || typing}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-11 h-11 rounded-xl flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed bg-[#22c55e] hover:bg-[#16a34a] text-black"
+            >
+              <Send className="w-4 h-4" />
+            </motion.button>
+          </form>
+        </div>
       </div>
     </div>
   )

@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, X, Trophy, TrendingUp, Star, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Search, X, Trophy, TrendingUp, Star, ArrowRight, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react'
 import { PRODUCTS, PLATFORMS, formatPrice } from '../data/demoData'
+import DeepCompare from '../components/DeepCompare'
 
 function ScoreBar({ value, max, delay = 0, winner = false }) {
   const percent = Math.min((value / max) * 100, 100)
@@ -56,6 +57,8 @@ export default function ComparePage() {
 
   const [searchSlot, setSearchSlot] = useState(null)
   const [query, setQuery] = useState('')
+  const [showDeepCompare, setShowDeepCompare] = useState(false)
+  const deepCompareRef = useRef(null)
 
   const searchResults = useMemo(() => {
     // Find the other product currently selected in the compare slot
@@ -333,16 +336,75 @@ export default function ComparePage() {
                          <Link to={`/product/${selected[winner].id}`} className="inline-flex items-center gap-2 mt-8 text-[0.75rem] font-medium uppercase tracking-[0.15em] text-theme-text hover:text-[#22c55e] transition-colors border-b border-transparent hover:border-[#22c55e] pb-1">
                            View Winner Details <ArrowRight className="w-3.5 h-3.5" />
                          </Link>
-                       </div>
-                     ) : (
-                       <p className="text-[1.125rem] sm:text-[1.25rem] leading-[1.6] tracking-tight text-theme-secondary">
-                         Both products demonstrate equivalent quantitative metrics. The optimal choice depends on subjective user preferences and specific use-case requirements. Refer to raw specifications for binary differentiation.
-                       </p>
-                     )}
+                      </div>
+                      ) : (
+                        <p className="text-[1.125rem] sm:text-[1.25rem] leading-[1.6] tracking-tight text-theme-secondary">
+                          Both products demonstrate equivalent quantitative metrics. The optimal choice depends on subjective user preferences and specific use-case requirements. Refer to raw specifications for binary differentiation.
+                        </p>
+                      )}
+                   </div>
+                 </div>
+              </div>
+
+              {/* ─── GO DEEP DOWN BUTTON ─── */}
+                  <div className="border-t border-theme-border py-16 px-6 flex justify-center">
+                    <motion.button
+                      onClick={() => {
+                        setShowDeepCompare(prev => !prev)
+                        if (!showDeepCompare) {
+                          setTimeout(() => {
+                            deepCompareRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          }, 100)
+                        }
+                      }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="group relative flex items-center gap-3 px-10 py-4 rounded-2xl font-medium text-[0.8rem] uppercase tracking-[0.15em] overflow-hidden transition-all duration-500"
+                      style={{
+                        background: showDeepCompare
+                          ? 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(59,130,246,0.12))'
+                          : 'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(168,85,247,0.08))',
+                        border: '1px solid rgba(34,197,94,0.25)',
+                        color: '#22c55e',
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#22c55e10] via-[#3b82f610] to-[#a855f710] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <Sparkles className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">{showDeepCompare ? 'Collapse Deep Analysis' : 'Go Deep Down'}</span>
+                      <motion.div
+                        animate={{ rotate: showDeepCompare ? 180 : 0 }}
+                        transition={{ duration: 0.4 }}
+                        className="relative z-10"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </motion.div>
+                      {!showDeepCompare && (
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3 z-10">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-40"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-[#22c55e]"></span>
+                        </span>
+                      )}
+                    </motion.button>
                   </div>
-                </div>
-             </div>
-          </div>
+
+                  {/* ─── DEEP COMPARE PANEL ─── */}
+                  <AnimatePresence>
+                    {showDeepCompare && (
+                      <motion.div
+                        ref={deepCompareRef}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-theme-border pt-16 px-2 md:px-6">
+                          <DeepCompare product1={selected[0]} product2={selected[1]} winnerIndex={winner} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+           </div>
         )}
       </div>
     </div>
