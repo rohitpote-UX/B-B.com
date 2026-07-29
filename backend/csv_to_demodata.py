@@ -17,7 +17,10 @@ CSV_PATHS = [
     os.path.join(os.path.dirname(__file__), "amazon_products.csv"),
     os.path.join(os.path.dirname(__file__), "ajio_products.csv")
 ]
-OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "frontend", "src", "data", "demoData.js")
+OUT_PATHS = [
+    os.path.join(os.path.dirname(__file__), "..", "frontend", "src", "data", "demoData.js"),
+    os.path.join(os.path.dirname(__file__), "..", "frontend-next", "src", "data", "demoData.js")
+]
 
 BRAND_MAP = {
     "iphone": "Apple", "apple": "Apple", "macbook": "Apple",
@@ -529,10 +532,11 @@ export const formatPrice = (usdPrice) => {{
   return `${{formatUSD(usdPrice)}} (${{formatINR(usdPrice)}})`;
 }}
 """
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
-        f.write(template)
-    print(f"Written {len(js_products)} products to {OUT_PATH}")
+    for pth in OUT_PATHS:
+        os.makedirs(os.path.dirname(pth), exist_ok=True)
+        with open(pth, "w", encoding="utf-8") as f:
+            f.write(template)
+        print(f"Written {len(js_products)} products to {pth}")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ reviews, deals, comparisons, and users for development and demonstration.
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 from datetime import datetime, timedelta, timezone
 import random
@@ -27,35 +28,36 @@ def seed_database():
     db = SessionLocal()
 
     try:
-        # Check if already seeded
-        if db.query(User).count() > 0:
-            print("Database already seeded. Skipping.")
+        # Check if already fully seeded
+        if db.query(User).count() > 0 and db.query(Product).count() >= 750:
+            print("Database already fully seeded with 750+ products. Skipping.")
             return
 
-        print("🌱 Seeding database...")
+        print("🌱 Seeding / expanding database catalog...")
 
         # ─── Users ───────────────────────────────────────────
-        admin = User(
-            email="admin@brandbattle.com",
-            username="admin",
-            hashed_password=hash_password("admin123456"),
-            full_name="Admin User",
-            role="admin",
-            is_active=True,
-            is_verified=True,
-        )
-        demo_user = User(
-            email="demo@brandbattle.com",
-            username="demo",
-            hashed_password=hash_password("demo123456"),
-            full_name="Demo User",
-            role="user",
-            is_active=True,
-            is_verified=True,
-        )
-        db.add_all([admin, demo_user])
-        db.flush()
-        print("  ✅ Users created")
+        if db.query(User).count() == 0:
+            admin = User(
+                email="admin@brandbattle.com",
+                username="admin",
+                hashed_password=hash_password("admin123456"),
+                full_name="Admin User",
+                role="admin",
+                is_active=True,
+                is_verified=True,
+            )
+            demo_user = User(
+                email="demo@brandbattle.com",
+                username="demo",
+                hashed_password=hash_password("demo123456"),
+                full_name="Demo User",
+                role="user",
+                is_active=True,
+                is_verified=True,
+            )
+            db.add_all([admin, demo_user])
+            db.flush()
+            print("  ✅ Users created")
 
         # ─── Categories ──────────────────────────────────────
         categories_data = [
@@ -73,11 +75,15 @@ def seed_database():
 
         categories = {}
         for cat_data in categories_data:
-            cat = Category(**cat_data)
-            db.add(cat)
-            db.flush()
-            categories[cat.slug] = cat
-        print("  ✅ Categories created")
+            existing_cat = db.query(Category).filter(Category.slug == cat_data["slug"]).first()
+            if not existing_cat:
+                cat = Category(**cat_data)
+                db.add(cat)
+                db.flush()
+                categories[cat.slug] = cat
+            else:
+                categories[existing_cat.slug] = existing_cat
+        print("  ✅ Categories verified/created")
 
         # ─── Brands ──────────────────────────────────────────
         brands_data = [
@@ -97,11 +103,15 @@ def seed_database():
 
         brands = {}
         for brand_data in brands_data:
-            brand = Brand(**brand_data)
-            db.add(brand)
-            db.flush()
-            brands[brand.slug] = brand
-        print("  ✅ Brands created")
+            existing_b = db.query(Brand).filter(Brand.slug == brand_data["slug"]).first()
+            if not existing_b:
+                brand = Brand(**brand_data)
+                db.add(brand)
+                db.flush()
+                brands[brand.slug] = brand
+            else:
+                brands[existing_b.slug] = existing_b
+        print("  ✅ Brands verified/created")
 
         # ─── Products ────────────────────────────────────────
         products_data = [
@@ -311,6 +321,7 @@ def seed_database():
             },
         ]
 
+        now = datetime.now(timezone.utc)
         platforms = ["amazon", "flipkart", "myntra", "ajio", "croma", "reliance_digital", "brand_store"]
 
         products = {}
@@ -335,6 +346,11 @@ def seed_database():
                 base_price = random.uniform(299, 429)
             elif "watch" in prod_data["slug"]:
                 base_price = random.uniform(399, 849)
+
+            existing_prod = db.query(Product).filter(Product.slug == prod_data["slug"]).first()
+            if existing_prod:
+                products[existing_prod.slug] = existing_prod
+                continue
 
             product = Product(
                 **prod_data,
@@ -477,33 +493,34 @@ def seed_database():
         print("  ✅ Deals created")
 
         # ─── Comparisons ────────────────────────────────────
-        comparison_pairs = [
-            ("iphone-17-pro-max", "samsung-galaxy-s26-ultra", True),
-            ("nike-air-max-270-react", "adidas-ultraboost-24", True),
-            ("allen-solly-slim-fit-oxford-shirt", "us-polo-classic-polo-tshirt", True),
-            ("sony-wh-1000xm6", "bose-quietcomfort-ultra", True),
-            ("macbook-pro-16-m5-pro", "dell-xps-15-2026", True),
-            ("apple-watch-ultra-3", "samsung-galaxy-watch-7-ultra", False),
-        ]
+        if db.query(Comparison).count() == 0:
+            comparison_pairs = [
+                ("iphone-17-pro-max", "samsung-galaxy-s26-ultra", True),
+                ("nike-air-max-270-react", "adidas-ultraboost-24", True),
+                ("allen-solly-slim-fit-oxford-shirt", "us-polo-classic-polo-tshirt", True),
+                ("sony-wh-1000xm6", "bose-quietcomfort-ultra", True),
+                ("macbook-pro-16-m5-pro", "dell-xps-15-2026", True),
+                ("apple-watch-ultra-3", "samsung-galaxy-watch-7-ultra", False),
+            ]
 
-        for slug1, slug2, is_trending in comparison_pairs:
-            p1 = products.get(slug1)
-            p2 = products.get(slug2)
-            if p1 and p2:
-                winner = p1 if (p1.average_rating or 0) >= (p2.average_rating or 0) else p2
-                comp = Comparison(
-                    slug=f"{slug1}-vs-{slug2}",
-                    title=f"{p1.name} vs {p2.name}",
-                    product_ids=[p1.id, p2.id],
-                    winner_id=winner.id,
-                    ai_summary=f"In the battle between {p1.name} and {p2.name}, **{winner.name}** edges ahead with a rating of {winner.average_rating}/5 and stronger overall performance.",
-                    feature_scores={"Rating": {p1.id: p1.average_rating, p2.id: p2.average_rating}},
-                    view_count=random.randint(100, 5000),
-                    is_trending=is_trending,
-                )
-                db.add(comp)
+            for slug1, slug2, is_trending in comparison_pairs:
+                p1 = products.get(slug1)
+                p2 = products.get(slug2)
+                if p1 and p2:
+                    winner = p1 if (p1.average_rating or 0) >= (p2.average_rating or 0) else p2
+                    comp = Comparison(
+                        slug=f"{slug1}-vs-{slug2}",
+                        title=f"{p1.name} vs {p2.name}",
+                        product_ids=[p1.id, p2.id],
+                        winner_id=winner.id,
+                        ai_summary=f"In the battle between {p1.name} and {p2.name}, **{winner.name}** edges ahead with a rating of {winner.average_rating}/5 and stronger overall performance.",
+                        feature_scores={"Rating": {p1.id: p1.average_rating, p2.id: p2.average_rating}},
+                        view_count=random.randint(100, 5000),
+                        is_trending=is_trending,
+                    )
+                    db.add(comp)
 
-        print("  ✅ Comparisons created")
+            print("  ✅ Comparisons created")
 
         # ─── Notifications for demo user ─────────────────────
         demo_notifications = [
@@ -512,19 +529,164 @@ def seed_database():
             {"type": "better_deal", "title": "Better Deal Detected! ⚡", "message": "Nike Air Max 270 is $20 cheaper on Myntra than Amazon.", "data": {"product_slug": "nike-air-max-270-react"}},
         ]
 
-        for notif_data in demo_notifications:
-            notif = Notification(user_id=demo_user.id, **notif_data)
-            db.add(notif)
+        demo_user = db.query(User).filter(User.username == "demo").first()
+        if demo_user:
+            for notif_data in demo_notifications:
+                notif = Notification(user_id=demo_user.id, **notif_data)
+                db.add(notif)
+            print("  ✅ Notifications created")
 
-        print("  ✅ Notifications created")
+        # ─── Ingest 650 Global Fashion Products via Pipeline ──────
+        print("  👕 Ingesting 650+ Global Fashion Products via Real-Time Pipeline...")
+        from pipeline.fashion_catalog import generate_fashion_catalog
+        from pipeline.orchestrator import pipeline_orchestrator
+
+        fashion_items = generate_fashion_catalog(950)
+        pipeline_orchestrator.run_pipeline_batch(fashion_items, db)
+        print("  ✅ Fashion Catalogue Expansion Ingested")
+
+        db.commit()
+
+        # ─── Post-Seed: Knowledge Graph Population ───────────────
+        print("\n  🧠 Building Product Knowledge Graph from seeded data...")
+        try:
+            from knowledge_graph.kg_service import kg_service
+            from knowledge_graph.normalizer_enhanced import EnhancedNormalizer
+            from knowledge_graph.relationship_engine import RelationshipEngine
+            from models import MasterProduct, MarketplaceOffer
+
+            enhanced_normalizer = EnhancedNormalizer()
+            rel_engine = RelationshipEngine()
+
+            # Link existing products to masters (products created by seed_data directly)
+            unlinked_products = db.query(Product).filter(
+                Product.master_product_id == None,
+                Product.is_active == True,
+            ).all()
+
+            kg_linked = 0
+            for product in unlinked_products:
+                try:
+                    # Build a normalized-like item from the existing product
+                    brand_name = product.brand.name if product.brand else "Generic"
+                    cat_name = product.category.name if product.category else "Electronics"
+
+                    pseudo_item = {
+                        "clean_title": product.name,
+                        "raw_title": product.name,
+                        "canonical_brand": brand_name,
+                        "canonical_category": cat_name,
+                        "normalized_specs": product.specifications or {},
+                        "suggested_slug": product.slug,
+                        "price": product.current_best_price or 0,
+                        "original_price": product.highest_price,
+                        "marketplace": product.current_best_platform or "amazon",
+                        "product_url": f"https://brandbattle.com/product/{product.slug}",
+                        "image_url": product.image_url,
+                        "features": product.features,
+                        "tags": product.tags,
+                        "rating": product.average_rating,
+                        "total_reviews": product.total_reviews,
+                        "seller_name": f"{brand_name} Official",
+                        "availability": True,
+                        "currency": "INR",
+                        "specifications": product.specifications or {},
+                        "category_hint": cat_name,
+                        "brand_hint": brand_name,
+                        "description": product.description,
+                    }
+
+                    # Enhance with KG normalizer
+                    enhanced = enhanced_normalizer.enhance_normalized_item(pseudo_item)
+
+                    # Find or create master
+                    master, is_new, confidence = kg_service.find_or_create_master(enhanced, db)
+
+                    # Link the product to its master
+                    product.master_product_id = master.id
+
+                    # Create offers from existing Price records
+                    product_prices = db.query(Price).filter(
+                        Price.product_id == product.id,
+                        Price.is_available == True,
+                    ).all()
+
+                    for price_rec in product_prices:
+                        offer_item = dict(enhanced)
+                        offer_item["marketplace"] = price_rec.platform
+                        offer_item["price"] = price_rec.price
+                        offer_item["original_price"] = price_rec.original_price
+                        offer_item["product_url"] = price_rec.url or f"https://{price_rec.platform}.com/product/{product.slug}"
+                        offer_item["seller_name"] = price_rec.seller_name
+                        offer_item["rating"] = product.average_rating
+                        offer_item["total_reviews"] = product.total_reviews
+
+                        kg_service.link_offer(master.id, offer_item, confidence, db)
+
+                    kg_linked += 1
+                except Exception as e:
+                    logger_msg = f"KG link failed for product {product.id}: {e}"
+                    print(f"    ⚠️  {logger_msg}")
+                    continue
+
+            db.flush()
+            print(f"  ✅ Linked {kg_linked} products to Knowledge Graph masters")
+
+            # Auto-detect relationships between masters
+            print("  🔗 Detecting product relationships...")
+            all_masters = db.query(MasterProduct).filter(MasterProduct.is_active == True).all()
+            total_rels = 0
+            for master in all_masters:
+                try:
+                    created = rel_engine.detect_relationships(master.id, db)
+                    total_rels += len(created)
+                except Exception:
+                    continue
+
+            db.flush()
+            print(f"  ✅ Detected {total_rels} product relationships")
+
+            # Compute graph metrics
+            metrics = kg_service.compute_graph_metrics(db)
+
+            # Store initial historical snapshot
+            from models import HistoricalGraphSnapshot
+            from sqlalchemy import func
+            avg_completeness = db.query(func.avg(MasterProduct.completeness_score)).filter(MasterProduct.is_active == True).scalar() or 0.0
+            snapshot = HistoricalGraphSnapshot(
+                snapshot_type="daily",
+                total_masters=metrics["total_masters"],
+                total_offers=metrics["total_offers"],
+                total_relationships=metrics["total_relationships"],
+                total_attributes=metrics["total_attributes"],
+                duplicate_rate=metrics["duplicate_detection_rate"],
+                avg_confidence=metrics["avg_confidence"],
+                avg_completeness=round(avg_completeness, 1),
+                avg_offer_freshness=1.0,
+                metrics_json=metrics,
+            )
+            db.add(snapshot)
+            db.flush()
+
+            print(f"  ✅ Knowledge Graph Metrics:")
+            print(f"     → {metrics['total_masters']} master products")
+            print(f"     → {metrics['total_offers']} marketplace offers")
+            print(f"     → {metrics['total_relationships']} relationships")
+            print(f"     → {metrics['orphan_products']} orphan products")
+            print(f"     → {metrics['avg_confidence']:.3f} avg confidence")
+            print(f"     → {round(avg_completeness, 1)}% avg completeness score")
+
+        except Exception as e:
+            print(f"  ⚠️  Knowledge Graph population failed (non-fatal): {e}")
+            # KG population failure should not break seeding
 
         db.commit()
         print("\n🎉 Database seeded successfully!")
-        print(f"  → {len(products)} products")
-        print(f"  → {len(brands_data)} brands")
-        print(f"  → {len(categories_data)} categories")
-        print(f"  → 2 users (admin + demo)")
-        print(f"  → {len(comparison_pairs)} comparisons")
+        print(f"  → {db.query(Product).count()} products")
+        print(f"  → {db.query(Brand).count()} brands")
+        print(f"  → {db.query(Category).count()} categories")
+        print(f"  → {db.query(User).count()} users")
+        print(f"  → {db.query(Comparison).count()} comparisons")
         print("\n📧 Login credentials:")
         print("  Admin: admin@brandbattle.com / admin123456")
         print("  Demo:  demo@brandbattle.com / demo123456")

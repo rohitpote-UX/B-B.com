@@ -8,12 +8,20 @@ Docs: http://localhost:8000/docs
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import time
 
 from config import settings
-from database import init_db
+from database import init_db, check_db_health
+from redis_client import is_redis_healthy
+from middleware_security import SecurityHeadersMiddleware, RedisRateLimiterMiddleware
+from logging_config import setup_logging, logger
+
+# Initialize structured logging
+setup_logging()
 
 
 # ─── Lifespan ────────────────────────────────────────────────────────
@@ -22,9 +30,9 @@ from database import init_db
 async def lifespan(app: FastAPI):
     """Startup and shutdown events."""
     # Startup
-    print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION} [{settings.ENV}]")
     init_db()
-    print("✅ Database initialized")
+    logger.info("✅ Database initialized")
 
     # Auto-seed in debug mode
     if settings.DEBUG:
@@ -32,12 +40,12 @@ async def lifespan(app: FastAPI):
             from seed_data import seed_database
             seed_database()
         except Exception as e:
-            print(f"⚠️  Seed skipped: {e}")
+            logger.warning(f"⚠️  Seed skipped: {e}")
 
     yield
 
     # Shutdown
-    print("👋 Shutting down")
+    logger.info("👋 Shutting down application workers")
 
 
 # ─── App ─────────────────────────────────────────────────────────────
@@ -55,8 +63,24 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# ─── CORS ────────────────────────────────────────────────────────────
+# ─── Middlewares ──────────────────────────────────────────────────────
 
+# GZip compression for responses >= 1000 bytes
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Trusted Host Security Header
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.allowed_hosts_list
+)
+
+# Custom Security Headers
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Redis Rate Limiting
+app.add_middleware(RedisRateLimiterMiddleware)
+
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -88,6 +112,8 @@ from routers.alerts import router as alerts_router
 from routers.alerts import notifications_router
 from routers.admin import router as admin_router
 from routers.brands import router as brands_router
+from routers.pipeline import router as pipeline_router
+from routers.knowledge_graph import router as kg_router
 
 app.include_router(auth_router)
 app.include_router(products_router)
@@ -98,15 +124,18 @@ app.include_router(alerts_router)
 app.include_router(notifications_router)
 app.include_router(admin_router)
 app.include_router(brands_router)
+app.include_router(pipeline_router)
+app.include_router(kg_router)
 
 
-# ─── Root Endpoints ─────────────────────────────────────────────────
+# ─── Root & Health Endpoints ─────────────────────────────────────────
 
 @app.get("/", tags=["Root"])
 async def root():
     return {
         "name": settings.APP_NAME,
         "version": settings.APP_VERSION,
+        "environment": settings.ENV,
         "status": "running",
         "docs": "/docs",
         "description": "AI-powered product comparison & deal discovery platform",
@@ -115,7 +144,26 @@ async def root():
 
 @app.get("/health", tags=["Root"])
 async def health_check():
-    return {"status": "healthy", "version": settings.APP_VERSION}
+    """Liveness probe detailing core subsystem status."""
+    db_ok = check_db_health()
+    redis_ok = is_redis_healthy()
+    status_str = "healthy" if (db_ok and redis_ok) else "degraded"
+    
+    return {
+        "status": status_str,
+        "version": settings.APP_VERSION,
+        "environment": settings.ENV,
+        "database": "connected" if db_ok else "unreachable",
+        "redis_cache": "connected" if redis_ok else "disabled",
+    }
+
+
+@app.get("/ready", tags=["Root"])
+async def readiness_check():
+    """Readiness probe for Kubernetes / Container Orchestrators."""
+    if not check_db_health():
+        return JSONResponse(status_code=503, content={"status": "not_ready", "reason": "database_unavailable"})
+    return {"status": "ready"}
 
 
 @app.get("/api/stats", tags=["Root"])
@@ -151,6 +199,7 @@ async def not_found_handler(request: Request, exc):
 
 @app.exception_handler(500)
 async def server_error_handler(request: Request, exc):
+    logger.error(f"Internal server error handling request {request.url}: {exc}")
     return JSONResponse(
         status_code=500,
         content={"detail": "Internal server error"},

@@ -1,0 +1,432 @@
+================================================================================
+                    BRAND BATTLE (BandB) - APPLICATION WORKFLOW & ARCHITECTURE
+================================================================================
+
+Target Audience: Developers, System Architects, and Contributors.
+Purpose        : Comprehensive onboarding guide detailing application workflow,
+                 system architecture, directory structure, module responsibilities,
+                 database schema, scraper pipelines, and core functions.
+
+================================================================================
+1. OVERVIEW & SYSTEM ARCHITECTURE
+================================================================================
+
+Brand Battle (BandB) is an AI-powered product comparison and deal discovery platform.
+It aggregates products, real-time platform pricing (Amazon, Flipkart, Myntra, Ajio,
+Croma, Reliance Digital, Tata CLiQ), user reviews, historical price drops, and seller deals.
+
+Core Capabilities:
+  1. Multi-Platform Aggregation & Comparison: Side-by-side spec and price matrix.
+  2. AI Advisor & Shopping Assistant: Natural language product queries and recommendations.
+  3. Price Tracking & Price Alerts: Historical price charts and target price alerts.
+  4. Fake Discount Detection: Compares inflated "original MRP" vs historical market trends.
+  5. Cart Optimizer: Finds the single or multi-vendor combination to minimize total cart cost.
+  6. E-Commerce Data Ingestion: Automated Node.js and Python scrapers exporting CSV data into seed pipelines.
+
+High-Level Architecture Diagram:
+
+   +-------------------------------------------------------------------------+
+   |                             FRONTEND (UI)                               |
+   |              React + Vite (Single Page Application - SPA)              |
+   |                     Runs on: http://localhost:5173                       |
+   +-------------------------------------------------------------------------+
+                                      |  ^
+                       HTTP / JSON    |  | REST API Requests
+                      (Axios/Fetch)   v  |
+   +-------------------------------------------------------------------------+
+   |                             BACKEND (API)                               |
+   |                         FastAPI (Python 3.10+)                          |
+   |                     Runs on: http://localhost:8000                       |
+   |                                                                         |
+   |  +------------+  +--------------+  +---------------+  +--------------+  |
+   |  | Auth / JWT |  | Products/Scp |  | Compare Engine|  | AI Advisor   |  |
+   |  +------------+  +--------------+  +---------------+  +--------------+  |
+   +-------------------------------------------------------------------------+
+       |                  |                        |                  |
+       v                  v                        v                  v
++--------------+   +--------------+        +---------------+  +---------------+
+|   Database   |   | Data Pipeline|        | OpenAI API /  |  | Scraper Data  |
+| SQLAlchemy / |   |  Scraper CSV |        | Mock AI Engine|  |  (Node/Py)    |
+| SQLite / Pg  |   | Ingestion    |        +---------------+  +---------------+
++--------------+   +--------------+
+
+
+================================================================================
+2. COMPLETE REPOSITORY STRUCTURE
+================================================================================
+
+BandB/
+├── backend/                        # FastAPI Backend Application & Ingestion Tools
+│   ├── main.py                     # Application entry point, CORS, routers, lifespan auto-seed
+│   ├── config.py                   # Pydantic Settings (ENV variables, DB URL, JWT secrets)
+│   ├── database.py                 # SQLAlchemy DB engine, SessionLocal, Base model setup
+│   ├── models.py                   # 16 SQLAlchemy ORM Data Models (User, Product, Price, Deal, etc.)
+│   ├── schemas.py                  # Pydantic V2 schemas for input validation & response serialization
+│   ├── auth.py                     # Security utilities (Bcrypt password hashing, JWT creation/verification)
+│   ├── seed_data.py                # Database seeder (seeds categories, brands, products, deals on debug start)
+│   ├── csv_to_demodata.py          # Data pipeline script transforming scraper CSVs -> frontend/src/data/demoData.js
+│   ├── requirements.txt            # Python dependencies (FastAPI, SQLAlchemy, Uvicorn, Pydantic, etc.)
+│   ├── .env.example                # Template for environment configuration
+│   ├── brandbattle.db              # SQLite Database (generated in local development mode)
+│   │
+│   ├── scrapers & csv data/        # Automated Data Extraction Tools
+│   │   ├── amazon_scraper.js       # Node.js Puppeteer/Playwright scraper for Amazon India
+│   │   ├── myntra_scraper.js       # Node.js scraper for Myntra products & pricing
+│   │   ├── ajio_scraper.js         # Node.js scraper for Ajio fashion & tech items
+│   │   ├── flipkart_scraper.py     # Python BeautifulSoup/Selenium scraper for Flipkart
+│   │   ├── amazon_products.csv     # Raw extracted product catalog from Amazon
+│   │   ├── flipkart_products.csv   # Raw extracted product catalog from Flipkart
+│   │   ├── myntra_products.csv     # Raw extracted product catalog from Myntra
+│   │   └── ajio_products.csv       # Raw extracted product catalog from Ajio
+│   │
+│   └── routers/                    # Modular API Route Handlers
+│       ├── auth.py                 # Endpoint: Registration, Login, Current User Profile
+│       ├── products.py             # Endpoint: Product List, Search, Detail, Price History, Reviews
+│       ├── compare.py              # Endpoint: Comparison Creation, Retrieval, Trending, Community Voting
+│       ├── ai.py                   # Endpoint: AI Advisor Recommendations, Summarization, Cart Optimization
+│       ├── deals.py                # Endpoint: Active Deals, Category Filtering, Fake Discount Detection
+│       ├── alerts.py               # Endpoint: Target Price Alerts & In-App Notifications
+│       ├── brands.py               # Endpoint: Brand Profiles, Trust Scores, Brand Products
+│       └── admin.py                # Endpoint: System Analytics, User/Product Management
+│
+├── frontend/                       # React + Vite Frontend Application
+│   ├── index.html                  # HTML5 Entry point
+│   ├── vite.config.js              # Vite bundler configuration
+│   ├── package.json                # Frontend dependencies (React, Lucide Icons, Chart.js/Recharts, etc.)
+│   └── src/
+│       ├── main.jsx                # React DOM root entry point
+│       ├── App.jsx                 # App routing logic, page layout, global state context
+│       ├── index.css               # Global CSS styling rules & theme tokens
+│       │
+│       ├── pages/                  # Page Views / Routes
+│       │   ├── LandingPage.jsx     # Homepage with hero section, trending comparisons, featured deals
+│       │   ├── DiscoverPage.jsx    # Category browsing, filterable product grid
+│       │   ├── SearchPage.jsx      # Live full-text search results page
+│       │   ├── ProductDetailPage.jsx# Detailed specs, multi-platform prices, price history chart
+│       │   ├── ComparePage.jsx     # Side-by-side comparison matrix for 2-5 products
+│       │   ├── AIAdvisorPage.jsx   # Interactive AI shopping assistant chat interface
+│       │   ├── DealsPage.jsx       # Daily deals list, fake discount badges, store filters
+│       │   ├── ProfilePage.jsx     # User dashboard: saved comparisons, active alerts, history
+│       │   ├── LoginPage.jsx       # User authentication login view
+│       │   └── SignupPage.jsx      # User account creation view
+│       │
+│       ├── components/             # Reusable UI Components
+│       │   ├── Navbar.jsx          # Header navigation bar with search input & auth status
+│       │   ├── Footer.jsx          # App footer with navigation links & copyright
+│       │   ├── MobileNav.jsx       # Responsive bottom navigation bar for mobile screens
+│       │   ├── DeepCompare.jsx     # Detailed feature comparison table with winner highlights
+│       │   └── AIResponseCard.jsx  # Formatted UI card for AI recommendation outputs
+│       │
+│       └── data/
+│           └── demoData.js         # Transformed product dataset used for offline/fallback mode
+│
+├── README.md                       # Project documentation & overview
+└── workflow.txt                    # THIS FILE (Complete Developer & System Guide)
+
+
+================================================================================
+3. END-TO-END APPLICATION WORKFLOWS
+================================================================================
+
+Workflow A: Product Scraping & Ingestion Pipeline
+--------------------------------------------------
+1. Scraper Execution:
+   - Node scripts (amazon_scraper.js, myntra_scraper.js, ajio_scraper.js) or Python scripts
+     (flipkart_scraper.py) launch automated browser sessions to parse product titles, MRP,
+     sale prices, spec tables, ratings, images, and buy URLs.
+2. Raw CSV Output:
+   - Results are written to backend/*_products.csv files.
+3. Data Transformation (csv_to_demodata.py):
+   - csv_to_demodata.py parses all CSV files, normalizes platform pricing, extracts brands using
+     BRAND_MAP, structures spec key-values into JSON, and auto-generates frontend/src/data/demoData.js.
+4. DB Seeding (seed_data.py):
+   - When FastAPI boots in DEBUG mode, seed_data.py reads product schemas and populates the database
+     tables (`brands`, `categories`, `products`, `prices`, `price_history`, `deals`, `comparisons`).
+
+Workflow B: Product Discovery & Search Workflow
+-----------------------------------------------
+1. User enters a query into the Search input on Navbar or SearchPage.
+2. Frontend sends GET request to `/api/products/search?q={query}`.
+3. Backend searches title, description, brand name, and tags using SQLAlchemy filters.
+4. Response returns matching items including title, brand, category, best price, ratings, and image.
+5. Search query is asynchronously logged in `search_history` for user preferences and admin analytics.
+
+Workflow C: Product Detail & Multi-Platform Price Comparison
+------------------------------------------------------------
+1. User navigates to `/product/:id`.
+2. Frontend triggers requests:
+   - GET `/api/products/{id}` (Product specs, brand, AI summary)
+   - GET `/api/products/{id}/prices` (Array of price offers across Amazon, Flipkart, Myntra, etc.)
+   - GET `/api/products/{id}/price-history` (Date-stamped historical price points)
+   - GET `/api/products/{id}/reviews` (User reviews + AI sentiment score)
+3. UI renders:
+   - Lowest price highlight banner & direct store links.
+   - Price history interactive chart showing whether current price is a good time to buy.
+   - Feature specification table.
+
+Workflow D: Side-by-Side Comparison Matrix
+------------------------------------------
+1. User selects 2 to 5 products and opens ComparePage (`/compare?ids=1,2,3`).
+2. Frontend sends POST to `/api/compare/` with product IDs.
+3. Backend fetches all product records, runs comparison scoring logic (evaluating price-to-performance,
+   specs, user rating), computes AI summary winner, and creates a `comparisons` database record.
+4. DeepCompare.jsx component renders side-by-side spec grid with color-coded winner highlights.
+5. Users can click "Vote Winner" -> POST `/api/compare/vote` to log community votes.
+
+Workflow E: AI Advisor & Recommendation Workflow
+------------------------------------------------
+1. User asks a natural language question on AIAdvisorPage (e.g. "Best noise cancelling headphones under ₹15,000 for travel").
+2. Frontend sends POST `/api/ai/recommend` with request body `{ prompt, max_budget, category_id, priority }`.
+3. Backend AI router (`routers/ai.py`):
+   - If `OPENAI_API_KEY` is set: Formulates a structured system prompt, feeds matching product context from the DB, and requests JSON response from OpenAI GPT.
+   - If `OPENAI_API_KEY` is missing: Executes fallback rule engine that filters products by category and budget, computes best-value score, and formats structured response.
+4. AI response rendered via `AIResponseCard.jsx` displaying:
+   - Recommended Product Cards
+   - "Why This Fits You" reasoning
+   - Pros & Cons breakdown
+   - Best purchase platform link
+
+Workflow F: Price Alert & In-App Notification Workflow
+------------------------------------------------------
+1. User clicks "Set Price Alert" on a product and sets target price (e.g. Target: ₹12,000).
+2. Frontend sends POST `/api/alerts/` (requires Bearer JWT Token).
+3. Backend stores `price_alerts` record linking user_id, product_id, target_price.
+4. When price updates occur (via scraper or price refresh API):
+   - System checks active alerts where current_price <= target_price.
+   - Triggers a new `notifications` record for the user and marks alert as triggered (`is_triggered = True`).
+
+Workflow G: Cart Optimization Workflow
+--------------------------------------
+1. User submits a list of desired items on the AI Advisor page.
+2. Frontend sends POST `/api/ai/cart-optimize` with product IDs.
+3. Backend computes single-vendor total vs multi-vendor split cart total (factoring in platform discounts & shipping).
+4. Returns recommended cart combination showing maximum potential savings.
+
+
+================================================================================
+4. BACKEND ARCHITECTURE & FUNCTION REFERENCE
+================================================================================
+
+1. Core Modules:
+----------------
+- main.py:
+  * `lifespan(app)`: Async context manager initializing DB (`init_db()`) and auto-seeding sample data when `DEBUG=True`.
+  * Middleware: CORS Middleware configuration and HTTP request timer header (`X-Process-Time`).
+  * Router Registration: Mounts all 9 feature routers (`auth`, `products`, `compare`, `ai`, `deals`, `alerts`, `notifications`, `admin`, `brands`).
+
+- config.py:
+  * Uses Pydantic BaseSettings to parse environment variables from `.env`.
+  * Settings: `APP_NAME`, `DEBUG`, `DATABASE_URL`, `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `OPENAI_API_KEY`, `CORS_ORIGINS`.
+
+- database.py:
+  * `engine`: SQLAlchemy engine (supports SQLite `check_same_thread=False` and PostgreSQL).
+  * `SessionLocal`: Session factory bound to engine.
+  * `get_db()`: Dependency provider yielding DB sessions with automatic cleanup.
+  * `init_db()`: Calls `Base.metadata.create_all(bind=engine)`.
+
+- models.py (16 Database Tables):
+  * `User`: Auth credentials, role (user/admin), full name, avatar, preferences.
+  * `Brand`: Brand profile, logo, trust score (0-100), website URL.
+  * `Category`: Parent-child hierarchical category structure.
+  * `Product`: Core product info, model, specs (JSON), AI summary, best price, ratings count.
+  * `Price`: Platform-specific pricing (Amazon, Flipkart, etc.), sale price, original price, product link, stock status.
+  * `PriceHistory`: Price snapshot history per product & platform with timestamp.
+  * `Review`: Customer/expert reviews with sentiment rating score (-1.0 to 1.0).
+  * `Comparison`: Saved side-by-side comparison sessions, winner product ID, AI comparison summary.
+  * `SavedComparison`: Junction table linking Users to saved Comparisons.
+  * `Vote`: User votes for product winners in comparisons.
+  * `Deal`: Active deal items, discount percentage, fake discount flags (`is_fake_discount`, `real_market_price`), expiration time.
+  * `PriceAlert`: Target price alerts set by users.
+  * `Notification`: System/alert notifications with read/unread status.
+  * `AffiliateLink`: Monetization links with click and conversion tracking.
+  * `SearchHistory`: Search query records linked to user sessions.
+  * `AnalyticsEvent`: Page view & event telemetry for backend dashboard analytics.
+
+- schemas.py (Pydantic V2 Models):
+  * User Schemas: `UserCreate`, `UserLogin`, `UserResponse`, `Token`, `TokenData`.
+  * Product Schemas: `ProductResponse`, `ProductDetailResponse`, `ProductSearchFilter`.
+  * Compare Schemas: `ComparisonCreate`, `ComparisonResponse`, `VoteCreate`.
+  * AI Schemas: `AIRecommendRequest`, `AISummarizeRequest`, `AICartOptimizeRequest`, `AIRecommendResponse`.
+  * Alert/Deal Schemas: `PriceAlertCreate`, `PriceAlertResponse`, `DealResponse`, `NotificationResponse`.
+
+- auth.py:
+  * `verify_password(plain_password, hashed_password)`: Verifies password hash using passlib Bcrypt.
+  * `get_password_hash(password)`: Hashes raw user passwords.
+  * `create_access_token(data, expires_delta)`: Encodes JWT token with payload & expiration.
+  * `get_current_user(token, db)`: FastAPI Security dependency resolving Bearer token to DB `User`.
+  * `get_current_admin_user(current_user)`: Authorization dependency ensuring `user.role == 'admin'`.
+
+- seed_data.py:
+  * `seed_database()`: Programmatically populates database with brands (Apple, Samsung, Sony, etc.), categories, sample products with specs, multi-vendor prices, deals, and initial user accounts.
+
+2. API Routers (`backend/routers/`):
+------------------------------------
+- auth.py:
+  * `POST /api/auth/signup`: Registers new user account, enforces unique email.
+  * `POST /api/auth/login`: Authenticates credentials, returns OAuth2 JWT access token.
+  * `GET /api/auth/me`: Returns logged-in user profile.
+  * `PUT /api/auth/me`: Updates profile details and preferences.
+
+- products.py:
+  * `GET /api/products/`: Paginated list of products with filters (category_id, brand_id, min_price, max_price, sort_by).
+  * `GET /api/products/search`: Full-text product search with term matching across titles and tags.
+  * `GET /api/products/{id}`: Detailed product info including complete specifications and brand info.
+  * `GET /api/products/{id}/prices`: Array of current platform prices.
+  * `GET /api/products/{id}/price-history`: Historical price points array for chart visualization.
+  * `GET /api/products/{id}/reviews`: Reviews listing with sentiment analysis scores.
+
+- compare.py:
+  * `POST /api/compare/`: Creates new comparison session for product IDs list.
+  * `GET /api/compare/{slug_or_id}`: Retrieves comparison detail, spec matrix, and current community vote breakdown.
+  * `GET /api/compare/trending`: Fetches popular comparisons.
+  * `POST /api/compare/vote`: Casts vote for winning product.
+
+- ai.py:
+  * `POST /api/ai/recommend`: Generates AI-driven product recommendations tailored to query, budget, and priority.
+  * `POST /api/ai/summarize`: Produces AI comparative summary for a group of product IDs.
+  * `POST /api/ai/cart-optimize`: Computes vendor combination for lowest overall price.
+
+- deals.py:
+  * `GET /api/deals/`: Retrieves list of active deals with fake-discount indicators.
+  * `GET /api/deals/{id}`: Returns individual deal details.
+
+- alerts.py:
+  * `POST /api/alerts/`: Creates target price alert for current user.
+  * `GET /api/alerts/`: Lists active price alerts for logged in user.
+  * `DELETE /api/alerts/{id}`: Deletes specified alert.
+  * `GET /api/notifications/`: Fetches user notifications.
+  * `PUT /api/notifications/{id}/read`: Marks notification as read.
+
+- brands.py:
+  * `GET /api/brands/`: Lists brand directory with trust scores.
+  * `GET /api/brands/{id}`: Fetches individual brand profile and associated product catalog.
+
+- admin.py:
+  * `GET /api/admin/analytics`: Aggregates system metric counts (total users, products, deals, page views).
+  * CRUD endpoints for managing users, products, and deal moderation.
+
+
+================================================================================
+5. FRONTEND ARCHITECTURE & UI COMPONENTS
+================================================================================
+
+1. Application Core & Routing (`App.jsx`):
+   - Managed via React Router DOM.
+   - Header Navigation (`Navbar.jsx`) and Footer (`Footer.jsx`) wrap main routes.
+   - Mobile Navigation (`MobileNav.jsx`) renders fixed bottom bar for small viewports.
+
+2. Views Breakdown (`frontend/src/pages/`):
+   - LandingPage.jsx: Hero query search, category quick-links, top deal cards, trending comparison preview.
+   - DiscoverPage.jsx: Sidebar filters (category, brand, price slider, rating filter), product card grid.
+   - SearchPage.jsx: Search query result grid with live sorting options.
+   - ProductDetailPage.jsx: Image gallery, multi-store price cards, interactive price history graph, full specs table.
+   - ComparePage.jsx: Multi-product selection modal, comparison header, deep compare table component.
+   - AIAdvisorPage.jsx: Conversational query prompt input, budget range selector, AI response card rendering.
+   - DealsPage.jsx: Filterable deals board (All Deals, Genuine Discounts, Under ₹1000, Platform filter).
+   - ProfilePage.jsx: Tabbed dashboard (Saved Comparisons, Active Price Alerts, Recent Searches, Settings).
+   - LoginPage.jsx & SignupPage.jsx: Auth forms styled with input validation feedback.
+
+3. Components Breakdown (`frontend/src/components/`):
+   - Navbar.jsx: Sticky navigation header, quick search bar, notification badge dropdown, profile menu.
+   - Footer.jsx: Platform info links, social icons, newsletter subscription form.
+   - MobileNav.jsx: Compact bottom navigation bar optimized for mobile touch interaction.
+   - DeepCompare.jsx: Comprehensive tabular matrix comparing features, price variations, community votes, and overall scores.
+   - AIResponseCard.jsx: Structured card rendering AI recommendation title, score badge, reasoning highlights, and buy action buttons.
+
+4. Data Store (`frontend/src/data/demoData.js`):
+   - Generated by `csv_to_demodata.py`.
+   - Serves as realistic offline fallback data when backend connection is unavailable.
+
+
+================================================================================
+6. SCRAPER PIPELINE & DATA INGESTION WORKFLOW
+================================================================================
+
+Data Extraction Architecture:
+
+ [Target Sites]       [Scraper Tools]                 [Raw CSV]               [Data Transformer]         [Storage / UI]
+ Amazon ---------> amazon_scraper.js -------> amazon_products.csv ------+
+ Flipkart -------> flipkart_scraper.py ------> flipkart_products.csv ----+---> csv_to_demodata.py ------> demoData.js
+ Myntra ---------> myntra_scraper.js -------> myntra_products.csv ------+                                 (Frontend)
+ Ajio -----------> ajio_scraper.js ---------> ajio_products.csv --------+                                     &
+                                                                                                         seed_data.py
+                                                                                                         (Database)
+
+Scraper Details:
+- amazon_scraper.js & myntra_scraper.js & ajio_scraper.js:
+  Uses Node.js + Puppeteer to bypass dynamic anti-bot elements, scroll product listing pages, extract title,
+  pricing, ratings, image URLs, and store landing pages.
+- flipkart_scraper.py:
+  Python scraper leveraging BeautifulSoup & requests to extract product specs, title, MRP, and discount info.
+- csv_to_demodata.py:
+  * Processes all 4 CSV files.
+  * Normalizes price strings (removing currency symbols, commas).
+  * Uses `BRAND_MAP` to categorize products by known brands.
+  * Generates consistent product IDs, ratings, review counts, and spec structures.
+  * Output written directly into `frontend/src/data/demoData.js`.
+
+
+================================================================================
+7. DEVELOPER ONBOARDING & QUICKSTART GUIDE
+================================================================================
+
+Prerequisites:
+- Python 3.10+
+- Node.js 18+ and npm
+- Git
+
+Step-by-Step Setup:
+
+1. Clone Repository & Open Root:
+   cd BandB
+
+2. Setup & Run Backend:
+   cd backend
+   python -m venv venv
+   # Activate virtual environment:
+   # Windows: venv\Scripts\activate
+   # Mac/Linux: source venv/bin/activate
+
+   pip install -r requirements.txt
+   copy .env.example .env
+
+   # Launch FastAPI Dev Server (Auto-seeds database on start in debug mode)
+   uvicorn main:app --reload --port 8000
+
+   Backend Server: http://localhost:8000
+   Interactive API Docs (Swagger): http://localhost:8000/docs
+
+3. Setup & Run Frontend:
+   cd ../frontend
+   npm install
+   npm run dev
+
+   Frontend Dev Server: http://localhost:5173
+
+4. Verification Checklist:
+   [ ] Visit http://localhost:5173 - Landing page should display categories and product cards.
+   [ ] Visit http://localhost:8000/docs - Test GET /api/products/ endpoint via Swagger UI.
+   [ ] Navigate to AI Advisor on frontend - Send a recommendation request to test AI / Mock engine.
+   [ ] Open Compare Page - Select 2 products to test side-by-side DeepCompare matrix.
+
+
+================================================================================
+8. KEY CODING CONVENTIONS & DESIGN PATTERNS
+================================================================================
+
+1. FastAPI Async Handlers & Pydantic Validation:
+   - Use Pydantic schemas for all route inputs and responses (`response_model=schemas.ProductResponse`).
+   - Keep route handlers thin; delegate database operations cleanly using SQLAlchemy sessions (`db: Session = Depends(get_db)`).
+
+2. Defensive AI Engine Fallback:
+   - In `routers/ai.py`, always check if `settings.OPENAI_API_KEY` is present. If absent or if OpenAI call fails, gracefully fallback to rule-based recommendations without crashing the UI.
+
+3. Price History Tracking Pattern:
+   - Whenever product price updates occur, append a new `PriceHistory` snapshot record instead of mutating past entries to maintain chart integrity.
+
+4. Shared Design System in Frontend:
+   - Components rely on unified theme classes in `index.css` / `style.css` for dark-mode support, consistent card glassmorphism, and responsive grids.
+
+================================================================================
+                                END OF DOCUMENTATION
+================================================================================

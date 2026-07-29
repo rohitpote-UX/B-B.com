@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # ─── PostgreSQL Database Service ─────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: bb_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: brandbattle
+      POSTGRES_PASSWORD: brandbattle_secret_2026
+      POSTGRES_DB: brandbattle_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brandbattle -d brandbattle_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis Caching & Celery Broker ──────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: bb_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── FastAPI Backend API Service ────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: bb_backend
+    restart: always
+    environment:
+      ENV: production
+      DEBUG: "false"
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: brandbattle
+      POSTGRES_PASSWORD: brandbattle_secret_2026
+      POSTGRES_DB: brandbattle_db
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:5173"
+      ALLOWED_HOSTS: "*"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ─── Celery Background Tasks Worker ─────────────────────────────────
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: bb_celery_worker
+    command: celery -A celery_app worker --loglevel=info
+    restart: always
+    environment:
+      ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: brandbattle
+      POSTGRES_PASSWORD: brandbattle_secret_2026
+      POSTGRES_DB: brandbattle_db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ─── Next.js Frontend Service ────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: bb_frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      NEXT_PUBLIC_API_URL: "http://backend:8000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -12,6 +12,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 import enum
+import uuid
 
 
 # ─── Enums ───────────────────────────────────────────────────────────
@@ -52,6 +53,70 @@ class DealStatus(str, enum.Enum):
     ACTIVE = "active"
     EXPIRED = "expired"
     UPCOMING = "upcoming"
+
+
+class RelationshipType(str, enum.Enum):
+    SAME_PRODUCT = "same_product"
+    ALTERNATIVE = "alternative"
+    NEWER_VERSION = "newer_version"
+    OLDER_VERSION = "older_version"
+    PREMIUM_ALTERNATIVE = "premium_alternative"
+    BUDGET_ALTERNATIVE = "budget_alternative"
+    SIMILAR_STYLE = "similar_style"
+    SAME_BRAND = "same_brand"
+    FREQUENTLY_COMPARED = "frequently_compared"
+    COMPATIBLE = "compatible"
+    ACCESSORY = "accessory"
+    REPLACEMENT = "replacement"
+    COMPLEMENTARY = "complementary"
+
+
+class OfferStatus(str, enum.Enum):
+    ACTIVE = "active"
+    UNAVAILABLE = "unavailable"
+    DISCONTINUED = "discontinued"
+    PRICE_ERROR = "price_error"
+
+
+class AttributeType(str, enum.Enum):
+    TEXT = "text"
+    NUMERIC = "numeric"
+    BOOLEAN = "boolean"
+    ENUM = "enum"
+    COLOR = "color"
+    DIMENSION = "dimension"
+
+
+class ProductLifecycleState(str, enum.Enum):
+    ACTIVE = "active"
+    DRAFT = "draft"
+    ARCHIVED = "archived"
+    MERGED = "merged"
+    DEPRECATED = "deprecated"
+    DELETED = "deleted"
+
+
+class ReviewQueueStatus(str, enum.Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    MERGED = "merged"
+    SPLIT = "split"
+
+
+class AuditEventType(str, enum.Enum):
+    MASTER_CREATED = "master_created"
+    MASTER_UPDATED = "master_updated"
+    MASTER_MERGED = "master_merged"
+    MASTER_ARCHIVED = "master_archived"
+    MASTER_ROLLBACK = "master_rollback"
+    OFFER_LINKED = "offer_linked"
+    OFFER_UPDATED = "offer_updated"
+    RELATIONSHIP_CREATED = "relationship_created"
+    RELATIONSHIP_REMOVED = "relationship_removed"
+    REVIEW_TRIGGERED = "review_triggered"
+    REVIEW_DECIDED = "review_decided"
+    CACHE_INVALIDATED = "cache_invalidated"
 
 
 # ─── Users ───────────────────────────────────────────────────────────
@@ -152,6 +217,7 @@ class Product(Base):
     is_active = Column(Boolean, default=True)
     view_count = Column(Integer, default=0)
     compare_count = Column(Integer, default=0)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -163,9 +229,12 @@ class Product(Base):
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
     alerts = relationship("PriceAlert", back_populates="product", cascade="all, delete-orphan")
     affiliate_links = relationship("AffiliateLink", back_populates="product", cascade="all, delete-orphan")
+    master_product = relationship("MasterProduct", back_populates="products")
 
     __table_args__ = (
         Index("idx_product_search", "name", "is_active"),
+        Index("idx_product_category_brand", "category_id", "brand_id", "is_active"),
+        Index("idx_product_price_score", "current_best_price", "deal_score", "average_rating"),
     )
 
 
@@ -316,6 +385,10 @@ class PriceAlert(Base):
     user = relationship("User", back_populates="alerts")
     product = relationship("Product", back_populates="alerts")
 
+    __table_args__ = (
+        Index("idx_alert_eval", "user_id", "status", "target_price"),
+    )
+
 
 # ─── Notifications ───────────────────────────────────────────────────
 
@@ -405,6 +478,7 @@ class Deal(Base):
 
     __table_args__ = (
         Index("idx_deal_active", "status", "expires_at"),
+        Index("idx_deal_platform_score", "platform", "deal_score", "discount_percentage"),
     )
 
 
@@ -424,4 +498,471 @@ class AnalyticsEvent(Base):
 
     __table_args__ = (
         Index("idx_analytics_type_date", "event_type", "created_at"),
+    )
+
+
+# ─── Knowledge Graph: Master Products ────────────────────────────────
+
+class MasterProduct(Base):
+    """Canonical product identity — the single source of truth for a real-world product."""
+    __tablename__ = "master_products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    uuid = Column(String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()), index=True)
+    canonical_name = Column(String(500), nullable=False, index=True)
+    slug = Column(String(500), unique=True, nullable=False, index=True)
+    brand_id = Column(Integer, ForeignKey("brands.id"), nullable=True)
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
+    subcategory_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
+    description = Column(Text, nullable=True)
+    ai_summary = Column(Text, nullable=True)
+
+    # Product identity fields
+    gender = Column(String(20), nullable=True)  # men, women, unisex, kids
+    color_family = Column(String(50), nullable=True)  # normalized: blue, red, black, etc.
+    material = Column(String(100), nullable=True)  # normalized: leather, cotton, polyester, etc.
+    product_type = Column(String(100), nullable=True)  # sneakers, laptop, headphones, etc.
+    model_series = Column(String(200), nullable=True)  # Air Force, Galaxy S, MacBook Pro, etc.
+    model_name = Column(String(200), nullable=True)  # Air Force 1 '07, Galaxy S26 Ultra, etc.
+    variant = Column(String(200), nullable=True)  # 256GB White, Slim Fit, etc.
+    release_year = Column(Integer, nullable=True)
+    global_sku = Column(String(100), nullable=True, index=True)
+
+    # Aggregated data (computed from offers)
+    specifications = Column(JSON, nullable=True)  # Merged specifications from all offers
+    features = Column(JSON, nullable=True)  # Merged feature list
+    images = Column(JSON, nullable=True)  # Aggregated image URLs from all sources
+    primary_image_url = Column(String(500), nullable=True)
+
+    # Computed metrics
+    offer_count = Column(Integer, default=0)
+    lowest_price = Column(Float, nullable=True)
+    highest_price = Column(Float, nullable=True)
+    average_rating = Column(Float, default=0.0)
+    total_reviews = Column(Integer, default=0)
+    confidence_score = Column(Float, default=0.0)  # 0.0 - 1.0 matching confidence
+
+    # Enterprise Hardening fields
+    public_id = Column(String(50), unique=True, nullable=True, index=True)  # e.g., BB-PRD-0000000001
+    version = Column(Integer, default=1, nullable=False)  # Optimistic concurrency lock
+    status = Column(String(20), default=ProductLifecycleState.ACTIVE.value, index=True)
+    completeness_score = Column(Float, default=0.0)  # 0.0 - 100.0
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    is_verified = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    brand = relationship("Brand", foreign_keys=[brand_id])
+    category = relationship("Category", foreign_keys=[category_id])
+    subcategory = relationship("Category", foreign_keys=[subcategory_id])
+    products = relationship("Product", back_populates="master_product")
+    offers = relationship("MarketplaceOffer", back_populates="master_product", cascade="all, delete-orphan")
+    attributes = relationship("ProductAttribute", back_populates="master_product", cascade="all, delete-orphan")
+    kg_images = relationship("ProductImage", back_populates="master_product", cascade="all, delete-orphan")
+    tags = relationship("ProductTag", back_populates="master_product", cascade="all, delete-orphan")
+    search_metadata = relationship("SearchMetadata", back_populates="master_product", uselist=False, cascade="all, delete-orphan")
+    versions = relationship("MasterProductVersion", back_populates="master_product", cascade="all, delete-orphan")
+    confidence_history = relationship("MatchingConfidenceHistory", back_populates="master_product", cascade="all, delete-orphan")
+    review_items = relationship("ReviewQueueItem", back_populates="master_product", cascade="all, delete-orphan")
+
+    # Relationship edges (outgoing)
+    outgoing_relationships = relationship(
+        "ProductRelationship",
+        foreign_keys="ProductRelationship.source_master_id",
+        back_populates="source_master",
+        cascade="all, delete-orphan",
+    )
+    incoming_relationships = relationship(
+        "ProductRelationship",
+        foreign_keys="ProductRelationship.target_master_id",
+        back_populates="target_master",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (
+        Index("idx_master_brand_cat", "brand_id", "category_id", "is_active"),
+        Index("idx_master_model", "model_series", "model_name"),
+        Index("idx_master_search", "canonical_name", "product_type", "is_active"),
+    )
+
+
+# ─── Knowledge Graph: Marketplace Offers ─────────────────────────────
+
+class MarketplaceOffer(Base):
+    """A single marketplace listing linked to a canonical MasterProduct."""
+    __tablename__ = "marketplace_offers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    marketplace = Column(String(50), nullable=False, index=True)
+    marketplace_product_id = Column(String(200), nullable=True)  # External ID on marketplace
+    title = Column(String(500), nullable=False)  # Original marketplace title
+    url = Column(String(1000), nullable=True)
+    image_url = Column(String(500), nullable=True)
+
+    # Pricing
+    price = Column(Float, nullable=False)
+    original_price = Column(Float, nullable=True)
+    discount_percentage = Column(Float, nullable=True)
+    currency = Column(String(10), default="INR")
+
+    # Seller
+    seller_name = Column(String(255), nullable=True)
+    seller_rating = Column(Float, nullable=True)
+
+    # Availability
+    stock_status = Column(String(50), default="in_stock")  # in_stock, low_stock, out_of_stock
+    is_available = Column(Boolean, default=True)
+    delivery_time = Column(String(100), nullable=True)  # "2-3 days", "Same day", etc.
+    shipping_cost = Column(Float, default=0.0)
+    warranty = Column(String(200), nullable=True)
+
+    # Reviews (marketplace-specific)
+    review_count = Column(Integer, default=0)
+    rating = Column(Float, nullable=True)
+
+    # Status & Freshness Tracking
+    status = Column(String(20), default=OfferStatus.ACTIVE.value, index=True)
+    match_confidence = Column(Float, default=0.0)  # Confidence this offer matches the master
+    last_scraped = Column(DateTime(timezone=True), nullable=True)
+    last_crawl_time = Column(DateTime(timezone=True), nullable=True)
+    last_price_update = Column(DateTime(timezone=True), nullable=True)
+    last_availability_check = Column(DateTime(timezone=True), nullable=True)
+    freshness_score = Column(Float, default=1.0)  # 0.0 - 1.0
+    update_frequency_hours = Column(Float, default=24.0)
+    data_source_reliability = Column(Float, default=1.0)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="offers")
+
+    __table_args__ = (
+        UniqueConstraint("master_product_id", "marketplace", "url", name="uq_offer_marketplace_url"),
+        Index("idx_offer_marketplace", "marketplace", "is_available"),
+        Index("idx_offer_price", "master_product_id", "price", "is_available"),
+    )
+
+
+# ─── Knowledge Graph: Product Relationships ──────────────────────────
+
+class ProductRelationship(Base):
+    """Typed, weighted edge between two MasterProducts in the knowledge graph."""
+    __tablename__ = "product_relationships"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_master_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    target_master_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    relationship_type = Column(String(50), nullable=False, index=True)
+    confidence = Column(Float, default=1.0)  # 0.0 - 1.0
+    weight = Column(Float, default=1.0)  # Signal-weighted score for graph traversal
+    discovery_method = Column(String(50), default="auto")  # auto, ai_semantic, manual
+    creation_source = Column(String(50), default="system")
+    signal_breakdown = Column(JSON, nullable=True)  # {"brand": 1.0, "category": 1.0, "price": 0.8}
+    last_validated_at = Column(DateTime(timezone=True), nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    is_bidirectional = Column(Boolean, default=False)
+    metadata_json = Column(JSON, nullable=True)  # Extra context (e.g., {"reason": "same brand + category"})
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    source_master = relationship("MasterProduct", foreign_keys=[source_master_id], back_populates="outgoing_relationships")
+    target_master = relationship("MasterProduct", foreign_keys=[target_master_id], back_populates="incoming_relationships")
+
+    __table_args__ = (
+        UniqueConstraint("source_master_id", "target_master_id", "relationship_type", name="uq_product_relationship"),
+        Index("idx_rel_type", "relationship_type", "confidence"),
+    )
+
+
+# ─── Knowledge Graph: Product Attributes ─────────────────────────────
+
+class ProductAttribute(Base):
+    """Structured, searchable product attributes for a MasterProduct."""
+    __tablename__ = "product_attributes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    attribute_name = Column(String(100), nullable=False, index=True)
+    attribute_value = Column(String(500), nullable=False)
+    attribute_type = Column(String(20), default=AttributeType.TEXT.value)
+    unit = Column(String(50), nullable=True)  # "GB", "mm", "g", etc.
+    is_searchable = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="attributes")
+
+    __table_args__ = (
+        UniqueConstraint("master_product_id", "attribute_name", name="uq_product_attribute"),
+        Index("idx_attr_search", "attribute_name", "attribute_value", "is_searchable"),
+    )
+
+
+# ─── Knowledge Graph: Product Images ─────────────────────────────────
+
+class ProductImage(Base):
+    """Multi-source image collection for a MasterProduct."""
+    __tablename__ = "product_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    url = Column(String(1000), nullable=False)
+    source_marketplace = Column(String(50), nullable=True)
+    alt_text = Column(String(500), nullable=True)
+    is_primary = Column(Boolean, default=False)
+    sort_order = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="kg_images")
+
+
+# ─── Knowledge Graph: Product Tags ───────────────────────────────────
+
+class ProductTag(Base):
+    """Searchable, categorized tags for a MasterProduct."""
+    __tablename__ = "product_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    tag = Column(String(100), nullable=False, index=True)
+    tag_type = Column(String(50), nullable=True)  # category, style, occasion, material, season, etc.
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="tags")
+
+    __table_args__ = (
+        UniqueConstraint("master_product_id", "tag", name="uq_product_tag"),
+        Index("idx_tag_type", "tag_type", "tag"),
+    )
+
+
+# ─── Knowledge Graph: Search Metadata ────────────────────────────────
+
+class SearchMetadata(Base):
+    """Pre-computed search optimization data for a MasterProduct."""
+    __tablename__ = "search_metadata"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, unique=True)
+    search_vector = Column(Text, nullable=True)  # Concatenated searchable text
+    synonyms = Column(JSON, nullable=True)  # ["sneakers", "trainers", "kicks"]
+    boost_score = Column(Float, default=1.0)  # Search ranking boost
+    trending_score = Column(Float, default=0.0)  # Computed from views/comparisons
+    popularity_score = Column(Float, default=0.0)
+    freshness_score = Column(Float, default=1.0)
+    quality_score = Column(Float, default=1.0)
+    completeness_score = Column(Float, default=0.0)
+    trend_score = Column(Float, default=0.0)
+    click_score = Column(Float, default=0.0)
+    comparison_score = Column(Float, default=0.0)
+    recommendation_score = Column(Float, default=0.0)
+    ai_confidence = Column(Float, default=1.0)
+    update_frequency = Column(String(50), default="daily")
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="search_metadata")
+
+
+# ─── Knowledge Graph: Graph Metrics ──────────────────────────────────
+
+class GraphMetrics(Base):
+    """Singleton row tracking overall Knowledge Graph health and statistics."""
+    __tablename__ = "graph_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    total_masters = Column(Integer, default=0)
+    total_offers = Column(Integer, default=0)
+    total_relationships = Column(Integer, default=0)
+    total_attributes = Column(Integer, default=0)
+    orphan_products = Column(Integer, default=0)  # Products without a master
+    avg_confidence = Column(Float, default=0.0)
+    avg_offers_per_master = Column(Float, default=0.0)
+    duplicate_detection_rate = Column(Float, default=0.0)
+    last_computed = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── Knowledge Graph: Enterprise Hardening Tables ─────────────────────
+
+class MasterProductVersion(Base):
+    """Immutable historical version snapshot for a MasterProduct."""
+    __tablename__ = "master_product_versions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    version_number = Column(Integer, nullable=False)
+    canonical_name = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    primary_image_url = Column(String(500), nullable=True)
+    category_id = Column(Integer, nullable=True)
+    brand_id = Column(Integer, nullable=True)
+    specifications = Column(JSON, nullable=True)
+    features = Column(JSON, nullable=True)
+    images = Column(JSON, nullable=True)
+    attributes_json = Column(JSON, nullable=True)
+    ai_summary = Column(Text, nullable=True)
+    search_metadata_json = Column(JSON, nullable=True)
+    tags_json = Column(JSON, nullable=True)
+    changed_fields = Column(JSON, nullable=True)  # Array of field names modified
+    source_of_change = Column(String(100), default="system")  # pipeline, admin_api, merge, rollback
+    updated_by = Column(String(100), default="system")
+    change_reason = Column(String(500), nullable=True)
+    previous_version_id = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="versions")
+
+    __table_args__ = (
+        UniqueConstraint("master_product_id", "version_number", name="uq_master_version"),
+        Index("idx_version_lookup", "master_product_id", "version_number"),
+    )
+
+
+class MatchingConfidenceHistory(Base):
+    """Historical audit log of AI product matching decisions and confidence scores."""
+    __tablename__ = "matching_confidence_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=False, index=True)
+    offer_id = Column(Integer, nullable=True)
+    matching_score = Column(Float, nullable=False)
+    algorithm_version = Column(String(50), default="v2.0_multi_signal")
+    model_version = Column(String(50), default="gemini-flash-kg")
+    decision_type = Column(String(50), nullable=False)  # auto_matched, auto_created, manual_review, merged
+    matching_signals = Column(JSON, nullable=True)  # Signal breakdown dict
+    reviewer_id = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="confidence_history")
+
+    __table_args__ = (
+        Index("idx_conf_hist_master", "master_product_id", "created_at"),
+    )
+
+
+class GraphAuditEvent(Base):
+    """Immutable audit event log for every mutation on the Product Knowledge Graph."""
+    __tablename__ = "graph_audit_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()), index=True)
+    correlation_id = Column(String(36), nullable=True, index=True)
+    actor = Column(String(100), default="system")  # system, admin_user, background_job
+    entity_type = Column(String(100), nullable=False, index=True)  # master_product, offer, relationship, etc.
+    entity_id = Column(Integer, nullable=False, index=True)
+    action = Column(String(100), nullable=False, index=True)  # create, update, merge, archive, delete
+    previous_value = Column(JSON, nullable=True)
+    new_value = Column(JSON, nullable=True)
+    reason = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("idx_audit_entity", "entity_type", "entity_id", "created_at"),
+        Index("idx_audit_action", "action", "created_at"),
+    )
+
+
+class ReviewQueueItem(Base):
+    """Intelligent human-in-the-loop review queue item for low-confidence or conflicting matches."""
+    __tablename__ = "review_queue_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=True, index=True)
+    offer_id = Column(Integer, nullable=True)
+    trigger_reason = Column(String(255), nullable=False)  # low_confidence, uncertain_duplicate, brand_mismatch
+    priority = Column(String(20), default="medium")  # low, medium, high, critical
+    status = Column(String(20), default=ReviewQueueStatus.PENDING.value, index=True)
+    confidence_score = Column(Float, default=0.0)
+    metadata_json = Column(JSON, nullable=True)  # Raw payload and candidate info
+    reviewer_id = Column(Integer, nullable=True)
+    decision_notes = Column(Text, nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    master_product = relationship("MasterProduct", back_populates="review_items")
+
+    __table_args__ = (
+        Index("idx_review_queue_status", "status", "priority", "created_at"),
+    )
+
+
+class HistoricalGraphSnapshot(Base):
+    """Historical periodic snapshot of overall Knowledge Graph health and growth metrics."""
+    __tablename__ = "historical_graph_snapshots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    snapshot_date = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    snapshot_type = Column(String(20), default="daily")  # daily, weekly, monthly
+    total_masters = Column(Integer, default=0)
+    total_offers = Column(Integer, default=0)
+    total_relationships = Column(Integer, default=0)
+    total_attributes = Column(Integer, default=0)
+    duplicate_rate = Column(Float, default=0.0)
+    avg_confidence = Column(Float, default=0.0)
+    avg_completeness = Column(Float, default=0.0)
+    avg_offer_freshness = Column(Float, default=0.0)
+    metrics_json = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("idx_snapshot_date_type", "snapshot_type", "snapshot_date"),
+    )
+
+
+# ─── Matching Engine Phase 2 Tables ──────────────────────────────────
+
+class MatchingHistoryLog(Base):
+    """Immutable audit trail log for Hybrid AI Product Matching Engine decisions."""
+    __tablename__ = "matching_history_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    listing_title = Column(String(500), nullable=False, index=True)
+    marketplace = Column(String(50), nullable=False)
+    candidates_evaluated_count = Column(Integer, default=0)
+    winning_candidate_id = Column(Integer, ForeignKey("master_products.id"), nullable=True, index=True)
+    decision = Column(String(50), nullable=False, index=True)  # auto_matched, create_new, route_review, merged
+    confidence_score = Column(Float, nullable=False)
+    signal_breakdown_json = Column(JSON, nullable=True)
+    explainability_json = Column(JSON, nullable=True)
+    embedding_model_version = Column(String(50), default="tf_idf_v1_ngram")
+    algorithm_version = Column(String(50), default="v2.5_hybrid_ensemble")
+    execution_time_ms = Column(Float, default=0.0)
+    fallback_used = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+    # Relationship
+    winning_candidate = relationship("MasterProduct", foreign_keys=[winning_candidate_id])
+
+    __table_args__ = (
+        Index("idx_match_history_decision", "decision", "confidence_score"),
+    )
+
+
+class TrainingFeedbackRecord(Base):
+    """Human-in-the-loop reviewer feedback dataset for continuous learning."""
+    __tablename__ = "training_feedback_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=True, index=True)
+    offer_id = Column(Integer, nullable=True)
+    candidate_master_id = Column(Integer, nullable=True)
+    feedback_type = Column(String(50), nullable=False, index=True)  # approved_match, rejected_match, false_positive, false_negative, manual_correction
+    signal_snapshot_json = Column(JSON, nullable=True)
+    reviewer_id = Column(Integer, nullable=True)
+    decision_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("idx_feedback_type", "feedback_type", "created_at"),
     )
