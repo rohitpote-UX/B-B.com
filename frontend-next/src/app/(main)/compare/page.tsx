@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, Trophy, TrendingUp, Star, ArrowRight, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react'
 import { PRODUCTS, PLATFORMS, formatPrice } from '@/data/demoData'
 import DeepCompare from '@/components/compare/DeepCompare'
+import AIDecisionWorkspace from '@/components/compare/AIDecisionWorkspace'
 
 function ScoreBar({ value, max, delay = 0, winner = false }: { value: number; max: number; delay?: number; winner?: boolean }) {
   const percent = Math.min((value / max) * 100, 100)
@@ -32,17 +33,18 @@ export default function ComparePage() {
   
   let initP2 = id2 ? PRODUCTS.find(p => p.id === id2) : null;
   // Enforce category similarity at initialization!
-  if (initP2 && initP1 && initP2.category !== initP1.category) {
+  const currentCat = (initP1.category || '').toLowerCase().trim()
+  if (initP2 && (initP2.category || '').toLowerCase().trim() !== currentCat) {
     initP2 = null;
   }
   
   if (!initP2) {
     if (initP1) {
-      const similarProducts = PRODUCTS.filter(p => p.category === initP1.category && p.id !== initP1.id);
+      const similarProducts = PRODUCTS.filter(p => (p.category || '').toLowerCase().trim() === currentCat && p.id !== initP1.id);
       similarProducts.sort((a, b) => Math.abs(a.bestPrice - initP1.bestPrice) - Math.abs(b.bestPrice - initP1.bestPrice));
-      initP2 = similarProducts[0] || PRODUCTS.find(p => p.id !== initP1.id && p.category === initP1.category);
+      initP2 = similarProducts[0] || PRODUCTS.find(p => p.id !== initP1.id && (p.category || '').toLowerCase().trim() === currentCat);
     }
-    if (!initP2) initP2 = PRODUCTS.find(p => p.id !== initP1.id) || PRODUCTS[1];
+    if (!initP2) initP2 = PRODUCTS.find(p => p.id !== initP1.id && (p.category || '').toLowerCase().trim() === currentCat) || initP1;
   }
 
   const [selected, setSelected] = useState([initP1, initP2])
@@ -50,10 +52,12 @@ export default function ComparePage() {
   useEffect(() => {
     // If URL query params update, ensure the categories remain aligned
     let resolvedP2 = initP2;
-    if (initP1 && resolvedP2 && initP1.category !== resolvedP2.category) {
-      const similar = PRODUCTS.filter(p => p.category === initP1.category && p.id !== initP1.id);
+    const cat1 = (initP1?.category || '').toLowerCase().trim()
+    const cat2 = (resolvedP2?.category || '').toLowerCase().trim()
+    if (initP1 && resolvedP2 && cat1 !== cat2) {
+      const similar = PRODUCTS.filter(p => (p.category || '').toLowerCase().trim() === cat1 && p.id !== initP1.id);
       similar.sort((a, b) => Math.abs(a.bestPrice - initP1.bestPrice) - Math.abs(b.bestPrice - initP1.bestPrice));
-      resolvedP2 = similar[0] || PRODUCTS.find(p => p.id !== initP1.id && p.category === initP1.category) || PRODUCTS[1];
+      resolvedP2 = similar[0] || PRODUCTS.find(p => p.id !== initP1.id && (p.category || '').toLowerCase().trim() === cat1) || initP1;
     }
     setSelected([initP1, resolvedP2])
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,19 +132,19 @@ export default function ComparePage() {
         </div>
 
         {/* ─── Product Selection Area ─── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-theme-subtle border border-theme-border mb-48">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-theme-subtle border border-theme-border mb-24 md:mb-48">
           {[0, 1].map(slot => {
             const product = selected[slot]
             const isWinner = winner === slot
             const otherProduct = selected[1 - slot]
             return (
-              <div key={slot} className={`bg-theme-bg w-full h-full relative p-12 lg:p-24 flex flex-col items-center text-center transition-all duration-500 ${isWinner ? 'ring-1 ring-[#22c55e]/30' : ''}`}>
+              <div key={slot} className={`bg-theme-bg w-full h-full relative p-6 sm:p-12 lg:p-24 flex flex-col items-center text-center transition-all duration-500 ${isWinner ? 'ring-1 ring-[#22c55e]/30' : ''}`}>
                 {/* Winner badge */}
                 {isWinner && selected[0] && selected[1] && (
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="absolute top-6 right-6 z-10 flex items-center gap-1.5 bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20 px-3 py-1.5 rounded-full"
+                    className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-1.5 bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20 px-3 py-1.5 rounded-full"
                   >
                     <Trophy className="w-3 h-3" />
                     <span className="text-[0.6rem] font-bold uppercase tracking-widest">Winner</span>
@@ -148,10 +152,10 @@ export default function ComparePage() {
                 )}
 
                 {searchSlot === slot ? (
-                  <div className="w-full max-w-md absolute inset-0 bg-theme-elevated z-10 p-12 flex flex-col mx-auto">
-                     <div className="flex items-center justify-between mb-12 border-b border-theme-border pb-6">
+                  <div className="w-full max-w-md absolute inset-0 bg-theme-elevated z-10 p-6 sm:p-12 flex flex-col mx-auto">
+                     <div className="flex items-center justify-between mb-8 sm:mb-12 border-b border-theme-border pb-4 sm:pb-6">
                         <input type="text" autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder={otherProduct ? `SEARCH ${otherProduct.category.toUpperCase()}...` : "SEARCH CATALOG..."} className="w-full bg-transparent outline-none text-[0.875rem] uppercase tracking-widest font-medium" />
-                        <button onClick={() => {setSearchSlot(null); setQuery('')}}><X className="w-5 h-5 text-theme-secondary" /></button>
+                        <button onClick={() => {setSearchSlot(null); setQuery('')}} className="p-2"><X className="w-5 h-5 text-theme-secondary" /></button>
                      </div>
                      <div className="flex-1 overflow-y-auto w-full text-left space-y-4 pr-1">
                         <p className="text-[0.65rem] font-bold text-theme-muted uppercase tracking-[0.15em] mb-4">
@@ -159,8 +163,8 @@ export default function ComparePage() {
                         </p>
                         {searchResults.length > 0 ? (
                           searchResults.map(p => (
-                            <button key={p.id} onClick={() => selectProduct(p, slot)} className="w-full flex items-center gap-4 text-left group border-b border-theme-border pb-3 last:border-b-0">
-                               <div className="w-12 h-12 bg-white flex items-center justify-center p-1.5 mb-0 rounded-[2px] border border-theme-border"><img src={p.image} alt="" className="mix-blend-multiply max-w-full max-h-full object-contain" /></div>
+                            <button key={p.id} onClick={() => selectProduct(p, slot)} className="w-full flex items-center gap-4 text-left group border-b border-theme-border pb-3 last:border-b-0 min-h-[48px]">
+                               <div className="w-12 h-12 bg-white flex items-center justify-center p-1.5 mb-0 rounded-[2px] border border-theme-border shrink-0"><img src={p.image} alt="" className="mix-blend-multiply max-w-full max-h-full object-contain" /></div>
                                <div className="flex-1 min-w-0">
                                   <p className="text-[0.875rem] font-medium text-theme-text group-hover:text-theme-secondary transition-colors line-clamp-1">{p.name}</p>
                                   <p className="text-[0.75rem] text-theme-muted mt-0.5">{formatPrice(p.bestPrice)}</p>
@@ -176,15 +180,15 @@ export default function ComparePage() {
                   </div>
                 ) : product ? (
                   <>
-                     <div className="h-80 mb-16 flex items-center justify-center w-full">
+                     <div className="h-48 sm:h-80 mb-6 sm:mb-16 flex items-center justify-center w-full">
                         <img src={product.image} alt="" className="max-h-full max-w-full object-contain filter drop-shadow-xl" />
                      </div>
-                     <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] mb-4">{product.brand}</span>
-                     <h3 className="text-[1.5rem] sm:text-[2rem] lg:text-[2.5rem] font-medium leading-[1.1] tracking-tight text-theme-text mb-6">{product.name}</h3>
-                     <p className="text-[2rem] font-medium text-theme-text mb-8">{formatPrice(product.bestPrice)}</p>
+                     <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] mb-3 sm:mb-4">{product.brand}</span>
+                     <h3 className="text-[1.25rem] sm:text-[2rem] lg:text-[2.5rem] font-medium leading-[1.1] tracking-tight text-theme-text mb-4 sm:mb-6">{product.name}</h3>
+                     <p className="text-[1.5rem] sm:text-[2rem] font-medium text-theme-text mb-6 sm:mb-8">{formatPrice(product.bestPrice)}</p>
                      
                      {/* Quick stats */}
-                     <div className="flex items-center gap-6 mb-10">
+                     <div className="flex items-center gap-6 mb-8 sm:mb-10">
                        <div className="flex items-center gap-1.5 text-[0.75rem] text-theme-secondary">
                          <Star className="w-3.5 h-3.5 fill-current text-amber-400" />
                          <span>{product.rating}/5</span>
@@ -195,13 +199,13 @@ export default function ComparePage() {
                        </div>
                      </div>
                      
-                     <button onClick={() => setSearchSlot(slot)} className="text-[0.75rem] font-medium uppercase tracking-[0.15em] hover:text-theme-text transition-colors pb-2 mt-2 border-b border-transparent hover:border-theme-text">
+                     <button onClick={() => setSearchSlot(slot)} className="text-[0.75rem] font-medium uppercase tracking-[0.15em] hover:text-theme-text transition-colors pb-2 mt-2 border-b border-transparent hover:border-theme-text min-h-[48px] px-4 inline-flex items-center">
                         Change Subject
                      </button>
                   </>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center py-40">
-                     <button onClick={() => setSearchSlot(slot)} className="text-[2rem] font-[var(--font-display)] text-theme-dim hover:text-theme-text transition-colors">
+                  <div className="flex-1 flex items-center justify-center py-24 sm:py-40">
+                     <button onClick={() => setSearchSlot(slot)} className="text-[1.5rem] sm:text-[2rem] font-[var(--font-display)] text-theme-dim hover:text-theme-text transition-colors min-h-[48px] px-4">
                         + SELECT PRODUCT
                      </button>
                   </div>
@@ -213,8 +217,9 @@ export default function ComparePage() {
 
         {/* ─── Comparison Data ─── */}
         {selected[0] && selected[1] && (
-          <div className="max-w-5xl mx-auto border-t border-theme-border">
-             <div className="py-20 flex justify-between items-center px-4">
+          <div className="max-w-5xl mx-auto border-t border-theme-border pt-12">
+             <AIDecisionWorkspace p1={selected[0]} p2={selected[1]} />
+             <div className="py-8 sm:py-12 flex justify-between items-center px-4">
                 <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] tracking-widest">TECHNICAL SPECIFICATIONS</span>
              </div>
 
@@ -222,14 +227,14 @@ export default function ComparePage() {
              {allSpecs.map(key => {
                 const mapSpecs = [(selected[0] as any).specs[key], (selected[1] as any).specs[key]]
                 return (
-                  <div key={key} className="grid grid-cols-12 border-t border-theme-border hover:bg-theme-elevated transition-colors py-12 px-6">
-                     <div className="col-span-12 md:col-span-4 mb-4 md:mb-0 flex items-center">
-                        <span className="text-[0.875rem] text-theme-secondary">{key}</span>
+                  <div key={key} className="grid grid-cols-12 border-t border-theme-border hover:bg-theme-elevated transition-colors py-6 sm:py-12 px-4 sm:px-6">
+                     <div className="col-span-12 md:col-span-4 mb-3 md:mb-0 flex items-center">
+                        <span className="text-[0.875rem] text-theme-secondary font-medium">{key}</span>
                      </div>
-                     <div className="col-span-6 md:col-span-4 text-center md:text-left text-[1.125rem] font-medium pr-4 border-r border-theme-border md:border-r-0">
+                     <div className="col-span-6 md:col-span-4 text-left md:text-left text-[0.95rem] sm:text-[1.125rem] font-medium pr-2 sm:pr-4 border-r border-theme-border md:border-r-0">
                         {mapSpecs[0] !== undefined ? String(mapSpecs[0]) : '—'}
                      </div>
-                     <div className="col-span-6 md:col-span-4 text-center md:text-right text-[1.125rem] font-medium pl-4">
+                     <div className="col-span-6 md:col-span-4 text-right md:text-right text-[0.95rem] sm:text-[1.125rem] font-medium pl-2 sm:pl-4">
                         {mapSpecs[1] !== undefined ? String(mapSpecs[1]) : '—'}
                      </div>
                   </div>

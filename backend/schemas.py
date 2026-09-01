@@ -129,6 +129,11 @@ class ProductResponse(BaseModel):
     brand: Optional[BrandResponse] = None
     category: Optional[CategoryResponse] = None
     created_at: Optional[datetime] = None
+    # Data Trust Hardening — verification metadata
+    price_verified_at: Optional[datetime] = None
+    price_verification_status: Optional[str] = None
+    data_quality_score: Optional[float] = None
+    data_source: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -172,6 +177,11 @@ class PriceResponse(BaseModel):
     seller_rating: Optional[float] = None
     is_best_deal: bool
     last_checked: Optional[datetime] = None
+    # Data Trust Hardening — verification provenance
+    verification_status: Optional[str] = None
+    verified_at: Optional[datetime] = None
+    confidence_score: Optional[float] = None
+    source_method: Optional[str] = None
 
     class Config:
         from_attributes = True

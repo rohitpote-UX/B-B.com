@@ -114,6 +114,16 @@ from routers.admin import router as admin_router
 from routers.brands import router as brands_router
 from routers.pipeline import router as pipeline_router
 from routers.knowledge_graph import router as kg_router
+from recommendation_engine import recommendation_router
+from search_platform import search_router
+from price_intelligence import price_intelligence_router
+from notification_platform import notification_router
+from analytics_platform import analytics_router
+from admin_console import admin_console_router
+from comparison_workspace import comparison_workspace_router
+from seo_platform import seo_router
+from affiliate_platform import affiliate_router
+from verification_platform import verification_router
 
 app.include_router(auth_router)
 app.include_router(products_router)
@@ -126,6 +136,16 @@ app.include_router(admin_router)
 app.include_router(brands_router)
 app.include_router(pipeline_router)
 app.include_router(kg_router)
+app.include_router(recommendation_router)
+app.include_router(search_router)
+app.include_router(price_intelligence_router)
+app.include_router(notification_router)
+app.include_router(analytics_router)
+app.include_router(admin_console_router)
+app.include_router(comparison_workspace_router)
+app.include_router(seo_router)
+app.include_router(affiliate_router)
+app.include_router(verification_router)
 
 
 # ─── Root & Health Endpoints ─────────────────────────────────────────

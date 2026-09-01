@@ -17,6 +17,44 @@ import uuid
 
 # ─── Enums ───────────────────────────────────────────────────────────
 
+
+class VerificationStatus(str, enum.Enum):
+    VERIFIED = "verified"
+    RECENTLY_VERIFIED = "recently_verified"
+    STALE = "stale"
+    PARTIALLY_VERIFIED = "partially_verified"
+    UNVERIFIED = "unverified"
+    FAILED = "failed_verification"
+
+
+class ScrapeStatus(str, enum.Enum):
+    SUCCESS = "success"
+    PARTIAL_SUCCESS = "partial_success"
+    NO_DATA = "no_data"
+    BLOCKED = "blocked"
+    TIMEOUT = "timeout"
+    PARSER_ERROR = "parser_error"
+    PRICE_CHANGED = "price_changed"
+    PRODUCT_NOT_FOUND = "product_not_found"
+    IMAGE_NOT_FOUND = "image_not_found"
+    RATE_LIMITED = "rate_limited"
+    SOURCE_UNAVAILABLE = "source_unavailable"
+
+
+class AnomalyType(str, enum.Enum):
+    SUDDEN_DROP = "sudden_drop"
+    SUDDEN_SPIKE = "sudden_spike"
+    IMPOSSIBLE_PRICE = "impossible_price"
+    VARIANT_MISMATCH = "variant_mismatch"
+    CURRENCY_ERROR = "currency_error"
+
+
+class AnomalyResolution(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    CORRECTED = "corrected"
+
 class UserRole(str, enum.Enum):
     USER = "user"
     ADMIN = "admin"
@@ -221,6 +259,13 @@ class Product(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+    # Data Trust Hardening — product-level verification state
+    data_quality_score = Column(Float, default=0.0)  # 0-100 internal score
+    price_verified_at = Column(DateTime(timezone=True), nullable=True)
+    image_verified_at = Column(DateTime(timezone=True), nullable=True)
+    price_verification_status = Column(String(30), default=VerificationStatus.UNVERIFIED.value)
+    data_source = Column(String(50), default="seed")  # seed, pipeline, api, manual
+
     # Relationships
     brand = relationship("Brand", back_populates="products")
     category = relationship("Category", back_populates="products")
@@ -260,6 +305,14 @@ class Price(Base):
     last_checked = Column(DateTime(timezone=True), server_default=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Data Trust Hardening — verification provenance
+    verification_status = Column(String(30), default=VerificationStatus.UNVERIFIED.value)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    source_method = Column(String(50), nullable=True)  # api, scraper, feed, manual, seed
+    confidence_score = Column(Float, default=0.0)  # 0.0 - 1.0
+    parser_version = Column(String(50), nullable=True)
+    failure_reason = Column(String(500), nullable=True)
 
     # Relationships
     product = relationship("Product", back_populates="prices")
@@ -412,6 +465,7 @@ class Notification(Base):
 
 class AffiliateLink(Base):
     __tablename__ = "affiliate_links"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
@@ -636,6 +690,15 @@ class MarketplaceOffer(Base):
     data_source_reliability = Column(Float, default=1.0)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
+    # Data Trust Hardening — offer-level verification state
+    verification_status = Column(String(30), default=VerificationStatus.UNVERIFIED.value)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    source_method = Column(String(50), nullable=True)  # api, scraper, feed, manual
+    confidence_score = Column(Float, default=0.0)  # 0.0 - 1.0
+    parser_version = Column(String(50), nullable=True)
+    failure_reason = Column(String(500), nullable=True)
+    shipping_cost_verified = Column(Boolean, default=False)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -718,6 +781,16 @@ class ProductImage(Base):
     is_primary = Column(Boolean, default=False)
     sort_order = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Data Trust Hardening — image verification
+    http_status = Column(Integer, nullable=True)
+    content_type = Column(String(100), nullable=True)
+    image_width = Column(Integer, nullable=True)
+    image_height = Column(Integer, nullable=True)
+    image_hash = Column(String(64), nullable=True)
+    verification_status = Column(String(30), default=VerificationStatus.UNVERIFIED.value)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    failure_reason = Column(String(500), nullable=True)
 
     # Relationships
     master_product = relationship("MasterProduct", back_populates="kg_images")
@@ -966,3 +1039,65 @@ class TrainingFeedbackRecord(Base):
     __table_args__ = (
         Index("idx_feedback_type", "feedback_type", "created_at"),
     )
+
+
+# ─── Data Trust Hardening: Operational Tables ────────────────────────
+
+class ScraperHealthLog(Base):
+    """Immutable log of every scraper execution for monitoring and Admin Console."""
+    __tablename__ = "scraper_health_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    marketplace = Column(String(50), nullable=False, index=True)
+    parser_version = Column(String(50), nullable=True)
+    started_at = Column(DateTime(timezone=True), nullable=False)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String(30), nullable=False)  # ScrapeStatus enum values
+    products_found = Column(Integer, default=0)
+    prices_extracted = Column(Integer, default=0)
+    images_extracted = Column(Integer, default=0)
+    failures = Column(Integer, default=0)
+    failure_reason = Column(String(500), nullable=True)
+    http_status = Column(Integer, nullable=True)
+    duration_ms = Column(Float, nullable=True)
+    metadata_json = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("idx_scraper_health_marketplace", "marketplace", "status", "started_at"),
+    )
+
+
+class PriceAnomalyLog(Base):
+    """Tracks price anomalies that require secondary verification before acceptance."""
+    __tablename__ = "price_anomaly_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False, index=True)
+    offer_id = Column(Integer, nullable=True)
+    marketplace = Column(String(50), nullable=False)
+    previous_price = Column(Float, nullable=True)
+    new_price = Column(Float, nullable=False)
+    absolute_difference = Column(Float, nullable=False)
+    percentage_difference = Column(Float, nullable=False)
+    anomaly_type = Column(String(50), nullable=False)  # AnomalyType enum values
+    resolution = Column(String(30), default=AnomalyResolution.PENDING.value)
+    resolved_by = Column(String(100), nullable=True)
+    resolution_reason = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        Index("idx_anomaly_product", "product_id", "resolution", "created_at"),
+    )
+
+
+class DataFreshnessConfig(Base):
+    """Configuration-driven TTL values for price/image freshness tiers."""
+    __tablename__ = "data_freshness_config"
+
+    id = Column(Integer, primary_key=True, index=True)
+    config_key = Column(String(100), unique=True, nullable=False, index=True)
+    config_value = Column(Integer, nullable=False)  # seconds
+    description = Column(String(500), nullable=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

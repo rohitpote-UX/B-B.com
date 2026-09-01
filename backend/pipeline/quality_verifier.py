@@ -1,16 +1,37 @@
 """
-Brand Battle - Product Quality Verification Engine
-Calculates data completeness score (0-100) and enforces threshold quality checks.
+Brand Battle - Product Quality Verification Engine & Data Freshness Tracker
+Calculates data quality score (0-100), tracks data freshness (FRESH, STALE, EXPIRED), and verifies normalized pricing.
 """
 
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
+from datetime import datetime, timezone
 import logging
 
 logger = logging.getLogger("brandbattle.quality")
 
 
 class QualityVerifier:
-    """Evaluates data completeness, spec density, and payload quality score."""
+    """Evaluates data completeness, spec density, freshness, and quality score."""
+
+    def evaluate_freshness(self, last_updated: Optional[datetime] = None) -> Tuple[str, float]:
+        """
+        Determines freshness status (FRESH, STALE, EXPIRED) and age in hours.
+        """
+        if not last_updated:
+            return "FRESH", 0.0
+
+        now = datetime.now(timezone.utc)
+        if last_updated.tzinfo is None:
+            last_updated = last_updated.replace(tzinfo=timezone.utc)
+
+        age_hours = (now - last_updated).total_seconds() / 3600.0
+
+        if age_hours <= 24.0:
+            return "FRESH", round(age_hours, 1)
+        elif age_hours <= 168.0:
+            return "STALE", round(age_hours, 1)
+        else:
+            return "EXPIRED", round(age_hours, 1)
 
     def calculate_quality_score(self, item: Dict[str, Any], matching_confidence: float = 1.0) -> float:
         """
@@ -61,3 +82,7 @@ class QualityVerifier:
             return False, score, reason
 
         return True, score, "Quality score verified"
+
+
+# Singleton
+quality_verifier = QualityVerifier()

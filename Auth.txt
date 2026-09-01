@@ -1,0 +1,166 @@
+================================================================================
+                    BRANDBATTLE — AUTHENTICATION SYSTEM DOCUMENTATION
+================================================================================
+File: Auth.txt
+Generated: 2026-08-04
+System: BrandBattle Full-Stack Product Intelligence & Deal Discovery Platform
+
+--------------------------------------------------------------------------------
+1. SYSTEM OVERVIEW & ARCHITECTURE
+--------------------------------------------------------------------------------
+BrandBattle implements a dual-layer authentication architecture combining a high-performance,
+Awwwards-inspired Next.js frontend UI with an enterprise-grade FastAPI + SQLAlchemy + JWT 
+backend security system.
+
+Key Security Pillars:
+- Passwords hashed using bcrypt salted hashes (never stored in plaintext).
+- Statutory JWT (JSON Web Token) bearer authentication with HS256 algorithm.
+- Multi-tier dependency injection for User, Optional User, and Admin clearance.
+- Security Headers & Redis-backed rate limiting to defend against credential stuffing.
+- Client-side token persistence via HTTP cookies (SameSite=Lax, max-age=86400) & localStorage.
+
+--------------------------------------------------------------------------------
+2. FRONTEND UI & PAGES ARCHITECTURE
+--------------------------------------------------------------------------------
+
+A. LOGIN PAGE (`src/app/(auth)/login/page.tsx`)
+   - Route: `/login`
+   - Layout: Split-screen editorial layout
+     * Left Panel (40% width on lg screens): Dark elevated branding container featuring 
+       display typography ("Welcome Back."), product value messaging, and secure 
+       infrastructure indicator.
+     * Right Panel (Flex-1 container): Minimalist credentials form with floating inputs 
+       for Email Address and Secure Password.
+   - Design System Tokens:
+     * Background: `bg-theme-bg` (#050505)
+     * Elevated Panel: `bg-theme-elevated` (#0c0c0e)
+     * Text: `text-theme-text` (#ffffff)
+     * Accent: `#f20ab0` (Brand Battle Signature Pink)
+     * Typography: `font-[var(--font-display)]` (Editorial Display Font)
+   - Animations & Micro-interactions:
+     * Framer-motion entrance transitions (`initial={{ opacity: 0, y: 30 }}`).
+     * Input focus border highlights and icon state changes (`group-focus-within:text-theme-text`).
+   - Client Action Flow:
+     1. Form submission (`handleLogin`).
+     2. Sets `localStorage.setItem('bb_user', JSON.stringify({ email }))`.
+     3. Sets Cookie: `document.cookie = "bb_user=true; path=/; max-age=86400; SameSite=Lax"`.
+     4. Redirects user to `/profile`.
+
+B. SIGNUP PAGE (`src/app/(auth)/signup/page.tsx`)
+   - Route: `/signup`
+   - Layout: Split-screen editorial layout matching `/login` for seamless UX.
+     * Left Panel (40% width on lg screens): Display headline ("Request Access.") with 
+       platform value proposition text ("Join the platform that cuts through marketing noise.").
+     * Right Panel (Flex-1 container): Form inputs for Full Name, Email Address, and Create Password.
+   - Client Action Flow:
+     1. Form validation (`name && email && password`).
+     2. Sets `localStorage.setItem('bb_user', JSON.stringify({ name, email }))`.
+     3. Sets Cookie: `document.cookie = "bb_user=true; path=/; max-age=86400; SameSite=Lax"`.
+     4. Redirects user to `/profile`.
+
+--------------------------------------------------------------------------------
+3. BACKEND AUTHENTICATION MODULE (`backend/auth.py`)
+--------------------------------------------------------------------------------
+
+Functions & Helpers:
+- `hash_password(password: str) -> str`:
+  Encodes plaintext password to UTF-8 and hashes using `bcrypt.hashpw(password_bytes, bcrypt.gensalt())`.
+
+- `verify_password(plain_password: str, hashed_password: str) -> bool`:
+  Verifies input against stored bcrypt hash using `bcrypt.checkpw()`.
+
+- `create_access_token(data: dict, expires_delta: Optional[timedelta]) -> str`:
+  Encodes JWT with expiration payload (`exp = datetime.now(timezone.utc) + ACCESS_TOKEN_EXPIRE_MINUTES`)
+  signed with `SECRET_KEY` via HS256 algorithm.
+
+- `decode_access_token(token: str) -> dict`:
+  Decodes JWT token and validates expiration. Raises HTTP 401 if token is invalid or expired.
+
+FastAPI Dependency Injections:
+- `get_current_user(credentials, db) -> User`:
+  Extracts HTTP Bearer token from header, validates user ID, checks `is_active == True`, 
+  and returns the SQLAlchemy User model instance. Raises HTTP 401 or 403 if invalid/deactivated.
+
+- `get_current_user_optional(credentials, db) -> Optional[User]`:
+  Optionally returns current user if valid bearer token exists, or `None` if unauthenticated.
+
+- `get_admin_user(current_user) -> User`:
+  Verifies `current_user.role == "admin"`. Raises HTTP 403 Forbidden if user lacks admin clearance.
+
+--------------------------------------------------------------------------------
+4. BACKEND API ROUTER (`backend/routers/auth.py`)
+--------------------------------------------------------------------------------
+Prefix: `/api/auth` | Tag: `Authentication`
+
+Endpoints:
+1. `POST /api/auth/register` (Status Code: 201 Created)
+   - Input Schema: `UserCreate` (`email`, `username`, `password`, `full_name`)
+   - Output Schema: `TokenResponse` (`access_token`, `token_type`, `user`)
+   - Logic:
+     * Checks if email or username is already registered (HTTP 409 Conflict).
+     * Hashes password with bcrypt.
+     * Inserts new `User` record into database.
+     * Generates and returns JWT access token and user payload.
+
+2. `POST /api/auth/login` (Status Code: 200 OK)
+   - Input Schema: `UserLogin` (`email`, `password`)
+   - Output Schema: `TokenResponse` (`access_token`, `token_type`, `user`)
+   - Logic:
+     * Fetches user by email.
+     * Verifies password against bcrypt hash (HTTP 401 if invalid).
+     * Verifies account is active (HTTP 403 if deactivated).
+     * Generates and returns fresh JWT access token.
+
+3. `GET /api/auth/me` (Status Code: 200 OK)
+   - Dependency: `get_current_user`
+   - Output Schema: `UserResponse`
+   - Returns full authenticated profile details for current token holder.
+
+4. `PUT /api/auth/me` (Status Code: 200 OK)
+   - Dependency: `get_current_user`
+   - Input Schema: `UserUpdate` (`full_name`, `avatar_url`, `preferences`)
+   - Output Schema: `UserResponse`
+   - Updates current user's profile metadata and commits changes to SQLite/PostgreSQL.
+
+--------------------------------------------------------------------------------
+5. DATABASE MODELS & PYDANTIC SCHEMAS
+--------------------------------------------------------------------------------
+
+A. SQLAlchemy Model (`backend/models.py` - `User` Table)
+   - `id`: Integer, Primary Key, Indexed
+   - `email`: String(255), Unique, Indexed, Non-nullable
+   - `username`: String(100), Unique, Indexed, Non-nullable
+   - `hashed_password`: String(255), Non-nullable
+   - `full_name`: String(255), Nullable
+   - `avatar_url`: String(500), Nullable
+   - `role`: String(50), Default: "user" ("user" | "admin")
+   - `is_active`: Boolean, Default: True
+   - `preferences`: JSON / Text, Nullable
+   - `created_at`: DateTime(timezone=True), Default: UTC Now
+   - `updated_at`: DateTime(timezone=True), Default: UTC Now
+
+B. Pydantic Schemas (`backend/schemas.py`)
+   - `UserCreate`: `email: EmailStr`, `username: str`, `password: str`, `full_name: Optional[str]`
+   - `UserLogin`: `email: EmailStr`, `password: str`
+   - `UserResponse`: `id: int`, `email: str`, `username: str`, `full_name: Optional[str]`, 
+     `avatar_url: Optional[str]`, `role: str`, `is_active: bool`, `created_at: datetime`
+   - `TokenResponse`: `access_token: str`, `token_type: str = "bearer"`, `user: UserResponse`
+   - `UserUpdate`: `full_name: Optional[str]`, `avatar_url: Optional[str]`, `preferences: Optional[dict]`
+
+--------------------------------------------------------------------------------
+6. SECURITY MIDDLEWARE & DEFENSE IN DEPTH
+--------------------------------------------------------------------------------
+- Rate Limiting (`middleware_security.py`):
+  Redis-backed rate limiter limits failed authentication attempts on `/api/auth/login` 
+  and `/api/auth/register` to prevent brute-force attacks.
+- Security Headers (`middleware_security.py`):
+  * `X-Frame-Options: DENY`
+  * `X-Content-Type-Options: nosniff`
+  * `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+  * `Content-Security-Policy`: Restricts unauthorized script execution.
+- CORS Configuration:
+  Configured in `main.py` allowing authenticated requests only from verified origins.
+
+================================================================================
+                              END OF AUTH.TXT
+================================================================================

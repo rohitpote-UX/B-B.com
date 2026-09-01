@@ -1,11 +1,12 @@
 """
 Brand Battle - Pipeline Orchestrator
 Connects Queue, Validation, Normalization, AI Matching, Quality Check, Pricing Engine,
-Knowledge Graph, DB Ingestion, and Redis Cache.
+Price Verification, Knowledge Graph, DB Ingestion, and Redis Cache.
 """
 
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 import logging
 
 from pipeline.validator import DataValidator
@@ -13,6 +14,7 @@ from pipeline.normalizer import DataNormalizer
 from pipeline.matcher import AIProductMatcher
 from pipeline.quality_verifier import QualityVerifier
 from pipeline.price_engine import PriceEngine
+from pipeline.price_verifier import price_verifier
 from pipeline.queue import queue_manager
 from pipeline.monitoring import pipeline_monitor
 from knowledge_graph.kg_service import kg_service
@@ -104,10 +106,41 @@ class PipelineOrchestrator:
             url=url_val
         )
 
+        # 5b. Price Verification — anomaly detection & confidence scoring
         existing_price = db.query(models.Price).filter(
             models.Price.product_id == product.id,
             models.Price.platform == platform
         ).first()
+
+        previous_price_val = existing_price.price if existing_price else None
+        source_method = norm_item.get("source_method", "scraper")
+        parser_ver = norm_item.get("parser_version")
+
+        verification = price_verifier.verify_price(
+            new_price=price_val,
+            previous_price=previous_price_val,
+            marketplace=platform,
+            source_method=source_method,
+            original_price=orig_price,
+        )
+
+        # 5c. Log price anomalies
+        if verification.is_anomaly:
+            anomaly_data = price_verifier.detect_price_anomaly(
+                product_id=product.id,
+                new_price=price_val,
+                previous_price=previous_price_val,
+                marketplace=platform,
+            )
+            if anomaly_data:
+                anomaly_log = models.PriceAnomalyLog(**anomaly_data)
+                db.add(anomaly_log)
+                logger.warning(
+                    f"⚠️ Price anomaly detected for product {product.id} on {platform}: "
+                    f"{previous_price_val} → {price_val} ({verification.percentage_difference}%)"
+                )
+
+        now_utc = datetime.now(timezone.utc)
 
         if existing_price:
             existing_price.price = price_val
@@ -115,6 +148,14 @@ class PipelineOrchestrator:
             existing_price.discount_percentage = price_metrics["discount_percentage"]
             existing_price.url = url_val
             existing_price.is_available = True
+            existing_price.last_checked = now_utc
+            # Data Trust Hardening — verification provenance
+            existing_price.verification_status = verification.verification_status
+            existing_price.verified_at = now_utc
+            existing_price.confidence_score = verification.confidence_score
+            existing_price.source_method = source_method
+            existing_price.parser_version = parser_ver
+            existing_price.failure_reason = None
         else:
             new_price = models.Price(
                 product_id=product.id,
@@ -124,11 +165,18 @@ class PipelineOrchestrator:
                 discount_percentage=price_metrics["discount_percentage"],
                 url=url_val,
                 seller_name=norm_item.get("seller_name"),
-                is_available=True
+                is_available=True,
+                last_checked=now_utc,
+                # Data Trust Hardening — verification provenance
+                verification_status=verification.verification_status,
+                verified_at=now_utc,
+                confidence_score=verification.confidence_score,
+                source_method=source_method,
+                parser_version=parser_ver,
             )
             db.add(new_price)
 
-        # 6. Log Timestamped Price History Snapshot
+        # 6. Log Timestamped Price History Snapshot (immutable — never overwrite)
         history_entry = models.PriceHistory(
             product_id=product.id,
             platform=platform,
@@ -154,15 +202,20 @@ class PipelineOrchestrator:
             product.current_best_platform = best_p.platform
             product.deal_score = max(product.deal_score or 50.0, price_metrics["deal_score"])
 
+        # 7b. Update product-level verification state
+        product.price_verified_at = now_utc
+        product.price_verification_status = verification.verification_status
+        product.data_source = "pipeline"
+
         db.commit()
         db.refresh(product)
 
-        # 8. Redis Cache Invalidation
-        invalidate_cache_pattern("product:*")
-        invalidate_cache_pattern("deals:*")
+        # 8. Targeted Redis Cache Invalidation
+        invalidate_cache_pattern(f"product:{product.id}:*")
+        invalidate_cache_pattern(f"deals:*")
         pipeline_monitor.record_cache_purge()
 
-        logger.info(f"✅ Pipeline processed '{product.name}' [ID: {product.id}] via {platform}")
+        logger.info(f"✅ Pipeline processed '{product.name}' [ID: {product.id}] via {platform} [{verification.verification_status}]")
         return product
 
     def _legacy_create_product(

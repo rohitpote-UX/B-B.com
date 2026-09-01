@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeProvider";
+import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/seo/structured-data";
 
 export const metadata: Metadata = {
   title: {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s — Brand Battle",
   },
   description:
-    "AI-powered product comparison and deal discovery. Compare products, find the best deals, track prices, and make confident purchase decisions across Amazon, Flipkart, and more.",
+    "AI-powered product intelligence and comparison platform. Compare verified marketplace prices, track price history, analyze specifications, and make confident purchase decisions across Amazon, Flipkart, Croma, and more.",
   keywords: [
     "product comparison",
     "deal finder",
@@ -16,8 +17,9 @@ export const metadata: Metadata = {
     "best deals",
     "brand battle",
     "AI shopping advisor",
+    "product intelligence",
   ],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://brandbattle.com"),
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -43,6 +45,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const orgJsonLd = buildOrganizationJsonLd();
+  const siteJsonLd = buildWebSiteJsonLd();
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
@@ -53,6 +58,14 @@ export default function RootLayout({
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
       </head>
       <body>

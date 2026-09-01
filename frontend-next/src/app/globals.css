@@ -33,15 +33,16 @@
 
 .dark {
   /* Dark Mode */
-  --bg: #0a0a0a;
-  --bg-elevated: #171717;
-  --bg-subtle: #262626;
-  --border: #262626;
-  --border-strong: #404040;
+  --bg: #050505;
+  --bg-elevated: #0f0f11;
+  --bg-subtle: #18181b;
+  --border: #27272a;
+  --border-strong: #3f3f46;
   --text: #ffffff;
-  --text-secondary: #a3a3a3;
-  --text-muted: #737373;
-  --text-dim: #404040;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-dim: #52525b;
+  --brand-red: #ff1695;
 }
 
 body {
@@ -50,6 +51,26 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.5s ease, color 0.5s ease;
+  overflow-x: hidden;
+}
+
+/* Safe Area Inset Utilities for Mobile Notches & Gesture Bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.px-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Touch Action & Target Optimization */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  touch-action: manipulation;
 }
 
 /* Hide scrollbar utility */

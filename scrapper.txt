@@ -1,0 +1,162 @@
+================================================================================
+                    BRAND BATTLE — SCRAPER SYSTEM DOCUMENTATION
+================================================================================
+
+1. EXECUTIVE SUMMARY & OVERVIEW
+--------------------------------------------------------------------------------
+This document provides a complete technical reference for the scraper architecture,
+historical data extraction process, data ingestion flow, current limitations, and
+the future roadmap required to achieve real-time product price fetching and dynamic
+catalog updates for Brand Battle.
+
+
+2. CURRENT SCRAPER ARCHITECTURE & HOW IT WORKS
+--------------------------------------------------------------------------------
+The project currently utilizes a hybrid scraping engine consisting of standalone
+Node.js (Puppeteer Stealth) scripts, Python (Requests + BeautifulSoup) scripts,
+and a mock/pipeline streaming framework in the backend.
+
+A. Standalone Scraper Scripts (located in `backend/`):
+
+   1) Amazon Scraper (`backend/amazon_scraper.js`):
+      - Stack: Node.js, Puppeteer-Extra, Puppeteer-Extra-Plugin-Stealth.
+      - Functionality:
+        * Scrapes 10 major categories (Smartphones, Laptops, Headphones, Watches,
+          Tablets, Televisions, Speakers, Power Banks, Cameras, Gaming).
+        * Iterates through search result pages (2 pages per category).
+        * Extracts specs (RAM, Storage, Battery) directly from product title strings using regex.
+        * Parses ASIN numbers to deduplicate products and avoid redundant rows.
+        * Navigates into top detail pages to extract detailed specs and bullet points.
+        * Handles anti-bot / CAPTCHA detection gracefully (logs & skips blocked pages).
+      - Output: `backend/amazon_products.csv` (~600 KB) and execution log `backend/amazon_scraper.log`.
+
+   2) Ajio Scraper (`backend/ajio_scraper.js`):
+      - Stack: Node.js, Puppeteer-Extra with Stealth Plugin.
+      - Functionality:
+        * Scrapes fashion & lifestyle categories (Shirts, Jeans, Shoes, Watches, Handbags, etc.).
+        * Uses dynamic page scrolling (`window.scrollTo`) to trigger lazy-loading of product images and DOM nodes.
+        * Extracts brand names, product titles, discounted prices, original prices, and image URLs.
+      - Output: `backend/ajio_products.csv` (~167 KB).
+
+   3) Myntra Scraper (`backend/myntra_scraper.js` & `backend/myntra_scraper.py`):
+      - Stack: Puppeteer-Extra with Stealth (JS) / Python Requests + BeautifulSoup (PY).
+      - Functionality:
+        * Scrapes clothing, shoes, accessories, and fashion products.
+        * Handles custom image URL transformations (upgrades low-res thumbnails to `w_500` high-res images).
+        * Cleans review counts (e.g. converting "1.2k" -> 1200).
+      - Output: `backend/myntra_products.csv` (~152 KB).
+
+   4) Flipkart Scraper (`backend/flipkart_scraper.py`):
+      - Stack: Python 3, Requests, BeautifulSoup4.
+      - Functionality:
+        * Rotates custom HTTP Headers and User-Agent strings.
+        * Queries search endpoints across 10 categories.
+        * Extracts product names, prices, original prices, ratings, and listing URLs.
+      - Output: `backend/flipkart_products.csv` (~718 KB).
+
+B. Data Ingestion & Data Transformation:
+
+   1) Static Demo Data Generator (`backend/csv_to_demodata.py`):
+      - Merges data from all 4 generated CSV files (`amazon_products.csv`, `flipkart_products.csv`,
+        `myntra_products.csv`, `ajio_products.csv`).
+      - Cleans title strings, assigns category tags, builds price history arrays, and maps brands.
+      - Generates structured JavaScript datasets:
+        * `frontend/src/data/demoData.js`
+        * `frontend-next/src/data/demoData.js`
+
+   2) Database Seeding (`backend/seed_data.py`):
+      - Seeds the SQLite database (`brandbattle.db`) with core database models:
+        `Product`, `Brand`, `Category`, `Price`, `PriceHistory`, `Review`, `Deal`, `AffiliateLink`.
+      - Populates catalog with 750+ verified products and historical price trends.
+
+C. Backend Pipeline Framework (`backend/pipeline/`):
+
+   - `base_scraper.py`: Defines abstract `BaseScraper` class and `RawProductItem` Pydantic payload contract.
+   - `marketplace_scrapers.py`: Concrete mock scrapers for Amazon, Flipkart, Croma, Reliance Digital.
+   - `orchestrator.py`: Pipeline Orchestrator enforcing 5-stage ingestion:
+     1. Data Validation (`pipeline/validator.py`)
+     2. Normalization (`pipeline/normalizer.py`)
+     3. Quality Verification (`pipeline/quality_verifier.py`)
+     4. Knowledge Graph Master & Marketplace Offer Resolution (`knowledge_graph/kg_service.py`)
+     5. Price Engine Update & Redis Cache Invalidation (`pipeline/price_engine.py`)
+
+
+3. WHEN WAS THE DATA SCRAPED?
+--------------------------------------------------------------------------------
+- Historical Batch Run: The dataset in `amazon_products.csv`, `flipkart_products.csv`,
+  `myntra_products.csv`, and `ajio_products.csv` was captured during batch extraction runs.
+- Static Database State: Currently, when the backend server runs, it queries `brandbattle.db` or
+  reads frontend `demoData.js` snapshots.
+- Background Alert Scheduler: The backend includes `price_intelligence/scheduler.py` which scans
+  products periodically, but it operates against stored DB values rather than initiating live web requests.
+
+
+4. CURRENT LIMITATIONS & GAPS
+--------------------------------------------------------------------------------
+1. Static Snapshots: Product prices do not reflect real-time price drops, lightning deals, or out-of-stock statuses.
+2. DOM Selector Vulnerability: E-commerce sites frequently update their CSS class names and DOM structures, causing scraper breaking changes over time.
+3. Anti-Bot Blocking: Websites like Amazon and Flipkart deploy Akamai, Cloudflare, and PerimeterX anti-bot systems that block standard requests or trigger CAPTCHAs during continuous scraping.
+4. Rate Limiting & IP Bans: Scraping directly from a single server IP address leads to HTTP 429 / 403 blocks.
+5. No Live Search Fetching: Searching for a non-indexed product URL does not trigger an instant live scrape.
+
+
+5. FUTURE BLUEPRINT: GETTING REAL-TIME PRODUCT VALUES
+--------------------------------------------------------------------------------
+To convert Brand Battle into a production-grade, real-time price comparison and intelligence engine, the following changes must be implemented:
+
+A. Architecture Upgrade for Real-Time Ingestion:
+
+   1) Distributed Background Scheduler (Celery + Redis / BullMQ):
+      - Implement a distributed task queue with worker pools.
+      - Establish tiered re-scraping frequencies:
+        * High-Priority / Hot Products (Top 100): Scraped every 15–30 minutes.
+        * Standard Catalog Products: Scraped every 3–6 hours.
+        * Low-Traffic Products: Scraped once every 24 hours.
+
+   2) On-Demand Live Scraping API (On-the-Fly Search):
+      - Create an endpoint `GET /api/v1/products/live-fetch?url={product_url}` or search endpoint.
+      - If a requested product price is older than TTL (e.g. 15 mins), trigger an instant micro-scraper worker.
+      - Return the fresh live price to the frontend and asynchronously update `brandbattle.db`.
+
+   3) Proxy Rotation & Stealth Infrastructure:
+      - Integrate Residential Proxy Services (e.g., Bright Data, Oxylabs, Smartproxy) to rotate IP addresses per request.
+      - Implement Playwright Cluster with Browser Fingerprint Randomization (canvas noise, user-agent rotation, TLS fingerprinting, WebGL spoofing).
+      - Integrate Automated CAPTCHA Solvers (2Captcha, Anti-Captcha, or CapSolver APIs).
+
+   4) Official Affiliate API & Partner Feed Integration:
+      - Integrate Official APIs to bypass web scraping entirely where possible:
+        * Amazon Product Advertising API (PA-API v5)
+        * Flipkart Affiliate API / Data Feeds
+        * Croma & Ajio Affiliate API Networks (Impact / CJ / Rakuten)
+      - Benefits: Guaranteed 99.9% uptime, structured JSON data, zero risk of IP bans.
+
+   5) WebSockets / Server-Sent Events (SSE) for Real-Time UI:
+      - Establish a WebSocket channel (`ws://backend/api/v1/price-stream`) between backend and frontend.
+      - When a price change occurs during background re-checking, push live updates to active user sessions immediately.
+
+   6) Enhanced Knowledge Graph & AI Matching:
+      - Connect live scraped `RawProductItem` payloads into `backend/pipeline/orchestrator.py`.
+      - Expand entity resolution (fuzzy title matching, model number identification, spec normalization) to auto-group identical products across Amazon, Flipkart, Myntra, Ajio, Croma, and Reliance Digital.
+
+
+6. RECOMMENDED TECH STACK & IMPLEMENTATION ROADMAP
+--------------------------------------------------------------------------------
+Phase 1: Proxy & Playwright Upgrade
+  - Replace raw Puppeteer/Requests scripts with Playwright Cluster + Stealth plugin.
+  - Configure Residential Proxy Manager (e.g. Crawlbase / ScrapingBee / Bright Data).
+
+Phase 2: Task Queue Integration
+  - Wire Celery + Redis (`backend/celery_app.py` & `backend/tasks.py`) to execute periodic scraper tasks.
+  - Store price change history in `PriceHistory` model with timestamp microsecond precision.
+
+Phase 3: Live Search API & WebSockets
+  - Implement `/api/v1/live-price` endpoint in FastAPI backend.
+  - Implement WebSocket notification system in Next.js frontend (`frontend-next/`).
+
+Phase 4: Official API Integration
+  - Register developer accounts for Amazon PA-API & Flipkart Affiliate API.
+  - Build fallback logic: Try Official API -> Fall back to Playwright Stealth Scraper.
+
+================================================================================
+End of Scraper Technical Documentation
+================================================================================

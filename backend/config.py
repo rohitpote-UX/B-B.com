@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     REDIS_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 120
 
+    # Data Trust Hardening — Freshness TTL Tiers (seconds)
+    PRICE_TTL_HOT: int = 1800           # 30 minutes
+    PRICE_TTL_STANDARD: int = 21600     # 6 hours
+    PRICE_TTL_LOW_PRIORITY: int = 86400  # 24 hours
+    IMAGE_TTL: int = 86400              # 24 hours
+    ANOMALY_THRESHOLD_PCT: float = 40.0  # 40% price change anomaly flag
+
     # OpenAI
     OPENAI_API_KEY: str = ""
 
