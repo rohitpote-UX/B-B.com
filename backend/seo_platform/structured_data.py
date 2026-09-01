@@ -87,6 +87,51 @@ class StructuredDataEngine:
 
         return {"@context": "https://schema.org", "@graph": graph}
 
+    def generate_product_json_ld(self, p: Product) -> Dict[str, Any]:
+        """Generate single Schema.org Product JSON-LD without fabricated reviews."""
+        name = f"{p.brand.name if p.brand else ''} {p.name}".strip()
+        price = getattr(p, "current_best_price", 0.0) or 0.0
+        
+        product_schema: Dict[str, Any] = {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": name,
+            "url": f"{seo_config.domain}/product/{p.id}",
+        }
+
+        if getattr(p, "image_url", None):
+            product_schema["image"] = [p.image_url]
+
+        if getattr(p, "description", None):
+            product_schema["description"] = p.description
+
+        if p.brand:
+            product_schema["brand"] = {
+                "@type": "Brand",
+                "name": p.brand.name,
+            }
+
+        if price > 0:
+            product_schema["offers"] = {
+                "@type": "Offer",
+                "price": price,
+                "priceCurrency": "INR",
+                "availability": "https://schema.org/InStock",
+                "url": f"{seo_config.domain}/product/{p.id}",
+            }
+
+        # Zero fake reviews rule: only include aggregateRating if genuine reviews exist
+        if getattr(p, "average_rating", None) and getattr(p, "total_reviews", None) and p.total_reviews > 0:
+            product_schema["aggregateRating"] = {
+                "@type": "AggregateRating",
+                "ratingValue": p.average_rating,
+                "reviewCount": p.total_reviews,
+                "bestRating": 5,
+                "worstRating": 1,
+            }
+
+        return product_schema
+
     def generate_breadcrumbs(self, p1: Product, p2: Product) -> List[Dict[str, str]]:
         name1 = f"{p1.brand.name if p1.brand else ''} {p1.name}".strip()
         name2 = f"{p2.brand.name if p2.brand else ''} {p2.name}".strip()

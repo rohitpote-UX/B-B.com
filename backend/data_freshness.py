@@ -67,7 +67,7 @@ def seed_freshness_config(db: Session) -> None:
             ))
 
     db.commit()
-    logger.info("✅ Data freshness config seeded")
+    logger.info("[OK] Data freshness config seeded")
 
 
 # ─── Freshness Status Computation ─────────────────────────────────────

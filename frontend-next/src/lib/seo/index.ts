@@ -1,16 +1,30 @@
 /**
  * Brand Battle — Centralized Enterprise SEO System
- * Exports metadata, canonicals, robots, structured data, indexability, and open-graph tools.
+ * Exports metadata, canonicals, robots, structured data, indexability, GEO, AEO, and validators.
  */
 
+export * from './seo-types'
 export * from './seo-config'
 export * from './titles'
 export * from './descriptions'
 export * from './canonical'
+export * from './comparison-slug'
 export * from './robots'
-export * from './breadcrumbs'
+export * from './breadcrumb-schema'
+export * from './product-schema'
+export * from './offer-schema'
+export * from './organization-schema'
+export * from './website-schema'
+export * from './faq-schema'
+export * from './comparison-schema'
+export * from './structured-data'
 export * from './open-graph'
 export * from './image-seo'
 export * from './indexability'
-export * from './structured-data'
+export * from './keywords'
+export * from './entity'
+export * from './geo'
+export * from './aeo'
+export * from './internal-links'
+export * from './validators'
 export * from './vitals'

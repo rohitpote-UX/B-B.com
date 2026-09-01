@@ -1,10 +1,10 @@
 import React from 'react'
 
 export interface StructuredDataProps {
-  jsonLd: Record<string, any>
+  jsonLd?: Record<string, unknown> | null
 }
 
-export default function StructuredDataScript({ jsonLd }: StructuredDataProps) {
+export default function StructuredDataComponent({ jsonLd }: StructuredDataProps) {
   if (!jsonLd) return null
 
   return (

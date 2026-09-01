@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals'],
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
         disallow: [
           '/admin/',
           '/api/',
@@ -19,11 +19,38 @@ export default function robots(): MetadataRoute.Robots {
           '/*?*filter=*',
           '/*?*ref=*',
           '/*?*utm_*',
+          '/*?*color=*',
+          '/*?*size=*',
         ],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals'],
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
+      },
+      {
+        userAgent: 'Bingbot',
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
+      },
+      {
+        userAgent: 'GPTBot',
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
+      },
+      {
+        userAgent: 'ClaudeBot',
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
+      },
+      {
+        userAgent: 'Applebot',
+        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
     ],

@@ -1,5 +1,4 @@
-'use client'
-
+import type { Metadata } from 'next'
 import HeroSection from '@/components/home/HeroSection'
 import TrustStrip from '@/components/home/TrustStrip'
 import IntelligenceShowcase from '@/components/home/IntelligenceShowcase'
@@ -9,6 +8,23 @@ import RecommendationChapter from '@/components/home/RecommendationChapter'
 import CuratedProductsGrid from '@/components/home/CuratedProductsGrid'
 import TestimonialsSection from '@/components/home/TestimonialsSection'
 import FinalCtaSection from '@/components/home/FinalCtaSection'
+import { SEO_CONFIG, buildRobotsDirectives, buildOpenGraphMetadata } from '@/lib/seo'
+
+export const metadata: Metadata = {
+  title: 'Brand Battle — Find The Best Product. Win Every Purchase.',
+  description:
+    'AI-powered product intelligence and comparison platform. Compare verified marketplace prices, track price history, analyze specifications, and make confident purchase decisions across Amazon, Flipkart, Croma, and more.',
+  alternates: {
+    canonical: SEO_CONFIG.domain,
+  },
+  robots: buildRobotsDirectives(),
+  ...buildOpenGraphMetadata({
+    title: 'Brand Battle — Find The Best Product. Win Every Purchase.',
+    description: 'AI-powered product comparison, price intelligence, and deal discovery platform.',
+    url: SEO_CONFIG.domain,
+    type: 'website',
+  }),
+}
 
 export default function LandingPage() {
   return (

@@ -11,7 +11,7 @@ export interface OpenGraphProps {
   description: string
   url: string
   imageUrl?: string
-  type?: 'website' | 'article' | 'product'
+  type?: 'website' | 'article'
 }
 
 export function buildOpenGraphMetadata({
@@ -30,7 +30,7 @@ export function buildOpenGraphMetadata({
       url,
       siteName: SEO_CONFIG.siteName,
       locale: SEO_CONFIG.locale,
-      type: type as any,
+      type,
       images: [
         {
           url: finalImage,

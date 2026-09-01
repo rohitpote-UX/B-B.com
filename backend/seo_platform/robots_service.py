@@ -13,6 +13,7 @@ class RobotsService:
         return (
             f"User-agent: *\n"
             f"Allow: /\n"
+            f"Allow: /product/\n"
             f"Allow: /compare/\n"
             f"Disallow: /admin/\n"
             f"Disallow: /api/\n\n"

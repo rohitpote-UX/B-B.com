@@ -1,6 +1,6 @@
 /**
  * Brand Battle — Image SEO Helper
- * Generates descriptive image ALT attributes and responsive image optimization hints.
+ * Generates descriptive image ALT attributes, responsive sizing hints, and LCP optimization flags.
  */
 
 export interface ImageSeoProps {
@@ -12,12 +12,19 @@ export interface ImageSeoProps {
 
 /**
  * Generates SEO-rich, accessible ALT text for product images.
- * Example: "Nike Air Max 270 White Running Shoes"
+ * Example: "Apple AirPods Pro 2 Wireless Noise-Cancelling Earbuds"
  */
 export function buildProductImageAlt({ productName, brand, category, color }: ImageSeoProps): string {
-  const brandStr = brand && !productName.toLowerCase().includes(brand.toLowerCase()) ? `${brand} ` : ''
+  const brandPrefix = brand && !productName.toLowerCase().includes(brand.toLowerCase()) ? `${brand} ` : ''
   const colorStr = color ? ` ${color}` : ''
-  const catStr = category ? ` ${category.toLowerCase()}` : ''
+  const catStr = category && !productName.toLowerCase().includes(category.toLowerCase()) ? ` - ${category}` : ''
 
-  return `${brandStr}${productName}${colorStr}${catStr}`.trim()
+  return `${brandPrefix}${productName}${colorStr}${catStr}`.trim()
+}
+
+/**
+ * Generates comparison image ALT text.
+ */
+export function buildComparisonImageAlt(p1Name: string, p2Name: string): string {
+  return `${p1Name} vs ${p2Name} side-by-side product comparison`
 }

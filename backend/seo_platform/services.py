@@ -93,6 +93,10 @@ class SeoPlatformService:
             is_valid_seo=validation["is_valid"],
         )
 
+    def build_product_json_ld(self, p: Product) -> Dict[str, Any]:
+        """Builds Product JSON-LD schema."""
+        return structured_data_engine.generate_product_json_ld(p)
+
 
 # Singleton
 seo_platform_service = SeoPlatformService()

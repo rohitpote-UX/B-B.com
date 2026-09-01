@@ -8,18 +8,13 @@ import {
   AlertTriangle,
   Clock,
   Building2,
-  TrendingDown,
   CreditCard,
   MapPin,
-  HelpCircle,
   Flag,
   Sparkles,
-  Zap,
-  Info,
-  Check,
   ChevronDown,
   ChevronUp,
-  X
+  X,
 } from 'lucide-react'
 
 interface TrustDashboardProps {
@@ -63,28 +58,17 @@ export default function TrustDashboard({
   const marketingDiscountPercent = Math.round(((msrp - bestPrice) / msrp) * 100)
   const totalPayable = bestPrice + 19 // Item + platform fee
 
-  // Helper to format relative time
-  const getRelativeTimeStr = (dateStr?: string | Date) => {
-    if (!dateStr) return 'Verified recently'
-    const date = new Date(dateStr)
-    const elapsedSec = Math.floor((Date.now() - date.getTime()) / 1000)
-    if (elapsedSec < 60) return 'Just now'
-    if (elapsedSec < 3600) return `${Math.floor(elapsedSec / 60)}m ago`
-    if (elapsedSec < 86400) return `${Math.floor(elapsedSec / 3600)}h ago`
-    return `${Math.floor(elapsedSec / 86400)}d ago`
-  }
-
   // Consensus sources: use real prices if passed, else structured fallback
   const consensusSources = (prices && prices.length > 0)
     ? prices.map(p => ({
         name: p.platform.charAt(0).toUpperCase() + p.platform.slice(1).replace('_', ' '),
         price: p.price,
-        time: getRelativeTimeStr(p.verified_at || p.last_checked),
+        time: p.verified_at ? 'Verified' : 'Recently Checked',
         confidence: Math.round((p.confidence_score ?? 0.95) * 100),
         status: p.price === bestPrice ? 'Lowest Verified' : (p.verification_status === 'verified' ? 'Verified' : 'Recently Checked')
       }))
     : [
-        { name: bestPlatform || 'Amazon', price: bestPrice, time: getRelativeTimeStr(priceVerifiedAt), confidence: 99, status: 'Lowest Verified' },
+        { name: bestPlatform || 'Amazon', price: bestPrice, time: 'Verified recently', confidence: 99, status: 'Lowest Verified' },
         { name: 'Flipkart', price: bestPrice + 190, time: 'Recently Verified', confidence: 98, status: 'Verified' },
         { name: 'Croma', price: bestPrice - 9, time: 'Recently Verified', confidence: 97, status: 'Verified' },
         { name: 'Reliance Digital', price: bestPrice + 491, time: 'Recently Verified', confidence: 95, status: 'Verified' },
@@ -98,6 +82,20 @@ export default function TrustDashboard({
 
   const handleReportSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    try {
+      const existing = JSON.parse(localStorage.getItem('bb_moderation_reports') || '[]')
+      existing.push({
+        productId,
+        productName,
+        reportType,
+        reportText,
+        priceVerifiedAt,
+        timestamp: new Date().toISOString(),
+      })
+      localStorage.setItem('bb_moderation_reports', JSON.stringify(existing))
+    } catch {
+      // Non-blocking
+    }
     setReportSubmitted(true)
     setTimeout(() => {
       setShowReportModal(false)

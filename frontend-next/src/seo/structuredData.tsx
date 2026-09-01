@@ -1,7 +1,7 @@
 import React from 'react'
 
 export interface StructuredDataProps {
-  jsonLd: Record<string, any>
+  jsonLd?: Record<string, unknown> | null
 }
 
 export default function StructuredDataScript({ jsonLd }: StructuredDataProps) {
