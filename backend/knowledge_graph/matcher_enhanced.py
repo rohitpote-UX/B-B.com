@@ -43,9 +43,9 @@ class EnhancedMatcher:
     def extract_model_tokens(title: str) -> List[str]:
         """Extracts key identifying model tokens from a product title."""
         tokens = []
-        # Storage / RAM tokens (e.g., 256GB, 8GB)
-        storage_matches = re.findall(r'(?i)\b\d+(?:GB|TB|MB)\b', title)
-        tokens.extend([s.upper() for s in storage_matches])
+        # Storage / RAM tokens (e.g., 256GB, 8GB, 128 GB)
+        storage_matches = re.findall(r'(?i)\b\d+\s*(?:GB|TB|MB)\b', title)
+        tokens.extend([s.upper().replace(" ", "") for s in storage_matches])
 
         # Model series tokens (iPhone 17, Galaxy S26, Air Force 1, etc.)
         model_patterns = [
