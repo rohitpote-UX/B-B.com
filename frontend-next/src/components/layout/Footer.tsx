@@ -1,5 +1,4 @@
-'use client'
-
+import React from 'react'
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 
@@ -33,7 +32,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-theme-bg pt-48 pb-20 border-t border-theme-border">
+    <footer suppressHydrationWarning className="bg-theme-bg pt-48 pb-20 border-t border-theme-border">
       <div className="w-full max-w-[1536px] mx-auto px-8 md:px-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-24">
 
@@ -65,9 +64,9 @@ export default function Footer() {
             {columns.map(col => (
               <div key={col.title}>
                 <h4 className="text-[0.75rem] font-medium uppercase tracking-[0.15em] mb-8">{col.title}</h4>
-                <ul className="space-y-4">
+                <ul suppressHydrationWarning className="space-y-4">
                   {col.links.map(link => (
-                    <li key={link.label}>
+                    <li key={link.href}>
                       <Link href={link.href} className="text-[0.875rem] text-theme-secondary hover:text-theme-text transition-colors inline-flex items-center gap-1 group">
                         {link.label}
                         <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" />
@@ -82,7 +81,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[0.75rem] font-medium uppercase tracking-[0.15em]">
-          <p>© {new Date().getFullYear()} BRAND BATTLE. A GOLDSPADE PLATFORM.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} BRAND BATTLE. A GOLDSPADE PLATFORM.</p>
           <div className="flex gap-6 mt-4 sm:mt-0 items-center">
             <a
               href="https://x.com/GoldspadeFF"
