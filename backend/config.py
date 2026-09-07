@@ -26,13 +26,18 @@ class Settings(BaseSettings):
 
     @property
     def effective_database_url(self) -> str:
-        """Returns PostgreSQL URL if POSTGRES_HOST is provided, otherwise defaults to DATABASE_URL."""
+        """Returns PostgreSQL URL if POSTGRES_HOST is provided, otherwise defaults to DATABASE_URL.
+        Normalizes postgres:// to postgresql:// for SQLAlchemy 2.0+ and Render compatibility."""
         if self.POSTGRES_HOST:
-            return (
+            url = (
                 f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
                 f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
             )
-        return self.DATABASE_URL
+        else:
+            url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
 
     # JWT Auth & Security
     SECRET_KEY: str = "brand-battle-dev-secret-key-2026"

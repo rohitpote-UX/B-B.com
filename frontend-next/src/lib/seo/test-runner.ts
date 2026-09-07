@@ -27,6 +27,7 @@ import {
   buildComparisonAeoVerdict,
   buildProductImageAlt,
   validatePageSeo,
+  SEO_CONFIG,
 } from './index'
 
 export function runSeoValidationSuite(): { passed: number; failed: number; results: string[] } {
@@ -68,15 +69,16 @@ export function runSeoValidationSuite(): { passed: number; failed: number; resul
     product2Name: 'Galaxy S25',
     price1: 79900,
     price2: 74999,
+    category: 'Smartphones',
   })
   assert(cDesc.includes('79,900') && cDesc.includes('74,999'), 'Comparison description contains both prices')
 
   // 3. Canonical URL System Tests
   const pCanonical = buildProductCanonical(10)
-  assert(pCanonical === 'https://brandbattle.com/product/10', 'Product canonical URL')
+  assert(pCanonical === `${SEO_CONFIG.domain}/product/10`, 'Product canonical URL')
 
   const cCanonical = buildComparisonCanonical('iphone-16-vs-galaxy-s25')
-  assert(cCanonical === 'https://brandbattle.com/compare/iphone-16-vs-galaxy-s25', 'Comparison canonical URL')
+  assert(cCanonical === `${SEO_CONFIG.domain}/compare/iphone-16-vs-galaxy-s25`, 'Comparison canonical URL')
 
   const cleanUrl = sanitizeCanonicalUrl('https://brandbattle.com/compare/a-vs-b?utm_source=google&sort=price')
   assert(!cleanUrl.includes('utm_source') && !cleanUrl.includes('sort'), 'Sanitize canonical URL strips tracking/sort params')

@@ -17,6 +17,7 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user account."""
     # Check existing email
@@ -26,17 +27,27 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
 
+    # Determine username
+    username = user_data.username or user_data.email.split("@")[0]
+    # Ensure username is at least 3 chars
+    if len(username) < 3:
+        username = f"{username}_{abs(hash(user_data.email)) % 10000}"
+
     # Check existing username
-    if db.query(User).filter(User.username == user_data.username).first():
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username already taken"
-        )
+    if db.query(User).filter(User.username == username).first():
+        # If auto-generated username exists, append suffix
+        if not user_data.username:
+            username = f"{username}_{abs(hash(user_data.email)) % 10000}"
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Username already taken"
+            )
 
     # Create user
     user = User(
         email=user_data.email,
-        username=user_data.username,
+        username=username,
         hashed_password=hash_password(user_data.password),
         full_name=user_data.full_name,
     )

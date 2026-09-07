@@ -26,11 +26,12 @@ export default function DiscoverClient() {
       }
       const mapping = relatedCategories[interest] || { rel: ['everyday essential', 'Headphones'], sim: ['Shoes', 'premium Products'] }
       
-      const primary = (PRODUCTS as unknown as Product[]).filter(p => p.category === interest).sort(() => Math.random() - 0.5)
-      const related = (PRODUCTS as unknown as Product[]).filter(p => mapping.rel.includes(p.category)).sort(() => Math.random() - 0.5)
-      const similar = (PRODUCTS as unknown as Product[]).filter(p => mapping.sim.includes(p.category)).sort(() => Math.random() - 0.5)
-      const trending = (PRODUCTS as unknown as Product[]).filter(p => p.dealScore >= 90).sort(() => Math.random() - 0.5)
-      const smart = (PRODUCTS as unknown as Product[]).filter(p => p.rating >= 4.7).sort(() => Math.random() - 0.5)
+      const stableSort = (a: Product, b: Product) => ((b.id * 17) % 23) - ((a.id * 17) % 23)
+      const primary = (PRODUCTS as unknown as Product[]).filter(p => p.category === interest).sort(stableSort)
+      const related = (PRODUCTS as unknown as Product[]).filter(p => mapping.rel.includes(p.category)).sort(stableSort)
+      const similar = (PRODUCTS as unknown as Product[]).filter(p => mapping.sim.includes(p.category)).sort(stableSort)
+      const trending = (PRODUCTS as unknown as Product[]).filter(p => p.dealScore >= 90).sort(stableSort)
+      const smart = (PRODUCTS as unknown as Product[]).filter(p => p.rating >= 4.7).sort(stableSort)
       
       const generateChunk = () => {
          const getItems = (arr: Product[], count: number) => {
@@ -53,11 +54,11 @@ export default function DiscoverClient() {
       const loop = []
       for(let i=0; i<6; i++) {
          loop.push(...generateChunk())
-         if (primary.length < 4) primary.push(...(PRODUCTS.filter(p => p.category === interest).sort(() => Math.random() - 0.5) as unknown as Product[]))
-         if (related.length < 3) related.push(...(PRODUCTS.filter(p => mapping.rel.includes(p.category)).sort(() => Math.random() - 0.5) as unknown as Product[]))
-         if (similar.length < 2) similar.push(...(PRODUCTS.filter(p => mapping.sim.includes(p.category)).sort(() => Math.random() - 0.5) as unknown as Product[]))
-         if (trending.length < 2) trending.push(...(PRODUCTS.filter(p => p.dealScore >= 90).sort(() => Math.random() - 0.5) as unknown as Product[]))
-         if (smart.length < 2) smart.push(...(PRODUCTS.filter(p => p.rating >= 4.7).sort(() => Math.random() - 0.5) as unknown as Product[]))
+         if (primary.length < 4) primary.push(...(PRODUCTS.filter(p => p.category === interest).sort(stableSort) as unknown as Product[]))
+         if (related.length < 3) related.push(...(PRODUCTS.filter(p => mapping.rel.includes(p.category)).sort(stableSort) as unknown as Product[]))
+         if (similar.length < 2) similar.push(...(PRODUCTS.filter(p => mapping.sim.includes(p.category)).sort(stableSort) as unknown as Product[]))
+         if (trending.length < 2) trending.push(...(PRODUCTS.filter(p => p.dealScore >= 90).sort(stableSort) as unknown as Product[]))
+         if (smart.length < 2) smart.push(...(PRODUCTS.filter(p => p.rating >= 4.7).sort(stableSort) as unknown as Product[]))
       }
       
       return loop.map((p, idx) => ({...p, uniqueId: `${p.id}-${idx}`}))

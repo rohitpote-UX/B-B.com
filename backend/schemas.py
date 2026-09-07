@@ -12,7 +12,7 @@ from datetime import datetime
 
 class UserCreate(BaseModel):
     email: str = Field(..., min_length=5, max_length=255)
-    username: str = Field(..., min_length=3, max_length=100)
+    username: Optional[str] = Field(None, min_length=3, max_length=100)
     password: str = Field(..., min_length=8, max_length=128)
     full_name: Optional[str] = None
 

@@ -22,6 +22,8 @@ router = APIRouter(prefix="/api/products", tags=["Products"])
 
 
 @router.get("/search", response_model=ProductListResponse)
+@router.get("", response_model=ProductListResponse)
+@router.get("/", response_model=ProductListResponse)
 async def search_products(
     query: str = "",
     category: Optional[str] = None,
