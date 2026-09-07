@@ -35,12 +35,17 @@ async def get_current_user(
         )
 
     payload = decode_access_token(token)
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    raw_sub = payload.get("sub")
+    if raw_sub is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload",
         )
+
+    try:
+        user_id = int(raw_sub)
+    except (ValueError, TypeError):
+        user_id = raw_sub
 
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
@@ -67,9 +72,13 @@ async def get_current_user_optional(
         return None
     try:
         payload = decode_access_token(credentials.credentials)
-        user_id = payload.get("sub")
-        if user_id is None:
+        raw_sub = payload.get("sub")
+        if raw_sub is None:
             return None
+        try:
+            user_id = int(raw_sub)
+        except (ValueError, TypeError):
+            user_id = raw_sub
         user = db.query(User).filter(User.id == user_id).first()
         return user if user and user.is_active else None
     except HTTPException:

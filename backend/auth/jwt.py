@@ -18,6 +18,8 @@ REFRESH_TOKEN_EXPIRE_DAYS = 30
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Creates signed JWT access token."""
     to_encode = data.copy()
+    if "sub" in to_encode and to_encode["sub"] is not None:
+        to_encode["sub"] = str(to_encode["sub"])
     expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
@@ -33,7 +35,7 @@ def create_refresh_token(user_id: int) -> str:
     """Creates long-lived refresh token for token rotation."""
     expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "exp": expire,
         "token_type": "refresh",
         "ver": 2.0

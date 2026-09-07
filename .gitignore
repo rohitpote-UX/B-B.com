@@ -1,4 +1,22 @@
-
+# SQLite runtime files and backups
 backend/brandbattle.db
 backend/brandbattle.db-shm
 backend/brandbattle.db-wal
+backend/brandbattle.db.backup_*
+backend/recovery-backup/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node and build outputs
+node_modules/
+.next/
+build/
+dist/
