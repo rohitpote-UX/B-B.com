@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     DUMMYJSON_BASE_URL: str = "https://dummyjson.com"
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://brandbattle.in,https://www.brandbattle.in"
 
     @property
     def cors_origins_list(self) -> List[str]:

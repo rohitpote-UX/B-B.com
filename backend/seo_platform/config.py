@@ -18,7 +18,7 @@ class SeoPlatformConfig(BaseModel):
     """Master configuration for the SEO Platform."""
     enabled: bool = True
     version: str = "v10.0-enterprise-seo-publishing-platform"
-    domain: str = "https://brandbattle.com"
+    domain: str = "https://brandbattle.in"
     site_name: str = "Brand Battle"
     slo: SeoSLOs = SeoSLOs()
 

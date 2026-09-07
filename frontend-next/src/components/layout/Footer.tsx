@@ -17,17 +17,18 @@ export default function Footer() {
     {
       title: 'Company',
       links: [
-        { label: 'About', href: '#' },
-        { label: 'Journal', href: '#' },
-        { label: 'Careers', href: '#' },
+        { label: 'About', href: '/about' },
+        { label: 'How It Works', href: '/how-it-works' },
+        { label: 'Price Verification', href: '/price-verification' },
+        { label: 'Contact & Support', href: '/contact' },
       ],
     },
     {
-      title: 'Legal',
+      title: 'Legal & Trust',
       links: [
-        { label: 'Privacy Policy', href: '#' },
-        { label: 'Terms of Service', href: '#' },
-        { label: 'Cookie Policy', href: '#' },
+        { label: 'Privacy Policy', href: '/privacy' },
+        { label: 'Terms of Service', href: '/terms' },
+        { label: 'Manifesto', href: '/manifesto' },
       ],
     },
   ]

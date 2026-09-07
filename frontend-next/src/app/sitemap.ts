@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const appUrl = SEO_CONFIG.domain
   const now = new Date()
 
-  // 1. High-priority static routes
+  // 1. High-priority static and E-E-A-T routes
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${appUrl}`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     { url: `${appUrl}/discover`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
@@ -16,6 +16,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${appUrl}/compare`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${appUrl}/manifesto`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${appUrl}/advisor`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    // E-E-A-T Trust Signal Pages
+    { url: `${appUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${appUrl}/how-it-works`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${appUrl}/price-verification`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${appUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
+    { url: `${appUrl}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
+    { url: `${appUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    // Category & Festival Deal Landing Pages
+    { url: `${appUrl}/deals/smartphones`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${appUrl}/deals/laptops`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${appUrl}/deals/headphones`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${appUrl}/deals/televisions`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${appUrl}/deals/gaming`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${appUrl}/deals/diwali`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${appUrl}/deals/great-indian-festival`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${appUrl}/deals/big-billion-days`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${appUrl}/deals/black-friday`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
   ]
 
   // 2. SEO-eligible dynamic product pages

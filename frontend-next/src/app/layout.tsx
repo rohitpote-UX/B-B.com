@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     "AI shopping advisor",
     "product intelligence",
   ],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://brandbattle.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://brandbattle.in"),
   openGraph: {
     type: "website",
     locale: "en_IN",

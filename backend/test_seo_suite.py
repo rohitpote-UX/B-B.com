@@ -50,14 +50,14 @@ class MasterSeoGeoAeoTestSuite(unittest.TestCase):
                 self.assertIn("meta_description", meta)
                 self.assertIn("canonical_url", meta)
                 self.assertIn("Brand Battle", meta["title"])
-                self.assertTrue(meta["canonical_url"].startswith("https://brandbattle.com/compare/"))
+                self.assertTrue(meta["canonical_url"].startswith("https://brandbattle.in/compare/"))
         finally:
             db.close()
 
     def test_02_canonical_url_normalization(self):
         """Validates deterministic canonical URL construction."""
         canonical = canonical_engine.get_canonical_url("iphone-17-vs-galaxy-s26")
-        self.assertEqual(canonical, "https://brandbattle.com/compare/iphone-17-vs-galaxy-s26")
+        self.assertEqual(canonical, "https://brandbattle.in/compare/iphone-17-vs-galaxy-s26")
         self.assertNotIn("?", canonical)
 
     def test_03_schema_org_product_and_offer_structure(self):

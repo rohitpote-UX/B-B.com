@@ -4,11 +4,27 @@ import { SEO_CONFIG } from '@/lib/seo/seo-config'
 export default function robots(): MetadataRoute.Robots {
   const appUrl = SEO_CONFIG.domain
 
+  const publicAllowed = [
+    '/',
+    '/product/',
+    '/compare/',
+    '/discover',
+    '/deals',
+    '/manifesto',
+    '/advisor',
+    '/about',
+    '/how-it-works',
+    '/price-verification',
+    '/privacy',
+    '/terms',
+    '/contact',
+  ]
+
   return {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: [
           '/admin/',
           '/api/',
@@ -25,32 +41,32 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
       {
         userAgent: 'Bingbot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
       {
         userAgent: 'GPTBot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
       {
         userAgent: 'PerplexityBot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
       {
         userAgent: 'ClaudeBot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
       {
         userAgent: 'Applebot',
-        allow: ['/', '/product/', '/compare/', '/discover', '/deals', '/manifesto', '/advisor'],
+        allow: publicAllowed,
         disallow: ['/admin/', '/api/', '/profile', '/login', '/signup'],
       },
     ],
