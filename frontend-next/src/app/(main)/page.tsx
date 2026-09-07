@@ -6,7 +6,6 @@ import SpecComparisonChapter from '@/components/home/SpecComparisonChapter'
 import PriceIntelligenceChapter from '@/components/home/PriceIntelligenceChapter'
 import RecommendationChapter from '@/components/home/RecommendationChapter'
 import CuratedProductsGrid from '@/components/home/CuratedProductsGrid'
-import TestimonialsSection from '@/components/home/TestimonialsSection'
 import FinalCtaSection from '@/components/home/FinalCtaSection'
 import { SEO_CONFIG, buildRobotsDirectives, buildOpenGraphMetadata } from '@/lib/seo'
 
@@ -49,9 +48,6 @@ export default function LandingPage() {
 
       {/* Curated Product & Authenticated Deals Grid */}
       <CuratedProductsGrid />
-
-      {/* Industry Consensus & Testimonials */}
-      <TestimonialsSection />
 
       {/* Story Chapter 5: Decision Confidence CTA */}
       <FinalCtaSection />

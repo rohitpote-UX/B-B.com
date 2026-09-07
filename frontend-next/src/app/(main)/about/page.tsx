@@ -113,10 +113,16 @@ export default function AboutPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
+                href="/team"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
+              >
+                <span>Meet the Team</span>
+              </Link>
+              <Link
                 href="/contact"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
               >
-                <span>Get in Touch with Goldspade</span>
+                <span>Get in Touch</span>
               </Link>
             </div>
           </div>

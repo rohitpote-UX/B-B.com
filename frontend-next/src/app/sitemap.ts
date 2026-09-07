@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${appUrl}/advisor`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     // E-E-A-T Trust Signal Pages
     { url: `${appUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${appUrl}/team`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${appUrl}/price-verification`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${appUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
     { url: `${appUrl}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },

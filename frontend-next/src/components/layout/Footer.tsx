@@ -17,6 +17,7 @@ export default function Footer() {
       title: 'Company',
       links: [
         { label: 'About', href: '/about' },
+        { label: 'Team', href: '/team' },
         { label: 'Price Verification', href: '/price-verification' },
         { label: 'Contact / Get in Touch', href: '/contact' },
       ],

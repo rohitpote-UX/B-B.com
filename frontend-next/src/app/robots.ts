@@ -13,6 +13,7 @@ export default function robots(): MetadataRoute.Robots {
     '/manifesto',
     '/advisor',
     '/about',
+    '/team',
     '/price-verification',
     '/privacy',
     '/terms',
