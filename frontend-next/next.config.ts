@@ -4,6 +4,17 @@ const nextConfig: NextConfig = {
   // Output standalone build for lightweight production Docker deployment
   output: "standalone",
 
+  // Permanent redirects for consolidated/removed routes
+  async redirects() {
+    return [
+      {
+        source: "/how-it-works",
+        destination: "/about",
+        permanent: true,
+      },
+    ];
+  },
+
   // Proxy API requests to FastAPI backend
   async rewrites() {
     return [

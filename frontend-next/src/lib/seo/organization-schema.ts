@@ -11,21 +11,23 @@ export function buildOrganizationSchema(): Record<string, unknown> {
     '@type': 'Organization',
     '@id': `${SEO_CONFIG.domain}#organization`,
     name: SEO_CONFIG.organizationName,
+    alternateName: 'BrandBattle',
     url: SEO_CONFIG.domain,
     logo: {
       '@type': 'ImageObject',
       url: SEO_CONFIG.organizationLogo,
-      caption: SEO_CONFIG.organizationName,
+      caption: 'Goldspade / BrandBattle',
     },
     contactPoint: {
       '@type': 'ContactPoint',
       email: SEO_CONFIG.supportEmail,
-      contactType: 'customer support',
+      telephone: '+91-8390612060',
+      contactType: 'customer support and business inquiries',
       areaServed: 'IN',
       availableLanguage: ['English', 'Hindi'],
     },
     sameAs: [
-      `https://x.com/${SEO_CONFIG.twitterHandle.replace('@', '')}`,
+      'https://x.com/GoldspadeFF',
     ],
   }
 }

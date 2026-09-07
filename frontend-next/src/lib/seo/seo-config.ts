@@ -13,11 +13,11 @@ export const SEO_CONFIG: SeoConfig = {
   defaultDescription:
     'AI-powered product intelligence, verified marketplace prices, price history tracking, and objective product comparisons across Amazon, Flipkart, Croma, and more. Verify before you spend.',
   defaultOgImage: 'https://brandbattle.in/og-default.png',
-  twitterHandle: '@brandbattle',
+  twitterHandle: '@GoldspadeFF',
   locale: 'en_IN',
-  organizationName: 'Brand Battle Technologies Inc.',
+  organizationName: 'Goldspade',
   organizationLogo: 'https://brandbattle.in/logo.png',
-  supportEmail: 'trust@brandbattle.in',
+  supportEmail: 'hello@goldspade.in',
 }
 
 export type SeoConfigType = typeof SEO_CONFIG

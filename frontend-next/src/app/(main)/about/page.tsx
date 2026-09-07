@@ -113,10 +113,10 @@ export default function AboutPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/how-it-works"
+                href="/contact"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
               >
-                <span>How Price Aggregation Works</span>
+                <span>Get in Touch with Goldspade</span>
               </Link>
             </div>
           </div>

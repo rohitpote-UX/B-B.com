@@ -18,9 +18,8 @@ export default function Footer() {
       title: 'Company',
       links: [
         { label: 'About', href: '/about' },
-        { label: 'How It Works', href: '/how-it-works' },
         { label: 'Price Verification', href: '/price-verification' },
-        { label: 'Contact & Support', href: '/contact' },
+        { label: 'Contact / Get in Touch', href: '/contact' },
       ],
     },
     {
@@ -83,10 +82,18 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[0.75rem] font-medium uppercase tracking-[0.15em]">
-          <p>© {new Date().getFullYear()} BRAND BATTLE INC.</p>
-          <div className="flex gap-6 mt-4 sm:mt-0">
-            <a href="#" className="hover:text-theme-text transition-colors">Instagram</a>
-            <a href="#" className="hover:text-theme-text transition-colors">Twitter</a>
+          <p>© {new Date().getFullYear()} BRAND BATTLE. A GOLDSPADE PLATFORM.</p>
+          <div className="flex gap-6 mt-4 sm:mt-0 items-center">
+            <a
+              href="https://x.com/GoldspadeFF"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-theme-secondary hover:text-theme-text transition-colors flex items-center gap-1.5"
+              aria-label="Follow Goldspade on X @GoldspadeFF"
+            >
+              <span>X / Twitter</span>
+              <span className="text-theme-dim">(@GoldspadeFF)</span>
+            </a>
           </div>
         </div>
       </div>
