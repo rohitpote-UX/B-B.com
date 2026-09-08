@@ -15,7 +15,7 @@ export interface WebVitalMetric {
  * Handles Web Vitals performance reporting for SEO optimization.
  */
 export function reportWebVital(metric: WebVitalMetric): void {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || !metric) return
 
   // Non-blocking log or send to existing analytics endpoint
   if (process.env.NODE_ENV === 'development') {

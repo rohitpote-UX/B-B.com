@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Sparkles, ShieldCheck, ArrowRight, Building2 } from 'lucide-react'
+import { Sparkles, ArrowRight, Building2 } from 'lucide-react'
 import StructuredDataScript from '@/seo/structuredData'
 import { SEO_CONFIG, buildBreadcrumbSchema } from '@/lib/seo'
 import TeamCardList from './TeamCardList'
@@ -34,7 +34,7 @@ export interface TeamMember {
   company: string
   product: string
   initials: string
-  imageSrc: string
+  imageSrc?: string | null
   bio?: string
 }
 
@@ -45,7 +45,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     company: 'Goldspade',
     product: 'BrandBattle',
     initials: 'RP',
-    imageSrc: '/team/rohit-pote.jpg',
     bio: 'Directing strategic vision, core platform architecture, and product governance for BrandBattle under Goldspade.',
   },
   {
@@ -54,7 +53,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     company: 'Goldspade',
     product: 'BrandBattle',
     initials: 'TS',
-    imageSrc: '/team/tejas-salunkhe.jpg',
     bio: 'Leading engineering infrastructure, distributed scraper networks, and mathematical price verification pipelines.',
   },
   {
@@ -63,7 +61,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     company: 'Goldspade',
     product: 'BrandBattle',
     initials: 'AP',
-    imageSrc: '/team/abhijeet-patale.jpg',
     bio: 'Overseeing financial strategy, commercial partnerships, resource allocation, and operational growth.',
   },
   {
@@ -72,7 +69,6 @@ const TEAM_MEMBERS: TeamMember[] = [
     company: 'Goldspade',
     product: 'BrandBattle',
     initials: 'SD',
-    imageSrc: '/team/shivraj-desai.jpg',
     bio: 'Managing cross-functional platform operations, data pipeline reliability, and retailer partner integration.',
   },
 ]
