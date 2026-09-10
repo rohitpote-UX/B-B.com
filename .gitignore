@@ -8,7 +8,12 @@ backend/recovery-backup/
 # Environment and secrets
 .env
 .env.*
-!.env.example
+.env.example
+.env.production
+.env.staging
+.env.development
+
+
 
 # Python caches and bytecode
 __pycache__/
