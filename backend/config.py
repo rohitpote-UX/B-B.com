@@ -4,7 +4,14 @@ Loads settings from environment variables with sensible defaults.
 Supports PostgreSQL, Redis, Celery, and Security parameters.
 """
 
-from pydantic_settings import BaseSettings
+try:
+    from pydantic_settings import BaseSettings  # type: ignore
+except ImportError:
+    try:
+        from pydantic import BaseSettings  # type: ignore
+    except ImportError:
+        class BaseSettings:  # type: ignore
+            pass
 from typing import List
 import os
 
