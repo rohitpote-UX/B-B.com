@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Output standalone build for lightweight production Docker deployment
-  output: "standalone",
+  // Output standalone build for Docker deployments (omit on Vercel for native serverless/edge optimization)
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
 
   // Permanent redirects for consolidated/removed routes
   async redirects() {
