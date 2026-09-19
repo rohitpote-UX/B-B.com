@@ -5,6 +5,7 @@ import IntelligenceShowcase from '@/components/home/IntelligenceShowcase'
 import SpecComparisonChapter from '@/components/home/SpecComparisonChapter'
 import PriceIntelligenceChapter from '@/components/home/PriceIntelligenceChapter'
 import RecommendationChapter from '@/components/home/RecommendationChapter'
+import BrowseByBrand from '@/components/home/BrowseByBrand'
 import CuratedProductsGrid from '@/components/home/CuratedProductsGrid'
 import FinalCtaSection from '@/components/home/FinalCtaSection'
 import { SEO_CONFIG, buildRobotsDirectives, buildOpenGraphMetadata } from '@/lib/seo'
@@ -45,6 +46,9 @@ export default function LandingPage() {
 
       {/* Story Chapter 4: AI Recommendation Graph */}
       <RecommendationChapter />
+
+      {/* Browse by Brand */}
+      <BrowseByBrand />
 
       {/* Curated Product & Authenticated Deals Grid */}
       <CuratedProductsGrid />

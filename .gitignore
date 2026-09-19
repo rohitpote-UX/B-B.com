@@ -4,6 +4,7 @@ backend/brandbattle.db-shm
 backend/brandbattle.db-wal
 backend/brandbattle.db.backup_*
 backend/recovery-backup/
+backend_db_inventory.json
 
 # Environment and secrets
 .env

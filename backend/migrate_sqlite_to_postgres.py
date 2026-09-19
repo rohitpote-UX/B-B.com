@@ -33,6 +33,17 @@ if BACKEND_DIR not in sys.path:
 from config import settings
 from database import Base
 import models  # noqa: F401 - Register all models with Base
+try:
+    import admin_console.models  # noqa: F401
+    import affiliate_platform.models  # noqa: F401
+    import analytics_platform.models  # noqa: F401
+    import comparison_workspace.models  # noqa: F401
+    import notification_platform.models  # noqa: F401
+    import price_intelligence.models  # noqa: F401
+    import seo_platform.models  # noqa: F401
+    import verification_platform.models  # noqa: F401
+except ImportError:
+    pass
 
 logging.basicConfig(
     level=logging.INFO,
@@ -66,17 +77,17 @@ def migrate_data(
     sqlite_path: str,
     target_url: str,
     dry_run: bool = False,
-    batch_size: int = 500,
+    batch_size: int = 50,
 ) -> bool:
     """
     Executes lossless data migration from SQLite to PostgreSQL:
     1. Inspects SQLite catalog.
     2. Initializes PostgreSQL schema via Base.metadata.create_all().
-    3. Disables foreign key triggers temporarily on PostgreSQL.
-    4. Migrates all 64 tables in batches.
-    5. Re-enables foreign key triggers.
-    6. Resets PostgreSQL auto-increment sequences.
-    7. Verifies 100% row count parity.
+    3. Handles foreign key constraints safely for both managed (Neon) and unmanaged PostgreSQL.
+    4. Migrates all 64 tables in safe batches with type conversions and row-by-row fallback.
+    5. Restores all foreign key constraints.
+    6. Resets PostgreSQL auto-increment sequences to MAX(id).
+    7. Verifies 100% row count parity across all tables.
     """
     logger.info("=" * 70)
     logger.info("  BRAND BATTLE — SQLITE TO POSTGRESQL PRODUCTION MIGRATION  ")
@@ -116,10 +127,15 @@ def migrate_data(
         res = conn.execute(text("SELECT version();")).scalar()
         logger.info(f"Connected to PostgreSQL: {res}")
 
-    # 3. Create all tables in PostgreSQL
-    logger.info("Creating all registered database tables in PostgreSQL...")
-    Base.metadata.create_all(bind=pg_engine)
-    logger.info("✅ PostgreSQL tables initialized successfully.")
+    # 3. Create all tables in PostgreSQL if missing
+    existing_tables = set(inspect(pg_engine).get_table_names())
+    missing_tables = [tbl for tbl in Base.metadata.tables if tbl not in existing_tables]
+    if missing_tables:
+        logger.info(f"Creating missing {len(missing_tables)} tables in PostgreSQL...")
+        Base.metadata.create_all(bind=pg_engine)
+        logger.info("✅ PostgreSQL tables initialized successfully.")
+    else:
+        logger.info(f"All {len(Base.metadata.tables)} tables verified in PostgreSQL.")
 
     # 4. Open SQLite connection
     sqlite_conn = sqlite3.connect(sqlite_path)
@@ -129,49 +145,73 @@ def migrate_data(
     migrated_stats = {}
 
     with pg_engine.connect() as pg_conn:
-        # Temporarily disable foreign key constraints during bulk load
-        is_postgres = "postgresql" in str(pg_engine.url)
-        if is_postgres:
-            try:
-                pg_conn.execute(text("SET session_replication_role = 'replica';"))
-                pg_conn.commit()
-                logger.info("Disabled PostgreSQL foreign key triggers for bulk insertion.")
-            except Exception as e:
-                logger.warning(f"Could not set session_replication_role (non-superuser?): {e}")
+        # Check if superuser replica role can be set, or drop FK constraints temporarily
+        can_set_replica = False
+        try:
+            pg_conn.execute(text("SET session_replication_role = 'replica';"))
+            pg_conn.commit()
+            can_set_replica = True
+            logger.info("Disabled PostgreSQL foreign key triggers via session_replication_role.")
+        except Exception:
+            pg_conn.rollback()
+            logger.info("session_replication_role not allowed (managed PostgreSQL). Temporarily dropping FK constraints...")
+            fk_query = """
+            SELECT tc.table_name, tc.constraint_name
+            FROM information_schema.table_constraints AS tc
+            WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = 'public';
+            """
+            existing_fks = pg_conn.execute(text(fk_query)).fetchall()
+            for tbl, cname in existing_fks:
+                try:
+                    pg_conn.execute(text(f'ALTER TABLE "{tbl}" DROP CONSTRAINT IF EXISTS "{cname}";'))
+                except Exception:
+                    pass
+            pg_conn.commit()
+            logger.info(f"Temporarily dropped {len(existing_fks)} FK constraints.")
 
-        # Iterate through tables defined in Base.metadata
-        for table in Base.metadata.sorted_tables:
-            tbl_name = table.name
-            if tbl_name not in sqlite_counts:
-                logger.info(f"Skipping table '{tbl_name}' (not in SQLite source)")
-                continue
+        # Clean existing data
+        valid_tables = [f'"{tbl}"' for tbl in sqlite_counts if tbl in Base.metadata.tables]
+        if valid_tables:
+            pg_conn.execute(text(f"TRUNCATE TABLE {', '.join(valid_tables)} CASCADE;"))
+            pg_conn.commit()
+            logger.info(f"Cleaned existing data in {len(valid_tables)} target tables.")
 
+        # Iterate through tables in topological order
+        sorted_table_names = [t.name for t in Base.metadata.sorted_tables if t.name in sqlite_counts]
+        for tbl in sqlite_counts:
+            if tbl not in sorted_table_names and tbl in Base.metadata.tables:
+                sorted_table_names.append(tbl)
+
+        for tbl_name in sorted_table_names:
+            table = Base.metadata.tables[tbl_name]
             row_count = sqlite_counts[tbl_name]
             if row_count == 0:
                 migrated_stats[tbl_name] = (0, 0, "EMPTY")
                 continue
 
-            logger.info(f"Migrating table '{tbl_name}' ({row_count} rows)...")
             cur = sqlite_conn.cursor()
             cur.execute(f'SELECT * FROM "{tbl_name}"')
 
-            # Identify JSON columns to ensure proper dictionary serialization
+            # Identify JSON and Boolean columns
             json_cols = set()
+            bool_cols = set()
             for col in table.columns:
-                if "json" in str(col.type).lower():
+                ctype = str(col.type).lower()
+                if "json" in ctype:
                     json_cols.add(col.name)
+                elif "bool" in ctype:
+                    bool_cols.add(col.name)
 
-            batch = []
-            inserted_count = 0
+            table_batch_size = 25 if tbl_name in ["master_product_versions", "product_attributes"] else batch_size
 
             while True:
-                rows = cur.fetchmany(batch_size)
+                rows = cur.fetchmany(table_batch_size)
                 if not rows:
                     break
 
+                batch = []
                 for r in rows:
                     row_dict = dict(r)
-                    # Convert JSON string to dict/list if needed
                     for col_name in json_cols:
                         val = row_dict.get(col_name)
                         if isinstance(val, str) and val.strip():
@@ -179,19 +219,27 @@ def migrate_data(
                                 row_dict[col_name] = json.loads(val)
                             except Exception:
                                 pass
+                    for col_name in bool_cols:
+                        val = row_dict.get(col_name)
+                        if val is not None and not isinstance(val, bool):
+                            row_dict[col_name] = bool(val)
                     batch.append(row_dict)
 
                 if batch:
                     try:
                         pg_conn.execute(table.insert(), batch)
                         pg_conn.commit()
-                        inserted_count += len(batch)
-                        batch = []
                     except Exception as e:
                         pg_conn.rollback()
-                        logger.error(f"❌ Error inserting batch into '{tbl_name}': {e}")
-                        migration_success = False
-                        break
+                        logger.warning(f"Batch failed on {tbl_name}, falling back to single row inserts: {e}")
+                        for single_row in batch:
+                            try:
+                                pg_conn.execute(table.insert(), [single_row])
+                                pg_conn.commit()
+                            except Exception as row_err:
+                                pg_conn.rollback()
+                                logger.error(f"Failed to insert row in {tbl_name}: {row_err}")
+                                migration_success = False
 
             # Verify count in target
             target_count = pg_conn.execute(text(f'SELECT COUNT(*) FROM "{tbl_name}"')).scalar() or 0
@@ -200,33 +248,56 @@ def migrate_data(
             logger.info(f"  [{status}] '{tbl_name}': SQLite={row_count}, Postgres={target_count}")
 
         # Re-enable foreign key constraints
-        if is_postgres:
+        if can_set_replica:
             try:
                 pg_conn.execute(text("SET session_replication_role = 'origin';"))
                 pg_conn.commit()
                 logger.info("Re-enabled PostgreSQL foreign key triggers.")
             except Exception as e:
                 logger.warning(f"Could not restore session_replication_role: {e}")
-
-        # 5. Reset PostgreSQL sequences
-        if is_postgres:
-            logger.info("Aligning PostgreSQL auto-increment sequences...")
+        else:
+            logger.info("Restoring all foreign key constraints from SQLAlchemy metadata...")
             for table in Base.metadata.sorted_tables:
-                pk_cols = [c for c in table.columns if c.primary_key and isinstance(c.type, models.Integer)]
-                if pk_cols:
-                    pk_name = pk_cols[0].name
+                for fk in table.foreign_key_constraints:
+                    cols = [c.name for c in fk.columns]
+                    ref_cols = [c.column.name for c in fk.elements]
+                    ref_tbl = fk.referred_table.name
+                    cname = fk.name or f"{table.name}_{cols[0]}_fkey"
+                    ondelete = fk.ondelete or "NO ACTION"
+
+                    cols_str = ", ".join([f'"{c}"' for c in cols])
+                    ref_cols_str = ", ".join([f'"{c}"' for c in ref_cols])
+
+                    add_fk_sql = f"""
+                    ALTER TABLE "{table.name}"
+                    ADD CONSTRAINT "{cname}"
+                    FOREIGN KEY ({cols_str})
+                    REFERENCES "{ref_tbl}" ({ref_cols_str})
+                    ON DELETE {ondelete};
+                    """
+                    try:
+                        pg_conn.execute(text(add_fk_sql))
+                        pg_conn.commit()
+                    except Exception:
+                        pg_conn.rollback()
+
+        # 5. Reset PostgreSQL sequences to MAX(id)
+        logger.info("Aligning PostgreSQL auto-increment sequences...")
+        for table in Base.metadata.sorted_tables:
+            for col in table.columns:
+                if col.primary_key and "int" in str(col.type).lower():
                     try:
                         seq_sql = f"""
                         SELECT setval(
-                            pg_get_serial_sequence('{table.name}', '{pk_name}'),
-                            COALESCE(MAX({pk_name}), 1)
+                            pg_get_serial_sequence('"{table.name}"', '{col.name}'),
+                            COALESCE(MAX("{col.name}"), 1)
                         ) FROM "{table.name}";
                         """
                         pg_conn.execute(text(seq_sql))
                         pg_conn.commit()
                     except Exception:
-                        pass
-            logger.info("✅ Sequences aligned.")
+                        pg_conn.rollback()
+        logger.info("✅ Sequences aligned.")
 
     sqlite_conn.close()
 
@@ -271,7 +342,7 @@ def main():
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=500,
+        default=50,
         help="Number of records per insert batch"
     )
 

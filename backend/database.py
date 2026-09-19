@@ -63,6 +63,17 @@ def check_db_health() -> bool:
 def init_db():
     """Create all tables and perform safe migrations / seeding if needed."""
     import models  # noqa: F401 - Import to register models with Base
+    try:
+        import admin_console.models  # noqa: F401
+        import affiliate_platform.models  # noqa: F401
+        import analytics_platform.models  # noqa: F401
+        import comparison_workspace.models  # noqa: F401
+        import notification_platform.models  # noqa: F401
+        import price_intelligence.models  # noqa: F401
+        import seo_platform.models  # noqa: F401
+        import verification_platform.models  # noqa: F401
+    except ImportError:
+        pass
     Base.metadata.create_all(bind=engine)
 
     # Safe column migrations for SQLite development DB

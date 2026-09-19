@@ -4,13 +4,29 @@ import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, SlidersHorizontal, ArrowRight } from 'lucide-react'
+import { Search, SlidersHorizontal, ArrowRight, X } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
+
+const POPULAR_BRANDS = [
+  'Samsung',
+  'Apple',
+  'Motorola',
+  'OnePlus',
+  'Xiaomi',
+  'Vivo',
+  'Realme',
+  'Nothing',
+  'Sony',
+  'boAt',
+  'OPPO',
+  'iQOO',
+]
 
 export default function SearchClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const initialQuery = searchParams.get('q') || ''
+  const selectedBrand = searchParams.get('brand') || ''
   const [query, setQuery] = useState(initialQuery)
   const [sortBy, setSortBy] = useState('relevance')
   const [showFilters, setShowFilters] = useState(false)
@@ -26,6 +42,16 @@ export default function SearchClient() {
 
   const filtered = useMemo(() => {
     let results = [...PRODUCTS]
+    if (selectedBrand) {
+      const b = selectedBrand.toLowerCase()
+      results = results.filter(p => {
+        const prodBrand = (p.brand || '').toLowerCase()
+        if (b === 'nothing') {
+          return prodBrand === 'nothing' || prodBrand === 'cmf by nothing'
+        }
+        return prodBrand === b
+      })
+    }
     if (query) {
       const q = query.toLowerCase()
       results = results.filter(p =>
@@ -46,11 +72,14 @@ export default function SearchClient() {
     }
     
     return results
-  }, [query, sortBy, selectedCategory])
+  }, [query, sortBy, selectedCategory, selectedBrand])
 
-  const updateSearchParams = (newQuery: string) => {
+  const updateSearchParams = (newQuery?: string, newBrand?: string) => {
     const params = new URLSearchParams()
-    if (newQuery) params.set('q', newQuery)
+    const qVal = newQuery !== undefined ? newQuery : query
+    const bVal = newBrand !== undefined ? newBrand : selectedBrand
+    if (qVal) params.set('q', qVal)
+    if (bVal) params.set('brand', bVal)
     router.push(`/search${params.toString() ? '?' + params.toString() : ''}`, { scroll: false })
   }
 
@@ -61,7 +90,7 @@ export default function SearchClient() {
         <div className="mb-24 max-w-3xl">
            <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] block mb-8">Catalog</span>
            <h1 className="text-[3rem] sm:text-[4.5rem] lg:text-[5.5rem] font-[var(--font-display)] font-medium leading-[1.05] tracking-tight text-theme-text mb-12">
-             {query ? `Search: ${query}` : 'All Products.'}
+             {query ? `Search: ${query}` : selectedBrand ? `${selectedBrand} Products.` : 'All Products.'}
            </h1>
            
            <form onSubmit={e => { e.preventDefault(); updateSearchParams(query) }} className="flex items-center border-b border-theme-border pb-8 focus-within:border-theme-text transition-colors">
@@ -73,7 +102,7 @@ export default function SearchClient() {
                 placeholder="Search products, brands, or categories..."
                 className="w-full bg-transparent text-[1.125rem] text-theme-text placeholder:text-theme-dim focus:outline-none"
               />
-              <button type="button" onClick={() => setShowFilters(!showFilters)} className="ml-4 text-theme-secondary hover:text-theme-text transition-colors">
+              <button type="button" onClick={() => setShowFilters(!showFilters)} className="ml-4 text-theme-secondary hover:text-theme-text transition-colors" aria-label="Toggle filter panel">
                  <SlidersHorizontal className="w-5 h-5" />
               </button>
            </form>
@@ -94,6 +123,28 @@ export default function SearchClient() {
                 >{cat === 'all' ? 'Everything' : cat}</button>
               ))}
             </div>
+
+            {/* Active Brand Filter Pill */}
+            {selectedBrand && (
+              <div className="mt-6 flex items-center gap-3 flex-wrap">
+                <span className="text-[0.7rem] font-medium uppercase tracking-[0.12em] text-theme-muted">
+                  Filtered by:
+                </span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#ff1695]/10 border border-[#ff1695]/30 text-[#ff1695] text-[0.75rem] font-mono uppercase tracking-wider rounded-full">
+                  <span>Brand: {selectedBrand}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateSearchParams(query, '')
+                    }}
+                    className="hover:text-white transition-colors ml-1 p-0.5"
+                    aria-label={`Remove ${selectedBrand} brand filter`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Filters Panel */}
@@ -101,7 +152,7 @@ export default function SearchClient() {
           {showFilters && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-24">
               <div className="bg-theme-elevated p-12 lg:p-16 mb-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
                   <div>
                     <label className="text-[0.75rem] font-medium uppercase tracking-[0.15em] block mb-6">Category</label>
                     <div className="flex flex-col gap-4">
@@ -117,6 +168,40 @@ export default function SearchClient() {
                             selectedCategory === cat ? 'text-theme-text font-medium' : 'text-theme-secondary hover:text-theme-text'
                           }`}
                         >{cat === 'all' ? 'Everything' : cat}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[0.75rem] font-medium uppercase tracking-[0.15em] block mb-6">Brand</label>
+                    <div className="flex flex-col gap-3 max-h-56 overflow-y-auto pr-2 hide-scrollbar">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateSearchParams(query, '')
+                          setShowFilters(false)
+                          setTimeout(() => document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
+                        }}
+                        className={`text-left text-[0.875rem] transition-colors ${
+                          !selectedBrand ? 'text-theme-text font-medium' : 'text-theme-secondary hover:text-theme-text'
+                        }`}
+                      >
+                        All Brands
+                      </button>
+                      {POPULAR_BRANDS.map(b => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => {
+                            updateSearchParams(query, b)
+                            setShowFilters(false)
+                            setTimeout(() => document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
+                          }}
+                          className={`text-left text-[0.875rem] transition-colors ${
+                            selectedBrand.toLowerCase() === b.toLowerCase() ? 'text-theme-text font-medium' : 'text-theme-secondary hover:text-theme-text'
+                          }`}
+                        >
+                          {b}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -194,7 +279,7 @@ export default function SearchClient() {
           <div className="py-32 flex flex-col items-center text-center">
             <h3 className="text-[2rem] sm:text-[3rem] lg:text-[3.5rem] font-medium leading-[1.1] tracking-tight text-theme-text mb-4">Nothing found.</h3>
             <p className="text-[1.125rem] sm:text-[1.25rem] leading-[1.6] tracking-tight max-w-md text-theme-secondary">Try adjusting your search query or removing filters to see more results.</p>
-            <button onClick={() => { setQuery(''); setSelectedCategory('all') }} className="inline-flex items-center justify-center px-10 py-5 bg-transparent border border-theme-border text-theme-text text-[0.875rem] font-medium tracking-wide transition-all duration-300 rounded-[2px] hover:border-theme-text mt-8">Clear Everything</button>
+            <button onClick={() => { setQuery(''); setSelectedCategory('all'); updateSearchParams('', '') }} className="inline-flex items-center justify-center px-10 py-5 bg-transparent border border-theme-border text-theme-text text-[0.875rem] font-medium tracking-wide transition-all duration-300 rounded-[2px] hover:border-theme-text mt-8">Clear Everything</button>
           </div>
         )}
       </div>
