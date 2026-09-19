@@ -9,6 +9,8 @@ from typing import Dict, Any, List, Tuple, Optional
 from difflib import SequenceMatcher
 import logging
 
+from sqlalchemy.orm import Session
+
 logger = logging.getLogger("brandbattle.kg.matcher")
 
 
