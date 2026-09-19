@@ -1,0 +1,72 @@
+# Brand Battle — Render Infrastructure as Code Blueprint
+# Defines the Production FastAPI Web Service, Managed PostgreSQL, and Scheduled Refresh Cron.
+# Target API Domain: https://api.brandbattle.in
+
+services:
+  # ─── FastAPI Production Web Service ──────────────────────────────────────────
+  - type: web
+    name: brandbattle-api
+    runtime: python
+    rootDir: backend
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: false
+      - key: APP_NAME
+        value: "Brand Battle"
+      - key: APP_VERSION
+        value: "1.0.0"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brandbattle-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: ALLOWED_HOSTS
+        value: api.brandbattle.in,brandbattle.in,www.brandbattle.in,localhost
+      - key: CORS_ORIGINS
+        value: https://brandbattle.in,https://www.brandbattle.in,http://localhost:3000
+      - key: REDIS_ENABLED
+        value: "false"
+
+  # ─── Scheduled Data Refresh Cron Job (Every 6 Hours) ─────────────────────────
+  - type: cron
+    name: brandbattle-data-refresh
+    runtime: python
+    rootDir: backend
+    schedule: "0 */6 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python refresh_production_data.py --full-refresh
+    envVars:
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brandbattle-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+
+# ─── Managed PostgreSQL Database ─────────────────────────────────────────────
+databases:
+  - name: brandbattle-db
+    databaseName: brandbattle_prod_db
+    user: brandbattle_admin
+    plan: starter
+    region: oregon
+    ipAllowList: [] # Allows internal access from Render services and authorized IPs

@@ -33,8 +33,8 @@
 ### Step 1: Environment Variables Setup
 Ensure production environment variables are configured in `.env.production` or your hosting provider (Vercel, AWS, Cloudflare):
 ```env
-NEXT_PUBLIC_APP_URL=https://brandbattle.com
-NEXT_PUBLIC_API_URL=https://api.brandbattle.com
+NEXT_PUBLIC_APP_URL=https://brandbattle.in
+NEXT_PUBLIC_API_URL=https://api.brandbattle.in/api
 NODE_ENV=production
 ```
 
@@ -51,13 +51,13 @@ py -m unittest discover -s . -p "test_*.py"
 ```
 
 ### Step 3: Google Search Console (GSC) & Bing Webmaster Verification
-1. Submit XML Sitemap: `https://brandbattle.com/sitemap.xml`
-2. Test robots.txt URL: `https://brandbattle.com/robots.txt`
+1. Submit XML Sitemap: `https://brandbattle.in/sitemap.xml`
+2. Test robots.txt URL: `https://brandbattle.in/robots.txt`
 3. Verify URL Inspection on sample routes:
-   - Homepage: `https://brandbattle.com`
-   - Product: `https://brandbattle.com/product/1`
-   - Comparison: `https://brandbattle.com/compare/iphone-17-pro-max-vs-samsung-galaxy-s26-ultra`
-   - Deals: `https://brandbattle.com/deals`
+   - Homepage: `https://brandbattle.in`
+   - Product: `https://brandbattle.in/product/1`
+   - Comparison: `https://brandbattle.in/compare/iphone-17-pro-max-vs-samsung-galaxy-s26-ultra`
+   - Deals: `https://brandbattle.in/deals`
 
 ### Step 4: Schema.org Rich Results Validation
 Validate live URLs with Google's Rich Results Test tool:

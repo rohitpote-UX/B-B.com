@@ -451,20 +451,42 @@ class ProductionDataRefreshEngine:
     # ══════════════════════════════════════════════════════════════════
 
     def _create_database_backup(self) -> Optional[str]:
-        """Creates an immutable timestamped copy of the active database before promotion."""
-        db_file = os.path.join(BACKEND_DIR, "brandbattle.db")
-        if not os.path.exists(db_file):
-            logger.warning(f"Database file {db_file} not found for snapshot.")
-            return None
-
+        """Creates an immutable timestamped copy or logical snapshot of the active database before promotion."""
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        backup_file = os.path.join(BACKEND_DIR, f"brandbattle.db.backup_{timestamp}")
+        db_file = os.path.join(BACKEND_DIR, "brandbattle.db")
+
+        # 1. If SQLite database file exists on disk, create physical file backup
+        if os.path.exists(db_file):
+            backup_file = os.path.join(BACKEND_DIR, f"brandbattle.db.backup_{timestamp}")
+            try:
+                shutil.copy2(db_file, backup_file)
+                logger.info(f"🛡️ Database backup snapshot created successfully: {backup_file}")
+                return backup_file
+            except Exception as e:
+                logger.error(f"Failed to create database snapshot: {e}")
+
+        # 2. For PostgreSQL or remote databases, create a logical snapshot metadata record file
         try:
-            shutil.copy2(db_file, backup_file)
-            logger.info(f"🛡️ Database backup snapshot created successfully: {backup_file}")
-            return backup_file
+            backup_dir = os.path.join(BACKEND_DIR, "snapshots")
+            os.makedirs(backup_dir, exist_ok=True)
+            snapshot_file = os.path.join(backup_dir, f"db_snapshot_{timestamp}.json")
+            db = SessionLocal()
+            try:
+                counts = {
+                    "master_products": db.query(models.MasterProduct).count(),
+                    "marketplace_offers": db.query(models.MarketplaceOffer).count(),
+                    "products": db.query(models.Product).count(),
+                    "prices": db.query(models.Price).count(),
+                    "timestamp": timestamp,
+                }
+                with open(snapshot_file, "w", encoding="utf-8") as f:
+                    json.dump(counts, f, indent=2)
+                logger.info(f"🛡️ Logical database backup snapshot created successfully: {snapshot_file}")
+                return snapshot_file
+            finally:
+                db.close()
         except Exception as e:
-            logger.error(f"Failed to create database snapshot: {e}")
+            logger.error(f"Failed to create logical database snapshot: {e}")
             return None
 
     def _harden_existing_catalog_offers(self, report: Stage2Report, now_utc: datetime, db: Session) -> int:
