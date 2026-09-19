@@ -35,6 +35,9 @@ export default function LandingPage() {
       {/* Trust & Intelligence Strip */}
       <TrustStrip />
 
+      {/* Browse by Brand */}
+      <BrowseByBrand />
+
       {/* Story Chapter 1: Product Intelligence */}
       <IntelligenceShowcase />
 
@@ -46,9 +49,6 @@ export default function LandingPage() {
 
       {/* Story Chapter 4: AI Recommendation Graph */}
       <RecommendationChapter />
-
-      {/* Browse by Brand */}
-      <BrowseByBrand />
 
       {/* Curated Product & Authenticated Deals Grid */}
       <CuratedProductsGrid />
