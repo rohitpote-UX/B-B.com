@@ -15,15 +15,18 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Proxy API requests to FastAPI backend
+  // Proxy /api/* requests to the FastAPI backend (used by SSR and server components)
+  // Controlled by NEXT_PUBLIC_API_BASE_URL — same var as the Axios client in src/lib/api.ts
   async rewrites() {
-    const rawApiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "").replace(/\/api$/, "");
+    const rawApiUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000')
+      .replace(/\/+$/, '')
+      .replace(/\/api$/, '')
     return [
       {
-        source: "/api/:path*",
+        source: '/api/:path*',
         destination: `${rawApiUrl}/api/:path*`,
       },
-    ];
+    ]
   },
 
   // Allow external product images from e-commerce CDNs

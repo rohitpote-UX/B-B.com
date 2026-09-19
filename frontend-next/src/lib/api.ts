@@ -1,7 +1,21 @@
 import axios from 'axios'
 
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || ''
-// Normalize base URL: strip trailing slashes and any trailing '/api' to avoid '/api/api' duplicates
+// ─── Backend Base URL ─────────────────────────────────────────────────────────
+// Controlled exclusively by NEXT_PUBLIC_API_BASE_URL.
+// Set this in Vercel Project Settings → Environment Variables for production.
+// For local dev, add it to frontend-next/.env.local (see .env.example).
+const rawUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ''
+
+if (!rawUrl && typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.error(
+    '[BrandBattle] ⚠️  NEXT_PUBLIC_API_BASE_URL is not set.\n' +
+    'Add it to frontend-next/.env.local:\n' +
+    '  NEXT_PUBLIC_API_BASE_URL=http://localhost:8000\n' +
+    'API calls will fall back to relative /api/* paths (Next.js rewrite proxy).'
+  )
+}
+
+// Normalize: strip trailing slashes and any trailing /api suffix to prevent /api/api duplicates
 const normalizedBase = rawUrl.replace(/\/+$/, '').replace(/\/api$/, '')
 const API_BASE_URL = normalizedBase ? `${normalizedBase}/api` : '/api'
 
