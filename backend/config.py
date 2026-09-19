@@ -33,9 +33,12 @@ class Settings(BaseSettings):
 
     @property
     def effective_database_url(self) -> str:
-        """Returns PostgreSQL URL if POSTGRES_HOST is provided, otherwise defaults to DATABASE_URL.
+        """Returns PostgreSQL URL. Prioritizes explicitly provided DATABASE_URL (e.g. Neon connection string).
+        Falls back to POSTGRES_HOST composite URL if DATABASE_URL is not set or default sqlite.
         Normalizes postgres:// to postgresql:// for SQLAlchemy 2.0+ and Render compatibility."""
-        if self.POSTGRES_HOST:
+        if self.DATABASE_URL and ("neon.tech" in self.DATABASE_URL or "postgresql" in self.DATABASE_URL or "postgres" in self.DATABASE_URL):
+            url = self.DATABASE_URL
+        elif self.POSTGRES_HOST:
             url = (
                 f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
                 f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

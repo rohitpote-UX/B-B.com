@@ -26,9 +26,7 @@ services:
       - key: PYTHON_VERSION
         value: "3.11.9"
       - key: DATABASE_URL
-        fromDatabase:
-          name: brandbattle-db
-          property: connectionString
+        sync: false # Set in Render Dashboard or .env (Neon PostgreSQL)
       - key: SECRET_KEY
         generateValue: true
       - key: ALGORITHM
@@ -56,17 +54,6 @@ services:
       - key: DEBUG
         value: false
       - key: DATABASE_URL
-        fromDatabase:
-          name: brandbattle-db
-          property: connectionString
+        sync: false # Set in Render Dashboard or .env (Neon PostgreSQL)
       - key: PYTHON_VERSION
         value: "3.11.9"
-
-# ─── Managed PostgreSQL Database ─────────────────────────────────────────────
-databases:
-  - name: brandbattle-db
-    databaseName: brandbattle_prod_db
-    user: brandbattle_admin
-    plan: starter
-    region: oregon
-    ipAllowList: [] # Allows internal access from Render services and authorized IPs
