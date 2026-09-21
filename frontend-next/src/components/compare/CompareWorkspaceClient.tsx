@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Trophy, TrendingUp, Star, ArrowRight, ShieldCheck, ChevronDown, Sparkles } from 'lucide-react'
 import { PRODUCTS, PLATFORMS, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 import DeepCompare from '@/components/compare/DeepCompare'
 import AIDecisionWorkspace from '@/components/compare/AIDecisionWorkspace'
 
@@ -161,7 +162,7 @@ export default function CompareWorkspaceClient() {
                         {searchResults.length > 0 ? (
                           searchResults.map(p => (
                             <button key={p.id} onClick={() => selectProduct(p, slot)} className="w-full flex items-center gap-4 text-left group border-b border-theme-border pb-3 last:border-b-0 min-h-[48px]">
-                               <div className="w-12 h-12 bg-white flex items-center justify-center p-1.5 mb-0 rounded-[2px] border border-theme-border shrink-0"><img src={p.image} alt="" className="mix-blend-multiply max-w-full max-h-full object-contain" /></div>
+                               <div className="w-12 h-12 bg-white flex items-center justify-center p-1.5 mb-0 rounded-[2px] border border-theme-border shrink-0"><img src={p.image} alt="" className="mix-blend-multiply max-w-full max-h-full object-contain" onError={handleProductImageError} /></div>
                                <div className="flex-1 min-w-0">
                                   <p className="text-[0.875rem] font-medium text-theme-text group-hover:text-theme-secondary transition-colors line-clamp-1">{p.name}</p>
                                   <p className="text-[0.75rem] text-theme-muted mt-0.5">{formatPrice(p.bestPrice)}</p>
@@ -177,9 +178,9 @@ export default function CompareWorkspaceClient() {
                   </div>
                 ) : product ? (
                   <>
-                     <div className="h-48 sm:h-80 mb-6 sm:mb-16 flex items-center justify-center w-full">
-                        <img src={product.image} alt="" className="max-h-full max-w-full object-contain filter drop-shadow-xl" />
-                     </div>
+                      <div className="h-48 sm:h-80 mb-6 sm:mb-16 flex items-center justify-center w-full">
+                         <img src={product.image} alt="" className="max-h-full max-w-full object-contain filter drop-shadow-xl" onError={handleProductImageError} />
+                      </div>
                      <span className="text-[0.75rem] font-medium uppercase tracking-[0.15em] mb-3 sm:mb-4">{product.brand}</span>
                      <h3 className="text-[1.25rem] sm:text-[2rem] lg:text-[2.5rem] font-medium leading-[1.1] tracking-tight text-theme-text mb-4 sm:mb-6">{product.name}</h3>
                      <p className="text-[1.5rem] sm:text-[2rem] font-medium text-theme-text mb-6 sm:mb-8">{formatPrice(product.bestPrice)}</p>

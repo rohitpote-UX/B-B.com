@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "assets.myntassets.com" },
       { protocol: "https", hostname: "media.croma.com" },
       { protocol: "https", hostname: "www.transparenttextures.com" },
+      { protocol: "https", hostname: "dummyjson.com" },
+      { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
     // Disable default image optimization for external images to avoid 429s
     unoptimized: true,

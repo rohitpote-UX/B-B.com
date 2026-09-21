@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Tag, Star, ArrowLeftRight } from 'lucide-react'
 import { PRODUCTS, DEALS, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 
 export default function CuratedProductsGrid() {
   const showcaseProducts = PRODUCTS.slice(0, 8)
@@ -71,6 +72,7 @@ export default function CuratedProductsGrid() {
                     src={product.image}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-110 transition-transform duration-700 ease-out"
+                    onError={handleProductImageError}
                   />
                 </div>
 

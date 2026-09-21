@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeftRight, ShieldCheck, Sparkles, Zap, CheckCircle2 } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
 import { FEATURE_FLAGS } from '@/lib/flags'
+import { handleProductImageError } from '@/lib/image-fallback'
 import api from '@/lib/api'
 
 export default function LatestReleasesSection() {
@@ -128,6 +129,7 @@ export default function LatestReleasesSection() {
                         alt={product.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"
+                        onError={handleProductImageError}
                       />
                     </Link>
 

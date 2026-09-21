@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, ShieldCheck, TrendingDown, Cpu, CheckCircle2 } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 
 export default function HeroSection() {
   const heroProduct = PRODUCTS[0] || {
@@ -154,6 +155,7 @@ export default function HeroSection() {
                         src={heroProduct.image}
                         alt={heroProduct.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-700"
+                        onError={handleProductImageError}
                       />
                     </div>
                     <h4 className="text-[0.7rem] sm:text-xs font-medium text-white line-clamp-1">{heroProduct.name}</h4>
@@ -174,6 +176,7 @@ export default function HeroSection() {
                         src={competitorProduct.image}
                         alt={competitorProduct.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)] opacity-90 group-hover:scale-105 transition-transform duration-700"
+                        onError={handleProductImageError}
                       />
                     </div>
                     <h4 className="text-[0.7rem] sm:text-xs font-medium text-white/80 line-clamp-1">{competitorProduct.name}</h4>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal, ArrowRight, X } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 
 const POPULAR_BRANDS = [
   'Samsung',
@@ -253,7 +254,7 @@ export default function SearchClient() {
                   {product.dealScore >= 85 && (
                      <div className="absolute top-6 left-6 z-10 text-[0.75rem] font-medium uppercase tracking-[0.15em] bg-theme-text text-theme-bg px-4 py-1.5">Hot Deal</div>
                   )}
-                  <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700" />
+                  <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700" onError={handleProductImageError} />
                 </div>
                 <div>
                   <h3 className="text-[1.125rem] font-medium text-theme-text tracking-tight mb-2">{product.name}</h3>

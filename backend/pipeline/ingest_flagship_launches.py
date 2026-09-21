@@ -63,7 +63,7 @@ NEW_LAUNCHES = [
         "color_family": "red",
         "description": "Apple iPhone 18 Pro with next-generation A20 Pro 2nm chip, 6.3-inch Super Retina XDR OLED with ProMotion 120Hz, triple 48MP camera system with variable mechanical aperture and 5x optical zoom, titanium frame, and Camera Control.",
         "short_description": "Apple iPhone 18 Pro (256 GB) — A20 Pro chip, 6.3\" Super Retina XDR 120Hz, 48MP Pro Camera.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/u/m/b/-original-imahf39qhzhy87zf.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/71657TiFeHL._SX679_.jpg",
         "lowest_price": 164900.0,
         "highest_price": 169900.0,
         "deal_score": 92,
@@ -132,7 +132,7 @@ NEW_LAUNCHES = [
         "color_family": "gray",
         "description": "Apple iPhone 18 Pro Max features an expansive 6.9-inch Super Retina XDR display, A20 Pro chip, 48MP Triple Camera with 10x Tetraprism Periscope Zoom, and industry-leading all-day battery life.",
         "short_description": "Apple iPhone 18 Pro Max (256 GB) — A20 Pro, 6.9\" Super Retina XDR 120Hz, 10x Optical Zoom.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/h/d/9/-original-imahf39q5gn6gzp4.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/81+GIkwqLIL._SX679_.jpg",
         "lowest_price": 179900.0,
         "highest_price": 184900.0,
         "deal_score": 90,
@@ -201,7 +201,7 @@ NEW_LAUNCHES = [
         "color_family": "blue",
         "description": "Apple iPhone 18 powered by the A19 Bionic chip, 6.1-inch Super Retina XDR OLED display with ProMotion 120Hz, 48MP Dual Fusion Camera, Dynamic Island, and Camera Control.",
         "short_description": "Apple iPhone 18 (128 GB) — A19 Bionic, 6.1\" Super Retina XDR 120Hz, 48MP Fusion Camera.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/e/y/x/-original-imahf39qcgzjh9gz.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/71657TiFeHL._AC_UL600_.jpg",
         "lowest_price": 79900.0,
         "highest_price": 82900.0,
         "deal_score": 88,
@@ -270,7 +270,7 @@ NEW_LAUNCHES = [
         "color_family": "gray",
         "description": "Samsung Galaxy S26 Ultra 5G features a 6.8-inch Dynamic AMOLED 2X QHD+ 120Hz display, Snapdragon 8 Elite Galaxy Edition, 200MP Quad Camera with 100x Space Zoom, built-in S-Pen, and Galaxy AI 3.0.",
         "short_description": "Samsung Galaxy S26 Ultra 5G (256 GB) — Snapdragon 8 Elite, 200MP Quad Camera, Built-in S-Pen.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/5/r/x/-original-imahf39qpwhrg5zq.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/71J8tz0UeJL._SX679_.jpg",
         "lowest_price": 129999.0,
         "highest_price": 139999.0,
         "deal_score": 94,
@@ -339,7 +339,7 @@ NEW_LAUNCHES = [
         "color_family": "gray",
         "description": "Google Pixel 10 Pro with custom TSMC-built Tensor G5 processor, 6.3-inch Super Actua LTPO display, 50MP Pro triple camera with 5x telephoto, Gemini Nano Gen 2 on-device AI, and 7 years of OS upgrades.",
         "short_description": "Google Pixel 10 Pro (256 GB) — Tensor G5 (TSMC 3nm), 50MP Triple Camera, Gemini Nano Gen 2.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/g/p/1/-original-imahf39qzx4hyz8w.jpeg?q=90",
+        "primary_image_url": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?q=80&w=800&auto=format&fit=crop",
         "lowest_price": 109999.0,
         "highest_price": 119999.0,
         "deal_score": 91,
@@ -408,7 +408,7 @@ NEW_LAUNCHES = [
         "color_family": "green",
         "description": "OnePlus 15 Pro powered by Snapdragon 8 Elite, 6.82-inch 2K ProXDR 120Hz LTPO display, 50MP Hasselblad triple camera with 3x periscope zoom, 6000mAh Glacier Battery, and 100W SuperVOOC charging.",
         "short_description": "OnePlus 15 Pro (512 GB) — Snapdragon 8 Elite, 6000mAh Glacier Battery, Hasselblad Optics.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/1/5/p/-original-imahf39q9z5gty8k.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/6175SlKKECL._SX679_.jpg",
         "lowest_price": 64999.0,
         "highest_price": 69999.0,
         "deal_score": 93,
@@ -477,7 +477,7 @@ NEW_LAUNCHES = [
         "color_family": "white",
         "description": "Nothing Phone (3) introduces Glyph Matrix 2.0 with interactive LED animations, Snapdragon 8s Gen 4 processor, 6.7-inch Flexible AMOLED 120Hz display, dual 50MP Sony cameras, and Nothing OS 3.0.",
         "short_description": "Nothing Phone (3) (256 GB) — Glyph Matrix 2.0, Snapdragon 8s Gen 4, Nothing OS 3.0.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/n/3/p/-original-imahf39quzh6ty7x.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/717B2B7Hm8L._SX679_.jpg",
         "lowest_price": 46999.0,
         "highest_price": 49999.0,
         "deal_score": 91,
@@ -546,7 +546,7 @@ NEW_LAUNCHES = [
         "color_family": "black",
         "description": "Apple MacBook Pro 16-inch with Apple M5 Max chip (16-core CPU, 40-core GPU), 36GB unified memory, 1TB SSD, Liquid Retina XDR display with Nano-texture option, and up to 24 hours battery life.",
         "short_description": "Apple MacBook Pro 16\" M5 Max — 16-core CPU, 40-core GPU, 36GB Unified Memory, 1TB SSD.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/computer/m/5/x/-original-imahf39q54hkg8zm.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/61fd2oCrvyL._SX679_.jpg",
         "lowest_price": 349900.0,
         "highest_price": 369900.0,
         "deal_score": 89,
@@ -615,7 +615,7 @@ NEW_LAUNCHES = [
         "color_family": "black",
         "description": "Sony WH-1000XM6 premium wireless noise-canceling headphones powered by the revolutionary QN3 processor, 30mm carbon-fiber drivers, LDAC Hi-Res Audio Wireless, 35-hour battery life, and AI beamforming voice microphones.",
         "short_description": "Sony WH-1000XM6 — QN3 HD Noise Canceling Processor, LDAC Hi-Res Audio, 35hr Battery.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/headphone/s/o/n/-original-imahf39qm4hz7gyr.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/61sGlge485L._AC_UL500_.jpg",
         "lowest_price": 34990.0,
         "highest_price": 39990.0,
         "deal_score": 95,
@@ -683,7 +683,7 @@ NEW_LAUNCHES = [
         "color_family": "white",
         "description": "Apple AirPods Pro 3 feature the Apple H3 chip, 2x stronger Active Noise Cancellation, Lossless Audio support, Adaptive Audio with live conversation detection, built-in heart rate tracking sensor, and MagSafe USB-C case.",
         "short_description": "Apple AirPods Pro 3 — Apple H3 chip, 2x Stronger ANC, Heart Rate Sensor, Lossless Audio.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/headphone/a/p/3/-original-imahf39qp9zhk7yr.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/61SUj2aKoEL._SX679_.jpg",
         "lowest_price": 26900.0,
         "highest_price": 28900.0,
         "deal_score": 92,
@@ -749,7 +749,7 @@ NEW_LAUNCHES = [
         "color_family": "gray",
         "description": "Apple Watch Ultra 3 engineered for endurance, outdoor exploration, and water sports with a 49mm aerospace-grade titanium case, 3000 nits display, dual-frequency GPS, S10 SiP with on-device Siri, and 72-hour Low Power Mode.",
         "short_description": "Apple Watch Ultra 3 — 49mm Titanium, 3000 nits, Dual-Frequency GPS, 72hr Battery.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/smartwatch/u/l/3/-original-imahf39qyh5t78zm.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/91z5KuonXrL._SX679_.jpg",
         "lowest_price": 89900.0,
         "highest_price": 94900.0,
         "deal_score": 89,
@@ -816,7 +816,7 @@ NEW_LAUNCHES = [
         "color_family": "white",
         "description": "Sony PlayStation 5 Pro console with upgraded GPU delivering 45% faster rendering, Advanced Ray Tracing, PlayStation Spectral Super Resolution (PSSR AI Upscaling), and 2TB ultra-fast internal NVMe SSD.",
         "short_description": "Sony PlayStation 5 Pro — 67% More Compute Units, PSSR AI Upscaling, 2TB SSD.",
-        "primary_image_url": "https://rukminim2.flixcart.com/image/800/800/xif0q/gamingconsole/p/5/p/-original-imahf39qwhk5ty7z.jpeg?q=90",
+        "primary_image_url": "https://m.media-amazon.com/images/I/51051FiD9UL._SX679_.jpg",
         "lowest_price": 69990.0,
         "highest_price": 74990.0,
         "deal_score": 93,
@@ -951,6 +951,7 @@ def ingest_to_database(db):
             print(f"  [+] MasterProduct created: #{master.id} {master.canonical_name}")
         else:
             total_existing_masters += 1
+            master.primary_image_url = item["primary_image_url"]
             master.lowest_price = item["lowest_price"]
             master.highest_price = item["highest_price"]
             master.is_verified = True
@@ -993,6 +994,7 @@ def ingest_to_database(db):
             total_new_products += 1
             print(f"    [+] Product created: #{prod.id} {prod.name}")
         else:
+            prod.image_url = item["primary_image_url"]
             prod.current_best_price = item["lowest_price"]
             prod.lowest_price = item["lowest_price"]
             prod.highest_price = item["highest_price"]
@@ -1042,6 +1044,7 @@ def ingest_to_database(db):
                 total_new_offers += 1
                 print(f"      [+] MarketplaceOffer: [{mp.upper()}] ₹{off_data['price']:,.0f} | Seller: {off_data['seller_name']}")
             else:
+                offer.image_url = item["primary_image_url"]
                 offer.price = off_data["price"]
                 offer.original_price = off_data["original_price"]
                 offer.verification_status = "verified"

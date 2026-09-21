@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { PRODUCTS, PLATFORMS, generatePriceHistory, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 import api from '@/lib/api'
 import TrustDashboard from '@/components/product/TrustDashboard'
 
@@ -228,6 +229,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                 src={selectedImage}
                 alt={product.name}
                 className="max-w-full max-h-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.9)] group-hover:scale-105 transition-transform duration-700 ease-out"
+                onError={handleProductImageError}
               />
             </motion.div>
 
@@ -245,7 +247,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                         : 'border-[#1a1a20] opacity-60 hover:opacity-100 hover:border-[#3f3f46]'
                     }`}
                   >
-                    <img src={thumb} alt={`${product.name} view ${idx + 1}`} className="max-w-full max-h-full object-contain" />
+                    <img src={thumb} alt={`${product.name} view ${idx + 1}`} className="max-w-full max-h-full object-contain" onError={handleProductImageError} />
                   </button>
                 )
               })}
@@ -683,7 +685,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
               >
                 <div>
                   <div className="aspect-square bg-[#050505] rounded-2xl p-8 mb-6 flex items-center justify-center overflow-hidden">
-                    <img src={sim.image} alt={sim.name} className="max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                    <img src={sim.image} alt={sim.name} className="max-h-full object-contain group-hover:scale-105 transition-transform duration-500" onError={handleProductImageError} />
                   </div>
                   <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-[#71717a] block mb-2">
                     {sim.brand}
@@ -779,7 +781,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                   {/* Product Summary */}
                   <div className="flex items-center gap-4 bg-[#141418] border border-[#27272a] rounded-2xl p-4 mb-6">
                     <div className="w-16 h-16 bg-[#050505] p-2 rounded-xl flex items-center justify-center shrink-0">
-                      <img src={product.image} className="max-w-full max-h-full object-contain" alt={product.name} />
+                      <img src={product.image} className="max-w-full max-h-full object-contain" alt={product.name} onError={handleProductImageError} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[0.65rem] font-bold uppercase tracking-widest text-[#71717a] mb-0.5">{product.brand}</p>

@@ -18,6 +18,7 @@ import {
 } from 'recharts'
 import { generateDeepCompareData } from '@/data/deepCompareData'
 import { formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 import { Product } from '@/types'
 
 // -- Shared animation variants --
@@ -300,7 +301,7 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
         <div className="bg-theme-bg/80 backdrop-blur-xl border border-theme-border rounded-2xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-white rounded-lg p-1 border border-theme-border">
-              <img src={product1.image} alt={p1Name} className="w-full h-full object-contain mix-blend-multiply" />
+              <img src={product1.image} alt={p1Name} className="w-full h-full object-contain mix-blend-multiply" onError={handleProductImageError} />
             </div>
             <span className="text-[0.75rem] font-medium text-theme-text hidden sm:block">{p1Name.slice(0, 25)}</span>
           </div>
@@ -311,7 +312,7 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
           <div className="flex items-center gap-3">
             <span className="text-[0.75rem] font-medium text-theme-text hidden sm:block">{p2Name.slice(0, 25)}</span>
             <div className="w-8 h-8 bg-white rounded-lg p-1 border border-theme-border">
-              <img src={product2.image} alt={p2Name} className="w-full h-full object-contain mix-blend-multiply" />
+              <img src={product2.image} alt={p2Name} className="w-full h-full object-contain mix-blend-multiply" onError={handleProductImageError} />
             </div>
           </div>
         </div>
@@ -416,7 +417,7 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
               <GlassCard winner={item.isWinner}>
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-10 h-10 bg-white rounded-xl p-1.5 border border-theme-border">
-                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" onError={handleProductImageError} />
                   </div>
                   <div>
                     <p className="text-[0.75rem] font-medium text-theme-text">{item.product.name.split('(')[0].trim()}</p>
@@ -931,7 +932,7 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
               <GlassCard winner={side.isWinner}>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-8 h-8 bg-white rounded-lg p-1 border border-theme-border">
-                    <img src={side.product.image} alt={side.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    <img src={side.product.image} alt={side.product.name} className="w-full h-full object-contain mix-blend-multiply" onError={handleProductImageError} />
                   </div>
                   <p className="text-[0.75rem] font-medium text-theme-text">{side.product.name.split('(')[0].trim()}</p>
                 </div>
