@@ -10,7 +10,7 @@ from sqlalchemy import (
 from database import Base
 
 
-class SavedComparison(Base):
+class WorkspaceSavedComparison(Base):
     """Saved comparison sessions with shareable link tokens."""
     __tablename__ = "workspace_saved_comparisons"
     __table_args__ = {'extend_existing': True}

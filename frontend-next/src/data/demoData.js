@@ -1,6 +1,6 @@
 /* Auto-generated from real Flipkart data — do not edit manually */
 /* Generated: 2026-07-28 07:05 */
-/* Total products: 1461 */
+/* Total products: 1473 */
 
 export const PLATFORMS = {
   amazon: { name: 'Amazon', color: '#FF9900', icon: '🛒' },
@@ -13,7 +13,888 @@ export const PLATFORMS = {
 }
 
 export const PRODUCTS = [
+    {
+    "id": 1462,
+    "name": "Apple iPhone 18 Pro (256 GB)",
+    "slug": "apple-iphone-18-pro-256gb",
+    "brand": "Apple",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/u/m/b/-original-imahf39qhzhy87zf.jpeg?q=90",
+    "rating": 4.8,
+    "totalReviews": 4200,
+    "bestPrice": 1963.1,
+    "originalPrice": 2022.62,
+    "bestPlatform": "flipkart",
+    "dealScore": 92,
+    "tags": [
+      "smartphones",
+      "apple",
+      "5g",
+      "flagship",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Apple iPhone 18 Pro with next-generation A20 Pro 2nm chip, 6.3-inch Super Retina XDR OLED with ProMotion 120Hz, triple 48MP camera system with variable mechanical aperture and 5x optical zoom, titanium frame, and Camera Control.",
+    "shortDescription": "Apple iPhone 18 Pro (256 GB) \u2014 A20 Pro chip, 6.3\" Super Retina XDR 120Hz, 48MP Pro Camera.",
+    "specs": {
+      "Price (INR)": "\u20b9164,900",
+      "Rating": "4.8/5",
+      "Reviews": 4200,
+      "Processor": "Apple A20 Pro (2nm TSMC N2)",
+      "Display": "6.3-inch Super Retina XDR OLED (2622 x 1206), ProMotion 1-120Hz, 3000 nits peak",
+      "Storage": "256 GB NVMe",
+      "RAM": "12 GB LPDDR5X",
+      "Rear Camera": "48MP Fusion (f/1.4-f/2.4 dual aperture) + 48MP Ultra Wide + 48MP 5x Telephoto",
+      "Front Camera": "18MP TrueDepth with Center Stage",
+      "Battery": "3650 mAh, 35W wired fast charge, 25W MagSafe / Qi2",
+      "Operating System": "iOS 20 with Apple Intelligence",
+      "Build": "Grade 5 Titanium Frame with Ceramic Shield 3 front glass",
+      "Connectivity": "5G Sub-6 & mmWave, Wi-Fi 7, Bluetooth 5.4, Thread, USB-C 3.2 Gen 2 (10Gbps)",
+      "Warranty": "1 Year Apple India Manufacturer Warranty"
+    },
+    "features": [
+      "A20 Pro 2nm Bionic Architecture with on-device Apple Intelligence",
+      "6.3-inch ProMotion OLED with 3000 nits peak outdoor brightness",
+      "Mechanical variable aperture on primary 48MP Fusion sensor",
+      "Action Button & Dedicated Pressure-Sensitive Camera Control Button",
+      "Titanium chassis with IP68 water resistance up to 6 meters"
+    ],
+    "prices": [
+      {
+        "platform": "flipkart",
+        "price": 1963.1,
+        "original": 2022.62,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-iphone-18-pro-titanium-burgundy-256-gb/p/itmeff18pro256",
+        "conditionalOffer": "Flat \u20b98,000 Instant Discount on HDFC & ICICI Bank Credit Cards (Effective: \u20b91,56,900)"
+      },
+      {
+        "platform": "amazon",
+        "price": 1963.1,
+        "original": 2022.62,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0D18PRO256",
+        "conditionalOffer": "Flat \u20b97,500 Instant Bank Discount + Up to \u20b912,000 Exchange Bonus"
+      }
+    ],
+    "productUrl": "https://www.flipkart.com/apple-iphone-18-pro-titanium-burgundy-256-gb/p/itmeff18pro256",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
   {
+    "id": 1463,
+    "name": "Apple iPhone 18 Pro Max (256 GB)",
+    "slug": "apple-iphone-18-pro-max-256gb",
+    "brand": "Apple",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/h/d/9/-original-imahf39q5gn6gzp4.jpeg?q=90",
+    "rating": 4.9,
+    "totalReviews": 3100,
+    "bestPrice": 2141.67,
+    "originalPrice": 2201.19,
+    "bestPlatform": "flipkart",
+    "dealScore": 90,
+    "tags": [
+      "smartphones",
+      "apple",
+      "5g",
+      "flagship",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Apple iPhone 18 Pro Max features an expansive 6.9-inch Super Retina XDR display, A20 Pro chip, 48MP Triple Camera with 10x Tetraprism Periscope Zoom, and industry-leading all-day battery life.",
+    "shortDescription": "Apple iPhone 18 Pro Max (256 GB) \u2014 A20 Pro, 6.9\" Super Retina XDR 120Hz, 10x Optical Zoom.",
+    "specs": {
+      "Price (INR)": "\u20b9179,900",
+      "Rating": "4.9/5",
+      "Reviews": 3100,
+      "Processor": "Apple A20 Pro (2nm TSMC N2)",
+      "Display": "6.9-inch Super Retina XDR OLED (2868 x 1320), ProMotion 1-120Hz, 3000 nits peak",
+      "Storage": "256 GB NVMe",
+      "RAM": "12 GB LPDDR5X",
+      "Rear Camera": "48MP Fusion + 48MP Ultra Wide + 48MP 10x Tetraprism Periscope Zoom",
+      "Front Camera": "18MP TrueDepth with Center Stage",
+      "Battery": "4850 mAh, 35W fast charge, 25W MagSafe",
+      "Operating System": "iOS 20 with Apple Intelligence",
+      "Build": "Grade 5 Titanium Frame, Ceramic Shield 3",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, USB-C 3.2 Gen 2",
+      "Warranty": "1 Year Apple India Manufacturer Warranty"
+    },
+    "features": [
+      "Largest 6.9-inch Super Retina XDR OLED with ultra-slim bezels",
+      "10x Tetraprism Optical Zoom lens with 3D sensor-shift OIS",
+      "A20 Pro 2nm architecture with 6-core GPU ray tracing",
+      "Up to 33 hours video playback battery life",
+      "Camera Control button with haptic slide zoom"
+    ],
+    "prices": [
+      {
+        "platform": "flipkart",
+        "price": 2141.67,
+        "original": 2201.19,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-iphone-18-pro-max-natural-titanium-256-gb/p/itmeff18promax256",
+        "conditionalOffer": "Flat \u20b98,000 Instant Discount on Axis & HDFC Bank Cards"
+      },
+      {
+        "platform": "amazon",
+        "price": 2141.67,
+        "original": 2201.19,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0D18PMAX256",
+        "conditionalOffer": "Up to \u20b915,000 Exchange Value + No Cost EMI up to 24 Months"
+      }
+    ],
+    "productUrl": "https://www.flipkart.com/apple-iphone-18-pro-max-natural-titanium-256-gb/p/itmeff18promax256",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1464,
+    "name": "Apple iPhone 18 (128 GB)",
+    "slug": "apple-iphone-18-128gb",
+    "brand": "Apple",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/e/y/x/-original-imahf39qcgzjh9gz.jpeg?q=90",
+    "rating": 4.7,
+    "totalReviews": 5600,
+    "bestPrice": 951.19,
+    "originalPrice": 986.9,
+    "bestPlatform": "flipkart",
+    "dealScore": 88,
+    "tags": [
+      "smartphones",
+      "apple",
+      "5g",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Apple iPhone 18 powered by the A19 Bionic chip, 6.1-inch Super Retina XDR OLED display with ProMotion 120Hz, 48MP Dual Fusion Camera, Dynamic Island, and Camera Control.",
+    "shortDescription": "Apple iPhone 18 (128 GB) \u2014 A19 Bionic, 6.1\" Super Retina XDR 120Hz, 48MP Fusion Camera.",
+    "specs": {
+      "Price (INR)": "\u20b979,900",
+      "Rating": "4.7/5",
+      "Reviews": 5600,
+      "Processor": "Apple A19 Bionic (3nm)",
+      "Display": "6.1-inch Super Retina XDR OLED (2556 x 1179), ProMotion 120Hz, 2500 nits peak",
+      "Storage": "128 GB NVMe",
+      "RAM": "8 GB LPDDR5X",
+      "Rear Camera": "48MP Fusion (f/1.6 OIS) + 12MP Ultra Wide with Macro",
+      "Front Camera": "12MP TrueDepth",
+      "Battery": "3561 mAh, 25W fast charge, 25W MagSafe",
+      "Operating System": "iOS 20 with Apple Intelligence",
+      "Build": "Aerospace-grade Aluminum with color-infused glass back",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.3, USB-C 2.0",
+      "Warranty": "1 Year Apple India Manufacturer Warranty"
+    },
+    "features": [
+      "A19 Bionic processor with 16-core Neural Engine",
+      "6.1-inch OLED with 120Hz ProMotion smoothness",
+      "48MP 2-in-1 Fusion camera offering optical-quality 2x telephoto",
+      "Dynamic Island & physical Camera Control button",
+      "IP68 dust and water resistance"
+    ],
+    "prices": [
+      {
+        "platform": "flipkart",
+        "price": 951.19,
+        "original": 986.9,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-iphone-18-ultramarine-128-gb/p/itmeff18128",
+        "conditionalOffer": "Flat \u20b95,000 Bank Discount on SBI & HDFC Cards"
+      },
+      {
+        "platform": "amazon",
+        "price": 951.19,
+        "original": 986.9,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0D18BASE128",
+        "conditionalOffer": "Flat \u20b95,000 Instant Discount with Amazon Pay ICICI Card"
+      }
+    ],
+    "productUrl": "https://www.flipkart.com/apple-iphone-18-ultramarine-128-gb/p/itmeff18128",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1465,
+    "name": "Samsung Galaxy S26 Ultra 5G (256 GB)",
+    "slug": "samsung-galaxy-s26-ultra-5g-256gb",
+    "brand": "Samsung",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/5/r/x/-original-imahf39qpwhrg5zq.jpeg?q=90",
+    "rating": 4.8,
+    "totalReviews": 6800,
+    "bestPrice": 1547.61,
+    "originalPrice": 1666.65,
+    "bestPlatform": "amazon",
+    "dealScore": 94,
+    "tags": [
+      "smartphones",
+      "samsung",
+      "5g",
+      "flagship",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Samsung Galaxy S26 Ultra 5G features a 6.8-inch Dynamic AMOLED 2X QHD+ 120Hz display, Snapdragon 8 Elite Galaxy Edition, 200MP Quad Camera with 100x Space Zoom, built-in S-Pen, and Galaxy AI 3.0.",
+    "shortDescription": "Samsung Galaxy S26 Ultra 5G (256 GB) \u2014 Snapdragon 8 Elite, 200MP Quad Camera, Built-in S-Pen.",
+    "specs": {
+      "Price (INR)": "\u20b9129,999",
+      "Rating": "4.8/5",
+      "Reviews": 6800,
+      "Processor": "Qualcomm Snapdragon 8 Elite for Galaxy (3nm)",
+      "Display": "6.8-inch Dynamic AMOLED 2X QHD+ (3120 x 1440), 1-120Hz LTPO, 3200 nits peak",
+      "Storage": "256 GB UFS 4.0",
+      "RAM": "12 GB LPDDR5X",
+      "Rear Camera": "200MP Main (f/1.7 OIS) + 50MP 5x Periscope + 10MP 3x Telephoto + 50MP Ultra Wide",
+      "Front Camera": "12MP Dual Pixel AF",
+      "Battery": "5000 mAh, 45W wired, 15W wireless, Wireless PowerShare",
+      "Operating System": "One UI 8.0 based on Android 16 (7 years updates)",
+      "Build": "Titanium Armor Frame, Gorilla Armor 2 antireflective glass",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, Ultra-Wideband (UWB)",
+      "Warranty": "1 Year Samsung India Comprehensive Warranty"
+    },
+    "features": [
+      "Snapdragon 8 Elite with custom 4.47GHz Oryon CPU cores",
+      "200MP ISOCELL HP2+ main sensor with 100x AI Space Zoom",
+      "Antireflective Corning Gorilla Armor 2 reduces glare by 75%",
+      "Integrated low-latency Bluetooth S-Pen stylus in chassis",
+      "Galaxy AI 3.0 suite with real-time bidirectional translation"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 1547.61,
+        "original": 1666.65,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "STPL (Samsung Authorized)",
+        "url": "https://www.amazon.in/dp/B0DGS26ULTRA256",
+        "conditionalOffer": "Flat \u20b910,000 Instant Bank Discount on HDFC & SBI Cards (Effective: \u20b91,19,999)"
+      },
+      {
+        "platform": "flipkart",
+        "price": 1547.61,
+        "original": 1666.65,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "TrueComRetail (Samsung Authorized)",
+        "url": "https://www.flipkart.com/samsung-galaxy-s26-ultra-5g-titanium-black-256-gb/p/itmgs26u256",
+        "conditionalOffer": "Up to \u20b912,000 Additional Exchange Bonus"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DGS26ULTRA256",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1466,
+    "name": "Google Pixel 10 Pro (256 GB)",
+    "slug": "google-pixel-10-pro-256gb",
+    "brand": "Google",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/g/p/1/-original-imahf39qzx4hyz8w.jpeg?q=90",
+    "rating": 4.7,
+    "totalReviews": 2400,
+    "bestPrice": 1309.51,
+    "originalPrice": 1428.56,
+    "bestPlatform": "flipkart",
+    "dealScore": 91,
+    "tags": [
+      "smartphones",
+      "google",
+      "5g",
+      "flagship",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Google Pixel 10 Pro with custom TSMC-built Tensor G5 processor, 6.3-inch Super Actua LTPO display, 50MP Pro triple camera with 5x telephoto, Gemini Nano Gen 2 on-device AI, and 7 years of OS upgrades.",
+    "shortDescription": "Google Pixel 10 Pro (256 GB) \u2014 Tensor G5 (TSMC 3nm), 50MP Triple Camera, Gemini Nano Gen 2.",
+    "specs": {
+      "Price (INR)": "\u20b9109,999",
+      "Rating": "4.7/5",
+      "Reviews": 2400,
+      "Processor": "Google Tensor G5 (3nm TSMC foundry)",
+      "Display": "6.3-inch Super Actua LTPO OLED (2856 x 1280), 1-120Hz, 3000 nits peak",
+      "Storage": "256 GB UFS 4.0",
+      "RAM": "16 GB LPDDR5X",
+      "Rear Camera": "50MP Wide (f/1.68 OIS) + 48MP Ultra Wide with Macro + 48MP 5x Telephoto",
+      "Front Camera": "42MP Dual PD Selfie with AF",
+      "Battery": "4700 mAh, 30W wired, 23W Pixel Stand wireless",
+      "Operating System": "Android 16 with Pixel Drop features",
+      "Build": "Polished metal frame, Matte glass back, Gorilla Glass Victus 2",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, UWB, Satellite SOS",
+      "Warranty": "1 Year Google India Warranty"
+    },
+    "features": [
+      "First TSMC-fabricated Tensor G5 chip with extreme power efficiency",
+      "16GB RAM standard for uninterrupted Gemini Nano AI workloads",
+      "50MP Triple Camera with Super Res Zoom up to 30x and 8K Video Boost",
+      "7 Years of guaranteed OS updates, security patches, and Feature Drops",
+      "IP68 dust and water resistance with Corning Gorilla Glass Victus 2"
+    ],
+    "prices": [
+      {
+        "platform": "flipkart",
+        "price": 1309.51,
+        "original": 1428.56,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "Flashstar Commerce (Google Authorized)",
+        "url": "https://www.flipkart.com/google-pixel-10-pro-obsidian-256-gb/p/itmpix10pro256",
+        "conditionalOffer": "Flat \u20b910,000 Instant Discount on ICICI Bank Credit Cards"
+      },
+      {
+        "platform": "amazon",
+        "price": 1309.51,
+        "original": 1428.56,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Authorized)",
+        "url": "https://www.amazon.in/dp/B0DPIX10PRO256",
+        "conditionalOffer": "Up to \u20b98,000 Instant Bank Discount + Free Pixel Care Plan"
+      }
+    ],
+    "productUrl": "https://www.flipkart.com/google-pixel-10-pro-obsidian-256-gb/p/itmpix10pro256",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1467,
+    "name": "OnePlus 15 Pro (512 GB)",
+    "slug": "oneplus-15-pro-512gb",
+    "brand": "OnePlus",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/1/5/p/-original-imahf39q9z5gty8k.jpeg?q=90",
+    "rating": 4.6,
+    "totalReviews": 4500,
+    "bestPrice": 773.8,
+    "originalPrice": 833.32,
+    "bestPlatform": "amazon",
+    "dealScore": 93,
+    "tags": [
+      "smartphones",
+      "oneplus",
+      "5g",
+      "flagship",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "OnePlus 15 Pro powered by Snapdragon 8 Elite, 6.82-inch 2K ProXDR 120Hz LTPO display, 50MP Hasselblad triple camera with 3x periscope zoom, 6000mAh Glacier Battery, and 100W SuperVOOC charging.",
+    "shortDescription": "OnePlus 15 Pro (512 GB) \u2014 Snapdragon 8 Elite, 6000mAh Glacier Battery, Hasselblad Optics.",
+    "specs": {
+      "Price (INR)": "\u20b964,999",
+      "Rating": "4.6/5",
+      "Reviews": 4500,
+      "Processor": "Qualcomm Snapdragon 8 Elite (3nm)",
+      "Display": "6.82-inch 2K ProXDR LTPO AMOLED (3168 x 1440), 1-120Hz, 4500 nits peak",
+      "Storage": "512 GB UFS 4.0",
+      "RAM": "16 GB LPDDR5X",
+      "Rear Camera": "50MP Sony LYT-808 (OIS) + 50MP Ultra Wide + 50MP Sony LYT-600 3x Periscope",
+      "Front Camera": "32MP Sony IMX615",
+      "Battery": "6000 mAh Silicon-Carbon Glacier Battery, 100W SuperVOOC wired, 50W AIRVOOC",
+      "Operating System": "OxygenOS 16 based on Android 16",
+      "Build": "Aluminum Alloy middle frame with Silk Glass back",
+      "Connectivity": "5G Dual SIM, Wi-Fi 7, Bluetooth 5.4, Infrared blaster",
+      "Warranty": "1 Year OnePlus India Manufacturer Warranty"
+    },
+    "features": [
+      "Massive 6000mAh Glacier Battery with 100W flash charging (0 to 100% in 26 mins)",
+      "Hasselblad Camera for Mobile Gen 4 with master portrait filters",
+      "DisplayMate A+ certified 2K display with 4500 nits peak brightness",
+      "Alert Slider with customizable haptic states",
+      "IP68 and IP69 high-pressure water/dust protection"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 773.8,
+        "original": 833.32,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "OnePlus Official Store via Amazon",
+        "url": "https://www.amazon.in/dp/B0DOP15PRO512",
+        "conditionalOffer": "Flat \u20b95,000 Instant Discount with OneCard & ICICI Cards"
+      },
+      {
+        "platform": "flipkart",
+        "price": 773.8,
+        "original": 833.32,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "Flashtech Retail (Authorized)",
+        "url": "https://www.flipkart.com/oneplus-15-pro-silky-black-512-gb/p/itmop15p512",
+        "conditionalOffer": "Up to \u20b96,000 Exchange Bonus on OnePlus devices"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DOP15PRO512",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1468,
+    "name": "Nothing Phone (3) (256 GB)",
+    "slug": "nothing-phone-3-256gb",
+    "brand": "Nothing",
+    "category": "Smartphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/mobile/n/3/p/-original-imahf39quzh6ty7x.jpeg?q=90",
+    "rating": 4.6,
+    "totalReviews": 3200,
+    "bestPrice": 559.51,
+    "originalPrice": 595.23,
+    "bestPlatform": "flipkart",
+    "dealScore": 91,
+    "tags": [
+      "smartphones",
+      "nothing",
+      "5g",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Nothing Phone (3) introduces Glyph Matrix 2.0 with interactive LED animations, Snapdragon 8s Gen 4 processor, 6.7-inch Flexible AMOLED 120Hz display, dual 50MP Sony cameras, and Nothing OS 3.0.",
+    "shortDescription": "Nothing Phone (3) (256 GB) \u2014 Glyph Matrix 2.0, Snapdragon 8s Gen 4, Nothing OS 3.0.",
+    "specs": {
+      "Price (INR)": "\u20b946,999",
+      "Rating": "4.6/5",
+      "Reviews": 3200,
+      "Processor": "Qualcomm Snapdragon 8s Gen 4 (4nm)",
+      "Display": "6.7-inch Flexible LTPO AMOLED (2412 x 1080), 1-120Hz, 2500 nits peak",
+      "Storage": "256 GB UFS 4.0",
+      "RAM": "12 GB LPDDR5X",
+      "Rear Camera": "50MP Sony LYT-700 (f/1.88 OIS) + 50MP Samsung JN1 Ultra Wide",
+      "Front Camera": "32MP Sony IMX615",
+      "Battery": "5200 mAh, 65W wired, 15W wireless, 5W reverse wireless",
+      "Operating System": "Nothing OS 3.0 based on Android 16",
+      "Build": "100% Recycled Aluminum Frame, Transparent Glass back with Glyph 2.0",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, NFC",
+      "Warranty": "1 Year Nothing India Warranty"
+    },
+    "features": [
+      "Glyph Matrix 2.0 with interactive countdowns and notification trackers",
+      "Snapdragon 8s Gen 4 chipset with dedicated gaming vapor chamber",
+      "Clean bloatware-free Nothing OS 3.0 with custom widget architecture",
+      "Dual 50MP camera setup with TrueLens Engine and Ultra XDR capture",
+      "IP68 certified splash and dust resistance"
+    ],
+    "prices": [
+      {
+        "platform": "flipkart",
+        "price": 559.51,
+        "original": 595.23,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "Flipkart India Official Nothing Partner",
+        "url": "https://www.flipkart.com/nothing-phone-3-white-256-gb/p/itmnoth3256",
+        "conditionalOffer": "Flat \u20b94,000 Instant Discount on Flipkart Axis & HDFC Cards"
+      },
+      {
+        "platform": "amazon",
+        "price": 559.51,
+        "original": 595.23,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Authorized)",
+        "url": "https://www.amazon.in/dp/B0DNOTH3256",
+        "conditionalOffer": "Up to \u20b93,500 Bank Offer + Free Nothing Ear (a) bundle discount"
+      }
+    ],
+    "productUrl": "https://www.flipkart.com/nothing-phone-3-white-256-gb/p/itmnoth3256",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1469,
+    "name": "Apple MacBook Pro 16-inch M5 Max (36 GB / 1 TB)",
+    "slug": "apple-macbook-pro-16-inch-m5-max-1tb",
+    "brand": "Apple",
+    "category": "Laptops",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/computer/m/5/x/-original-imahf39q54hkg8zm.jpeg?q=90",
+    "rating": 4.9,
+    "totalReviews": 1200,
+    "bestPrice": 4165.48,
+    "originalPrice": 4403.57,
+    "bestPlatform": "amazon",
+    "dealScore": 89,
+    "tags": [
+      "laptops",
+      "apple",
+      "macbook",
+      "workstation",
+      "creator",
+      "new_launch"
+    ],
+    "description": "Apple MacBook Pro 16-inch with Apple M5 Max chip (16-core CPU, 40-core GPU), 36GB unified memory, 1TB SSD, Liquid Retina XDR display with Nano-texture option, and up to 24 hours battery life.",
+    "shortDescription": "Apple MacBook Pro 16\" M5 Max \u2014 16-core CPU, 40-core GPU, 36GB Unified Memory, 1TB SSD.",
+    "specs": {
+      "Price (INR)": "\u20b9349,900",
+      "Rating": "4.9/5",
+      "Reviews": 1200,
+      "Processor": "Apple M5 Max (16-core CPU: 12 performance, 4 efficiency)",
+      "Graphics": "40-core GPU with hardware-accelerated ray tracing",
+      "Neural Engine": "16-core Neural Engine (38 TOPS)",
+      "Memory": "36 GB Unified LPDDR5X (400GB/s bandwidth)",
+      "Storage": "1 TB PCIe NVMe SSD (up to 7.4 GB/s read)",
+      "Display": "16.2-inch Liquid Retina XDR (3456 x 2234), 1600 nits peak, 120Hz ProMotion",
+      "Battery": "100Wh lithium-polymer battery, up to 24 hours video playback",
+      "Ports": "3x Thunderbolt 5 (USB-C), HDMI 2.1, SDXC card slot, MagSafe 3, 3.5mm jack",
+      "Operating System": "macOS Sequoia / Tahoe with Apple Intelligence",
+      "Audio": "High-fidelity six-speaker sound system with force-cancelling woofers",
+      "Warranty": "1 Year Apple India Warranty"
+    },
+    "features": [
+      "Extreme workstation performance with M5 Max 16-core CPU & 40-core GPU",
+      "Liquid Retina XDR display with 1600 nits HDR and ProMotion 120Hz",
+      "Thunderbolt 5 bandwidth up to 120 Gbps for high-speed multi-monitor setups",
+      "All-day 24-hour battery endurance unprecedented in pro workstations",
+      "Studio-quality three-mic array and Spatial Audio six-speaker system"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 4165.48,
+        "original": 4403.57,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0DMBP16M5MAX",
+        "conditionalOffer": "Flat \u20b910,000 Instant Discount with HDFC Credit Cards + No Cost EMI"
+      },
+      {
+        "platform": "flipkart",
+        "price": 4165.48,
+        "original": 4403.57,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-macbook-pro-16-inch-m5-max-36gb-1tb/p/itmmbp16m5m1tb",
+        "conditionalOffer": "Up to \u20b915,000 Corporate Employee & Student Rebate"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DMBP16M5MAX",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1470,
+    "name": "Sony WH-1000XM6 Wireless Noise-Canceling Headphones",
+    "slug": "sony-wh-1000xm6-wireless-headphones",
+    "brand": "Sony",
+    "category": "Headphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/headphone/s/o/n/-original-imahf39qm4hz7gyr.jpeg?q=90",
+    "rating": 4.9,
+    "totalReviews": 5100,
+    "bestPrice": 416.55,
+    "originalPrice": 476.07,
+    "bestPlatform": "amazon",
+    "dealScore": 95,
+    "tags": [
+      "headphones",
+      "sony",
+      "anc",
+      "audio",
+      "bluetooth",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Sony WH-1000XM6 premium wireless noise-canceling headphones powered by the revolutionary QN3 processor, 30mm carbon-fiber drivers, LDAC Hi-Res Audio Wireless, 35-hour battery life, and AI beamforming voice microphones.",
+    "shortDescription": "Sony WH-1000XM6 \u2014 QN3 HD Noise Canceling Processor, LDAC Hi-Res Audio, 35hr Battery.",
+    "specs": {
+      "Price (INR)": "\u20b934,990",
+      "Rating": "4.9/5",
+      "Reviews": 5100,
+      "Processor": "Sony Integrated Processor V3 + HD Noise Canceling Processor QN3",
+      "Driver Unit": "30mm Precision Engineered Carbon Fiber Composite",
+      "Frequency Response": "4 Hz - 40,000 Hz (JEITA)",
+      "Battery Life": "Up to 35 hours (NC ON), up to 45 hours (NC OFF)",
+      "Charging": "USB-PD Quick Charge: 3 mins charge = 3 hours playback",
+      "Bluetooth": "Version 5.4, Multipoint Connection (simultaneously 2 devices)",
+      "Codecs Supported": "LDAC, AAC, SBC, LC3",
+      "Weight": "245 grams",
+      "Microphones": "8 Microphones with AI Beamforming and Bone Conduction sensors",
+      "Warranty": "1 Year Sony India Official Warranty"
+    },
+    "features": [
+      "Industry-leading noise cancellation with next-generation QN3 chip",
+      "Ultra-lightweight ergonomic headband with soft-fit synthetic leather",
+      "Speak-to-Chat automatically pauses playback when you start speaking",
+      "LDAC codec transmits 3x more data than standard Bluetooth audio",
+      "Multipoint pairing allows seamless switching between phone and laptop"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 416.55,
+        "original": 476.07,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Sony Authorized)",
+        "url": "https://www.amazon.in/dp/B0DSONYXM6BLK",
+        "conditionalOffer": "Flat \u20b93,000 Instant Discount on All Major Bank Credit Cards (Effective: \u20b931,990)"
+      },
+      {
+        "platform": "flipkart",
+        "price": 416.55,
+        "original": 476.07,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "RetailNet (Sony Authorized)",
+        "url": "https://www.flipkart.com/sony-wh-1000xm6-bluetooth-headset/p/itmsonyxm6blk",
+        "conditionalOffer": "Flat \u20b93,000 Bank Offer + Free 6 Months Gaana Plus Subscription"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DSONYXM6BLK",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1471,
+    "name": "Apple AirPods Pro 3",
+    "slug": "apple-airpods-pro-3",
+    "brand": "Apple",
+    "category": "Headphones",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/headphone/a/p/3/-original-imahf39qp9zhk7yr.jpeg?q=90",
+    "rating": 4.8,
+    "totalReviews": 6400,
+    "bestPrice": 320.24,
+    "originalPrice": 344.05,
+    "bestPlatform": "amazon",
+    "dealScore": 92,
+    "tags": [
+      "headphones",
+      "apple",
+      "airpods",
+      "tws",
+      "anc",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Apple AirPods Pro 3 feature the Apple H3 chip, 2x stronger Active Noise Cancellation, Lossless Audio support, Adaptive Audio with live conversation detection, built-in heart rate tracking sensor, and MagSafe USB-C case.",
+    "shortDescription": "Apple AirPods Pro 3 \u2014 Apple H3 chip, 2x Stronger ANC, Heart Rate Sensor, Lossless Audio.",
+    "specs": {
+      "Price (INR)": "\u20b926,900",
+      "Rating": "4.8/5",
+      "Reviews": 6400,
+      "Processor": "Apple H3 Headphone Chip + U2 Ultra Wideband Chip in Case",
+      "Audio Tech": "Custom high-excursion Apple driver, custom high dynamic range amplifier",
+      "Noise Control": "Active Noise Cancellation, Transparency Mode, Adaptive Audio, Conversation Awareness",
+      "Sensors": "Optical in-ear sensor, Skin-detect sensor, PPG Heart Rate sensor",
+      "Battery Life": "Up to 7 hours listening time (ANC ON), up to 34 hours with charging case",
+      "Charging": "MagSafe, Apple Watch charger, Qi-certified chargers, USB-C connector",
+      "Resistance": "IP54 dust, sweat, and water resistant (earbuds and case)",
+      "Warranty": "1 Year Apple India Warranty"
+    },
+    "features": [
+      "Next-gen Apple H3 chip providing double the active noise cancellation depth",
+      "Built-in optical heart rate sensor providing real-time workout biometric tracking",
+      "Lossless Audio support when paired with Apple Vision Pro or iPhone 18",
+      "Precision Finding speaker built into MagSafe case for lost device location",
+      "Touch control with swipe volume adjustments"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 320.24,
+        "original": 344.05,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0DAPPPRO3",
+        "conditionalOffer": "Flat \u20b92,500 Instant Discount with HDFC Credit Cards"
+      },
+      {
+        "platform": "flipkart",
+        "price": 320.24,
+        "original": 344.05,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-airpods-pro-3-bluetooth-headset/p/itmapp3procase",
+        "conditionalOffer": "Flat \u20b92,500 Bank Discount + No Cost EMI Available"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DAPPPRO3",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1472,
+    "name": "Apple Watch Ultra 3 (49mm Titanium)",
+    "slug": "apple-watch-ultra-3-49mm-titanium",
+    "brand": "Apple",
+    "category": "Watches",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/smartwatch/u/l/3/-original-imahf39qyh5t78zm.jpeg?q=90",
+    "rating": 4.9,
+    "totalReviews": 1800,
+    "bestPrice": 1070.24,
+    "originalPrice": 1129.76,
+    "bestPlatform": "amazon",
+    "dealScore": 89,
+    "tags": [
+      "watches",
+      "apple",
+      "smartwatch",
+      "cellular",
+      "titanium",
+      "new_launch"
+    ],
+    "description": "Apple Watch Ultra 3 engineered for endurance, outdoor exploration, and water sports with a 49mm aerospace-grade titanium case, 3000 nits display, dual-frequency GPS, S10 SiP with on-device Siri, and 72-hour Low Power Mode.",
+    "shortDescription": "Apple Watch Ultra 3 \u2014 49mm Titanium, 3000 nits, Dual-Frequency GPS, 72hr Battery.",
+    "specs": {
+      "Price (INR)": "\u20b989,900",
+      "Rating": "4.9/5",
+      "Reviews": 1800,
+      "Processor": "S10 SiP with 64-bit dual-core processor, 4-core Neural Engine",
+      "Case Size": "49mm Aerospace Titanium Case (Flat sapphire front crystal)",
+      "Display": "Always-On Retina OLED, 3000 nits peak, 1 nit minimum night mode",
+      "Battery": "Up to 36 hours normal use, up to 72 hours in Low Power Mode",
+      "Water Resistance": "100m water resistant, 40m recreational dive computer certified (EN13319)",
+      "GPS": "Precision dual-frequency GPS (L1 and L5), GLONASS, Galileo, BeiDou, NavIC",
+      "Sensors": "Blood Oxygen, Electrical heart sensor (ECG), Third-gen optical heart sensor, Depth gauge",
+      "Connectivity": "LTE and UMTS Cellular, Wi-Fi 4, Bluetooth 5.3, Second-gen Ultra Wideband",
+      "Warranty": "1 Year Apple India Manufacturer Warranty"
+    },
+    "features": [
+      "Ultra-durable 49mm corrosion-resistant aerospace titanium chassis",
+      "Daylight-piercing 3000 nits Always-On Retina display with Night Mode",
+      "Action Button custom-mapped for workout splits, compass waypoints, or dive timers",
+      "Dual-frequency L1 + L5 GPS provides pin-point accuracy in dense urban or forest areas",
+      "Built-in 86-decibel Emergency Siren audible up to 180 meters"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 1070.24,
+        "original": 1129.76,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Appario Retail (Apple Authorized)",
+        "url": "https://www.amazon.in/dp/B0DAWULTRA3",
+        "conditionalOffer": "Flat \u20b96,000 Instant Discount with HDFC Credit Cards"
+      },
+      {
+        "platform": "flipkart",
+        "price": 1070.24,
+        "original": 1129.76,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "SuperComNet (Apple Authorized)",
+        "url": "https://www.flipkart.com/apple-watch-ultra-3-gps-cellular-49mm/p/itmawultra349mm",
+        "conditionalOffer": "Flat \u20b96,000 Bank Discount + No Cost EMI"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DAWULTRA3",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+  {
+    "id": 1473,
+    "name": "Sony PlayStation 5 Pro (2 TB)",
+    "slug": "sony-playstation-5-pro-2tb",
+    "brand": "Sony",
+    "category": "Gaming",
+    "image": "https://rukminim2.flixcart.com/image/800/800/xif0q/gamingconsole/p/5/p/-original-imahf39qwhk5ty7z.jpeg?q=90",
+    "rating": 4.9,
+    "totalReviews": 3800,
+    "bestPrice": 833.21,
+    "originalPrice": 892.74,
+    "bestPlatform": "amazon",
+    "dealScore": 93,
+    "tags": [
+      "gaming",
+      "sony",
+      "playstation",
+      "ps5",
+      "console",
+      "new_launch",
+      "festive_pick"
+    ],
+    "description": "Sony PlayStation 5 Pro console with upgraded GPU delivering 45% faster rendering, Advanced Ray Tracing, PlayStation Spectral Super Resolution (PSSR AI Upscaling), and 2TB ultra-fast internal NVMe SSD.",
+    "shortDescription": "Sony PlayStation 5 Pro \u2014 67% More Compute Units, PSSR AI Upscaling, 2TB SSD.",
+    "specs": {
+      "Price (INR)": "\u20b969,990",
+      "Rating": "4.9/5",
+      "Reviews": 3800,
+      "CPU": "Custom AMD Zen 2 8-core / 16-thread up to 3.85 GHz",
+      "GPU": "Custom AMD RDNA GPU with 67% more Compute Units, 16.7 TFLOPS FP32 compute",
+      "Memory": "16 GB GDDR6 (576 GB/s) + 2 GB DDR5 for OS tasks",
+      "Storage": "2 TB Custom PCIe 4.0 NVMe SSD (5.5 GB/s raw read speed)",
+      "Video Output": "Support for 4K 120Hz, 8K TVs, VRR (Variable Refresh Rate) via HDMI 2.1",
+      "AI Upscaling": "PlayStation Spectral Super Resolution (PSSR) machine learning upscaler",
+      "Networking": "Wi-Fi 7 (IEEE 802.11be), Gigabit Ethernet, Bluetooth 5.1",
+      "Controller": "DualSense Wireless Controller included with Haptic Feedback and Adaptive Triggers",
+      "Warranty": "1 Year Sony India Official Warranty"
+    },
+    "features": [
+      "PlayStation Spectral Super Resolution (PSSR) provides razor-sharp 4K gaming at 60-120fps",
+      "Advanced Ray Tracing casts reflections and shadows at double the speed of baseline PS5",
+      "Massive 2TB built-in ultra-fast NVMe storage accommodates all major blockbuster games",
+      "PS5 Pro Game Boost supports over 8,500 backward-compatible PS4 and PS5 titles",
+      "Wi-Fi 7 technology for reduced latency and accelerated multiplayer responsiveness"
+    ],
+    "prices": [
+      {
+        "platform": "amazon",
+        "price": 833.21,
+        "original": 892.74,
+        "delivery": 1,
+        "rating": 4.8,
+        "seller": "Electronic Bazaar Store (Sony Authorized)",
+        "url": "https://www.amazon.in/dp/B0DPS5PRO2TB",
+        "conditionalOffer": "Flat \u20b94,000 Instant Discount with Bank Cards + Extra DualSense discount"
+      },
+      {
+        "platform": "flipkart",
+        "price": 833.21,
+        "original": 892.74,
+        "delivery": 2,
+        "rating": 4.8,
+        "seller": "RetailNet (Sony Authorized)",
+        "url": "https://www.flipkart.com/sony-playstation-5-pro-2-tb/p/itmps5pro2tb",
+        "conditionalOffer": "Flat \u20b94,000 Bank Discount + No Cost EMI"
+      }
+    ],
+    "productUrl": "https://www.amazon.in/dp/B0DPS5PRO2TB",
+    "isLatestRelease": true,
+    "releaseYear": 2026,
+    "isFestiveDeal": true,
+    "launchBadge": "NEW LAUNCH"
+  },
+{
     "id": 1,
     "name": "MOTOROLA Edge 60 Fusion 5G (PANTONE Slipstream, 128 GB)",
     "brand": "MOTOROLA",

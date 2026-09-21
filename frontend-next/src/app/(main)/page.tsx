@@ -8,6 +8,7 @@ import RecommendationChapter from '@/components/home/RecommendationChapter'
 import BrowseByBrand from '@/components/home/BrowseByBrand'
 import CuratedProductsGrid from '@/components/home/CuratedProductsGrid'
 import FinalCtaSection from '@/components/home/FinalCtaSection'
+import LatestReleasesSection from '@/components/home/LatestReleasesSection'
 import { SEO_CONFIG, buildRobotsDirectives, buildOpenGraphMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -34,6 +35,9 @@ export default function LandingPage() {
 
       {/* Trust & Intelligence Strip */}
       <TrustStrip />
+
+      {/* Latest Releases & Editorial Intelligence */}
+      <LatestReleasesSection />
 
       {/* Browse by Brand */}
       <BrowseByBrand />
