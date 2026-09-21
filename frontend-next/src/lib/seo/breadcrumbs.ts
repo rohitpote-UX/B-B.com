@@ -4,11 +4,7 @@
  */
 
 import { SEO_CONFIG } from './seo-config'
-
-export interface BreadcrumbItem {
-  name: string
-  url: string
-}
+import { BreadcrumbItem } from './seo-types'
 
 export function buildProductBreadcrumbs(category?: string, brand?: string, productName?: string): BreadcrumbItem[] {
   const items: BreadcrumbItem[] = [
@@ -25,7 +21,7 @@ export function buildProductBreadcrumbs(category?: string, brand?: string, produ
   if (brand) {
     items.push({
       name: brand,
-      url: `${SEO_CONFIG.domain}/discover?brand=${encodeURIComponent(brand.toLowerCase())}`,
+      url: `${SEO_CONFIG.domain}/brand/${encodeURIComponent(brand.toLowerCase().trim())}`,
     })
   }
 
@@ -37,6 +33,14 @@ export function buildProductBreadcrumbs(category?: string, brand?: string, produ
   }
 
   return items
+}
+
+export function buildBrandBreadcrumbs(brandName: string): BreadcrumbItem[] {
+  return [
+    { name: 'Home', url: SEO_CONFIG.domain },
+    { name: 'Brands', url: `${SEO_CONFIG.domain}/#browse-by-brand` },
+    { name: brandName, url: '' },
+  ]
 }
 
 export function buildComparisonBreadcrumbs(product1Name: string, product2Name: string, category?: string): BreadcrumbItem[] {

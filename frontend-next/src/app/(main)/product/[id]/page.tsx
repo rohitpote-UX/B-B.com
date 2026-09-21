@@ -65,7 +65,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   })
 
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     keywords,
     alternates: {
@@ -88,6 +90,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const breadcrumbItems = buildProductBreadcrumbItems(product.category, product.brand, product.name)
   const breadcrumbJsonLd = buildBreadcrumbSchema(breadcrumbItems)
 
+  // Find sibling variants within the same brand family
+  const siblingVariants = PRODUCTS.filter(
+    p => p.id !== product.id &&
+         p.brand && product.brand &&
+         p.brand.toLowerCase() === product.brand.toLowerCase() &&
+         p.category === product.category
+  ).slice(0, 4).map(v => ({
+    id: v.id,
+    name: v.name,
+    url: buildProductCanonical(v.id),
+    price: v.bestPrice,
+    image: v.image,
+  }))
+
   const productJsonLd = buildProductSchema({
     id: product.id,
     name: product.name,
@@ -102,6 +118,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     totalReviews: product.totalReviews,
     url: canonicalUrl,
     specs: product.specs as unknown as Record<string, string | number>,
+    siblingVariants: siblingVariants.length > 0 ? siblingVariants : undefined,
+    productGroupId: product.brand ? `BB-GRP-${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined,
+    productGroupName: product.brand ? `${product.brand} ${product.category || 'Series'}` : undefined,
+    variesBy: ['https://schema.org/size', 'https://schema.org/color'],
   })
 
   const geoFactSheet = buildGeoFactSheet({

@@ -74,11 +74,19 @@ export function buildCategoryTitle(categoryName: string): string {
 
 /**
  * Builds brand landing page title.
- * Example: Nike Products — Compare Prices & Verified Deals | Brand Battle
+ * Example: Apple Products, Prices & Comparisons | BrandBattle
  */
 export function buildBrandTitle(brandName: string): string {
   const brand = brandName.trim()
-  return `${brand} Products — Compare Prices & Deals | ${SEO_CONFIG.siteName}`
+  const fullTitle = `${brand} Products, Prices & Comparisons | ${SEO_CONFIG.siteName}`
+  if (fullTitle.length <= 60) {
+    return fullTitle
+  }
+  const shorterTitle = `${brand} Products & Prices | ${SEO_CONFIG.siteName}`
+  if (shorterTitle.length <= 60) {
+    return shorterTitle
+  }
+  return `${brand} | ${SEO_CONFIG.siteName}`
 }
 
 /**

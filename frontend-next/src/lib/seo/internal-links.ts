@@ -34,7 +34,7 @@ export function buildProductInternalLinks(props: {
   if (props.brand) {
     links.push({
       text: `More from ${props.brand}`,
-      href: `${SEO_CONFIG.domain}/discover?brand=${encodeURIComponent(props.brand.toLowerCase())}`,
+      href: `${SEO_CONFIG.domain}/brand/${encodeURIComponent(props.brand.toLowerCase().trim())}`,
       relationship: 'brand',
       title: `Explore all ${props.brand} products`,
     })
@@ -55,6 +55,57 @@ export function buildProductInternalLinks(props: {
         href: `${SEO_CONFIG.domain}/product/${alt.id}`,
         relationship: 'alternative',
         title: `View verified details for ${alt.name}`,
+      })
+    })
+  }
+
+  return links
+}
+
+/**
+ * Builds contextual internal links for a brand landing page.
+ */
+export function buildBrandInternalLinks(props: {
+  brand: string
+  categories?: string[]
+  topProducts?: Array<{ id: number; name: string }>
+  comparisons?: Array<{ slug: string; title: string }>
+}): InternalLinkRecommendation[] {
+  const links: InternalLinkRecommendation[] = []
+  const cleanBrand = props.brand.trim()
+
+  // Category links for this brand
+  if (props.categories) {
+    props.categories.slice(0, 5).forEach(cat => {
+      links.push({
+        text: `${cleanBrand} in ${cat}`,
+        href: `${SEO_CONFIG.domain}/deals/${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        relationship: 'category',
+        title: `Explore ${cleanBrand} ${cat} deals & price comparisons`,
+      })
+    })
+  }
+
+  // Top products
+  if (props.topProducts) {
+    props.topProducts.slice(0, 5).forEach(prod => {
+      links.push({
+        text: `${prod.name} Price & Offers`,
+        href: `${SEO_CONFIG.domain}/product/${prod.id}`,
+        relationship: 'product',
+        title: `View verified price & specs for ${prod.name}`,
+      })
+    })
+  }
+
+  // Top comparisons
+  if (props.comparisons) {
+    props.comparisons.slice(0, 4).forEach(comp => {
+      links.push({
+        text: comp.title,
+        href: `${SEO_CONFIG.domain}/compare/${comp.slug}`,
+        relationship: 'comparison',
+        title: `Compare ${comp.title} on BrandBattle`,
       })
     })
   }

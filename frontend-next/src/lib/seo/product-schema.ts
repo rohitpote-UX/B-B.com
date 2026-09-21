@@ -48,7 +48,55 @@ export function buildProductSchema(props: ProductJsonLdProps): Record<string, un
     schema.mpn = props.mpn
   }
 
-  // Real verified price offer
+  if (props.gtin) {
+    schema.gtin = props.gtin
+  }
+
+  // Google Product Variants Support (ProductGroup / isVariantOf)
+  if (props.productGroupId || props.productGroupName || (props.siblingVariants && props.siblingVariants.length > 0)) {
+    const parentName = props.productGroupName || props.name.replace(/\s*\([^)]*\)/, '').trim()
+    const parentId = props.productGroupId || `BB-GRP-${parentName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+
+    const productGroup: Record<string, unknown> = {
+      '@type': 'ProductGroup',
+      name: parentName,
+      productGroupID: parentId,
+    }
+
+    if (props.brand) {
+      productGroup.brand = {
+        '@type': 'Brand',
+        name: props.brand,
+      }
+    }
+
+    if (props.variesBy && props.variesBy.length > 0) {
+      productGroup.variesBy = props.variesBy
+    }
+
+    if (props.siblingVariants && props.siblingVariants.length > 0) {
+      productGroup.hasVariant = props.siblingVariants.map(v => ({
+        '@type': 'Product',
+        name: v.name,
+        url: v.url,
+        sku: v.sku || `BB-PRD-${v.id}`,
+        ...(v.image ? { image: v.image } : {}),
+        ...(v.price && v.price > 0 ? {
+          offers: {
+            '@type': 'Offer',
+            price: v.price,
+            priceCurrency: props.currency || 'INR',
+            availability: 'https://schema.org/InStock',
+            url: v.url,
+          }
+        } : {})
+      }))
+    }
+
+    schema.isVariantOf = productGroup
+  }
+
+  // Real verified price offer (Base universal price only - no conditional offers)
   if (props.price && props.price > 0) {
     const offer = buildOfferSchema({
       price: props.price,
@@ -84,4 +132,69 @@ export function buildProductSchema(props: ProductJsonLdProps): Record<string, un
   }
 
   return schema
+}
+
+/**
+ * Builds Schema.org ProductGroup JSON-LD representing a product family and its variants.
+ */
+export function buildProductGroupSchema(props: {
+  name: string
+  groupId: string
+  brand?: string
+  description?: string
+  url: string
+  variesBy?: string[]
+  variants: Array<{
+    id: number
+    name: string
+    url: string
+    price?: number
+    image?: string
+    sku?: string
+  }>
+}): Record<string, unknown> {
+  const group: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'ProductGroup',
+    '@id': `${props.url}#productgroup`,
+    name: props.name,
+    productGroupID: props.groupId,
+    url: props.url,
+  }
+
+  if (props.description) {
+    group.description = props.description
+  }
+
+  if (props.brand) {
+    group.brand = {
+      '@type': 'Brand',
+      name: props.brand,
+    }
+  }
+
+  if (props.variesBy && props.variesBy.length > 0) {
+    group.variesBy = props.variesBy
+  }
+
+  if (props.variants && props.variants.length > 0) {
+    group.hasVariant = props.variants.map(v => ({
+      '@type': 'Product',
+      name: v.name,
+      url: v.url,
+      sku: v.sku || `BB-PRD-${v.id}`,
+      ...(v.image ? { image: v.image } : {}),
+      ...(v.price && v.price > 0 ? {
+        offers: {
+          '@type': 'Offer',
+          price: v.price,
+          priceCurrency: 'INR',
+          availability: 'https://schema.org/InStock',
+          url: v.url,
+        }
+      } : {})
+    }))
+  }
+
+  return group
 }

@@ -93,7 +93,15 @@ export interface ProductJsonLdProps {
   url: string
   sku?: string
   mpn?: string
+  gtin?: string
   specs?: Record<string, string | number>
+  // ProductGroup / Variant relations for Google structured data
+  productGroupId?: string
+  productGroupName?: string
+  variesBy?: string[]
+  variantAttributes?: Record<string, string>
+  siblingVariants?: Array<{ id: number; name: string; url: string; price?: number; sku?: string; image?: string }>
+  offersList?: Array<{ price: number; originalPrice?: number; platform: string; url?: string; inStock?: boolean }>
 }
 
 export interface ComparisonJsonLdProps {

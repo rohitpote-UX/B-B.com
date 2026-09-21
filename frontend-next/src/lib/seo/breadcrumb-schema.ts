@@ -49,7 +49,7 @@ export function buildProductBreadcrumbItems(
   if (brand) {
     items.push({
       name: brand,
-      url: `${SEO_CONFIG.domain}/discover?brand=${encodeURIComponent(brand.toLowerCase())}`,
+      url: `${SEO_CONFIG.domain}/brand/${encodeURIComponent(brand.toLowerCase().trim())}`,
     })
   }
 
@@ -61,6 +61,17 @@ export function buildProductBreadcrumbItems(
   }
 
   return items
+}
+
+/**
+ * Generates breadcrumb items for a brand landing page.
+ */
+export function buildBrandBreadcrumbItems(brandName: string): BreadcrumbItem[] {
+  return [
+    { name: 'Home', url: SEO_CONFIG.domain },
+    { name: 'Brands', url: `${SEO_CONFIG.domain}/#browse-by-brand` },
+    { name: brandName, url: '' },
+  ]
 }
 
 /**

@@ -102,7 +102,7 @@ export default function BrowseByBrand() {
                 transition={{ duration: 0.4, delay: (idx % 6) * 0.05 }}
               >
                 <Link
-                  href={`/search?brand=${encodeURIComponent(brand.slug)}`}
+                  href={`/brand/${brand.slug.toLowerCase()}`}
                   aria-label={`Browse ${brand.name} products (${count} available)`}
                   className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-[#ff1695]/40 transition-all duration-300 shadow-sm hover:shadow-[0_12px_24px_rgba(255,22,149,0.12)] hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff1695] min-h-[108px] sm:min-h-[116px] overflow-hidden"
                 >

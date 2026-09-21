@@ -52,7 +52,7 @@ export function buildCategoryCanonical(categorySlug: string): string {
  */
 export function buildBrandCanonical(brandSlug: string): string {
   const cleanSlug = encodeURIComponent(brandSlug.toLowerCase().trim().replace(/^\/+|\/+$/g, ''))
-  return `${SEO_CONFIG.domain}/discover?brand=${cleanSlug}`
+  return `${SEO_CONFIG.domain}/brand/${cleanSlug}`
 }
 
 /**

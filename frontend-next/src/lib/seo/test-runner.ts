@@ -6,10 +6,13 @@
 import {
   buildProductTitle,
   buildComparisonTitle,
+  buildBrandTitle,
   buildProductDescription,
   buildComparisonDescription,
+  buildBrandDescription,
   buildProductCanonical,
   buildComparisonCanonical,
+  buildBrandCanonical,
   sanitizeCanonicalUrl,
   buildComparisonSlug,
   buildRobotsDirectives,
@@ -18,6 +21,7 @@ import {
   SeoEligibilityStatus,
   isComparisonEligible,
   buildProductSchema,
+  buildProductGroupSchema,
   buildBreadcrumbSchema,
   buildOrganizationSchema,
   buildWebSiteSchema,
@@ -54,6 +58,9 @@ export function runSeoValidationSuite(): { passed: number; failed: number; resul
   assert(cTitle.includes('iPhone 16 vs Galaxy S25'), 'Comparison title generation')
   assert(cTitle.length <= 60, 'Comparison title length <= 60 chars')
 
+  const bTitle = buildBrandTitle('Apple')
+  assert(bTitle.includes('Apple Products, Prices & Comparisons') && bTitle.length <= 60, 'Brand title generation <= 60 chars')
+
   // 2. Meta Description Tests
   const pDesc = buildProductDescription({
     name: 'AirPods Pro 2',
@@ -63,6 +70,9 @@ export function runSeoValidationSuite(): { passed: number; failed: number; resul
   })
   assert(pDesc.includes('18,999') && pDesc.includes('AirPods Pro 2'), 'Product meta description includes price and name')
   assert(pDesc.length <= 160, 'Product description length <= 160 chars')
+
+  const bDesc = buildBrandDescription('Apple', 7, ['Smartphones', 'Laptops'])
+  assert(bDesc.includes('Apple') && bDesc.includes('verified') && bDesc.length <= 160, 'Brand description length <= 160 chars')
 
   const cDesc = buildComparisonDescription({
     product1Name: 'iPhone 16',
@@ -79,6 +89,9 @@ export function runSeoValidationSuite(): { passed: number; failed: number; resul
 
   const cCanonical = buildComparisonCanonical('iphone-16-vs-galaxy-s25')
   assert(cCanonical === `${SEO_CONFIG.domain}/compare/iphone-16-vs-galaxy-s25`, 'Comparison canonical URL')
+
+  const bCanonical = buildBrandCanonical('apple')
+  assert(bCanonical === `${SEO_CONFIG.domain}/brand/apple`, 'Brand canonical URL matches /brand/apple')
 
   const cleanUrl = sanitizeCanonicalUrl('https://brandbattle.com/compare/a-vs-b?utm_source=google&sort=price')
   assert(!cleanUrl.includes('utm_source') && !cleanUrl.includes('sort'), 'Sanitize canonical URL strips tracking/sort params')
@@ -133,6 +146,35 @@ export function runSeoValidationSuite(): { passed: number; failed: number; resul
   const offer = pSchema.offers as Record<string, unknown> | undefined
   assert(offer?.price === 18999, 'Product schema offers price is accurate')
   assert(pSchema.aggregateRating === undefined, 'No fake ratings when totalReviews is 0/undefined')
+
+  // ProductGroup and Variant Schema Tests
+  const variantSchema = buildProductSchema({
+    id: 1462,
+    name: 'Apple iPhone 18 Pro (256 GB)',
+    brand: 'Apple',
+    category: 'Smartphones',
+    price: 164900,
+    url: 'https://brandbattle.in/product/1462',
+    productGroupId: 'apple-iphone-18-pro',
+    productGroupName: 'Apple iPhone 18 Pro',
+    siblingVariants: [
+      { id: 1463, name: 'Apple iPhone 18 Pro (512 GB)', url: 'https://brandbattle.in/product/1463', price: 184900 },
+    ],
+  })
+  const isVariantOf = variantSchema.isVariantOf as Record<string, unknown> | undefined
+  assert(Boolean(isVariantOf && isVariantOf['@type'] === 'ProductGroup'), 'Product variant has isVariantOf ProductGroup')
+  assert(Boolean(isVariantOf && Array.isArray(isVariantOf.hasVariant)), 'ProductGroup hasVariant array populated')
+
+  const groupSchema = buildProductGroupSchema({
+    name: 'Apple iPhone 18 Pro',
+    groupId: 'apple-iphone-18-pro',
+    brand: 'Apple',
+    url: 'https://brandbattle.in/product/1462',
+    variants: [
+      { id: 1462, name: 'Apple iPhone 18 Pro (256 GB)', url: 'https://brandbattle.in/product/1462', price: 164900 },
+    ],
+  })
+  assert(groupSchema['@type'] === 'ProductGroup', 'buildProductGroupSchema generates ProductGroup @type')
 
   // 7. Schema.org Breadcrumb & WebSite & Organization Tests
   const breadcrumbSchema = buildBreadcrumbSchema([

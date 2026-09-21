@@ -65,10 +65,24 @@ export function buildCategoryDescription(categoryName: string): string {
 }
 
 /**
- * Builds meta description for brand page.
+ * Builds meta description for brand landing page.
+ * Covers products, current prices, variants, comparisons, and marketplace offers.
  */
-export function buildBrandDescription(brandName: string): string {
-  return `Compare all verified ${brandName.trim()} products, track price drops across stores, and analyze detailed hardware specifications on ${SEO_CONFIG.siteName}.`
+export function buildBrandDescription(
+  brandName: string,
+  productCount?: number,
+  categoryNames?: string[]
+): string {
+  const brand = brandName.trim()
+  const catText = categoryNames && categoryNames.length > 0
+    ? ` across ${categoryNames.slice(0, 3).join(', ')}`
+    : ''
+  const countText = productCount && productCount > 0
+    ? `Explore ${productCount} verified ${brand} products`
+    : `Explore ${brand} products`
+
+  const description = `${countText}${catText}, current marketplace prices, hardware variants, head-to-head comparisons, and verified store offers on ${SEO_CONFIG.siteName}.`
+  return truncateDescription(description, 158)
 }
 
 /**

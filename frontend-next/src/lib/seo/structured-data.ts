@@ -5,7 +5,7 @@
  */
 
 import { ProductJsonLdProps, ComparisonJsonLdProps, BreadcrumbItem, FaqItem } from './seo-types'
-import { buildProductSchema } from './product-schema'
+import { buildProductSchema, buildProductGroupSchema } from './product-schema'
 import { buildOfferSchema, buildAggregateOfferSchema } from './offer-schema'
 import { buildBreadcrumbSchema } from './breadcrumb-schema'
 import { buildOrganizationSchema } from './organization-schema'
@@ -15,6 +15,7 @@ import { buildComparisonSchema } from './comparison-schema'
 
 export {
   buildProductSchema,
+  buildProductGroupSchema,
   buildOfferSchema,
   buildAggregateOfferSchema,
   buildBreadcrumbSchema,

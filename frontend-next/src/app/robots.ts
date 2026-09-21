@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
 
   const publicAllowed = [
     '/',
+    '/brand/',
     '/product/',
     '/compare/',
     '/discover',

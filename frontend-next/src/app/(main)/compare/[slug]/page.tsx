@@ -59,7 +59,9 @@ export async function generateMetadata({ params }: SeoCompareSlugPageProps): Pro
   })
 
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     keywords,
     alternates: {
@@ -180,7 +182,33 @@ export default async function SeoCompareSlugPage({ params }: SeoCompareSlugPageP
             {p1.name} vs {p2.name} Comparison & Decision Guide
           </h1>
           <p className="text-sm text-[#a1a1aa] leading-relaxed max-w-4xl">
-            Comparing <strong className="text-white">{p1.name}</strong> and <strong className="text-white">{p2.name}</strong> in the {p1.category} category. Below is our side-by-side spec comparison, verified seller pricing, 5-year ownership estimates, and AI recommendation.
+            Comparing{' '}
+            <Link href={`/product/${p1.id}`} className="text-white hover:text-[#ff1695] font-semibold underline decoration-white/20 transition-colors">
+              {p1.name}
+            </Link>
+            {p1.brand && (
+              <>
+                {' '}(from{' '}
+                <Link href={`/brand/${p1.brand.toLowerCase()}`} className="text-[#ff1695] hover:underline font-medium">
+                  {p1.brand}
+                </Link>
+                )
+              </>
+            )}
+            {' '}and{' '}
+            <Link href={`/product/${p2.id}`} className="text-white hover:text-[#ff1695] font-semibold underline decoration-white/20 transition-colors">
+              {p2.name}
+            </Link>
+            {p2.brand && (
+              <>
+                {' '}(from{' '}
+                <Link href={`/brand/${p2.brand.toLowerCase()}`} className="text-[#ff1695] hover:underline font-medium">
+                  {p2.brand}
+                </Link>
+                )
+              </>
+            )}
+            {' '}in the {p1.category} category. Below is our side-by-side spec comparison, verified seller pricing, 5-year ownership estimates, and AI recommendation.
           </p>
           <div className="mt-3 text-[0.65rem] text-[#71717a] font-mono">
             Last Updated: September 2026 • Verified on technical specifications and real marketplace pricing
