@@ -17,6 +17,7 @@ import {
   Loader2,
   AlertCircle
 } from 'lucide-react'
+import { trackLogin } from '@/lib/analytics'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -40,6 +41,8 @@ export default function LoginPage() {
 
     setTimeout(() => {
       setAuthStep('authenticated')
+      // Track anonymous login (never send password or email)
+      trackLogin('email')
       localStorage.setItem('bb_user', JSON.stringify({ email }))
       document.cookie = "bb_user=true; path=/; max-age=86400; SameSite=Lax"
 

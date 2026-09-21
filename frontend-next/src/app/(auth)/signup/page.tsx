@@ -18,6 +18,7 @@ import {
   Shield
 } from 'lucide-react'
 import PasswordStrengthMeter from '@/components/auth/PasswordStrengthMeter'
+import { trackSignup } from '@/lib/analytics'
 
 export default function SignupPage() {
   const [name, setName] = useState('')
@@ -90,6 +91,8 @@ export default function SignupPage() {
 
     // Trigger Success Morph Experience
     setIsSuccessMorph(true)
+    // Track anonymous signup (never send password, username, or email)
+    trackSignup('email')
     localStorage.setItem('bb_user', JSON.stringify({ name, username, email }))
     document.cookie = "bb_user=true; path=/; max-age=86400; SameSite=Lax"
 

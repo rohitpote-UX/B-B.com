@@ -27,6 +27,7 @@ import { PRODUCTS, PLATFORMS, generatePriceHistory, formatPrice } from '@/data/d
 import { handleProductImageError } from '@/lib/image-fallback'
 import api from '@/lib/api'
 import TrustDashboard from '@/components/product/TrustDashboard'
+import { trackProductView } from '@/lib/analytics'
 
 interface ProductDetailClientProps {
   initialId: string
@@ -41,6 +42,10 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
 
   useEffect(() => {
     let isMounted = true
+
+    // Track product view anonymously
+    trackProductView(parseInt(id), demoProduct.name, demoProduct.brand, demoProduct.category)
+
     const fetchRealData = async () => {
       try {
         const prodRes = await api.products.getById(parseInt(id))
@@ -61,7 +66,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
     }
     fetchRealData()
     return () => { isMounted = false }
-  }, [id])
+  }, [id, demoProduct.name, demoProduct.brand, demoProduct.category])
 
   const product = useMemo(() => {
     if (!apiProduct) return demoProduct

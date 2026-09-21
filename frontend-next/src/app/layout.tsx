@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/seo/structured-data";
@@ -70,6 +71,7 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

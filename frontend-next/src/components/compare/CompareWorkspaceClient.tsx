@@ -9,6 +9,7 @@ import { PRODUCTS, PLATFORMS, formatPrice } from '@/data/demoData'
 import { handleProductImageError } from '@/lib/image-fallback'
 import DeepCompare from '@/components/compare/DeepCompare'
 import AIDecisionWorkspace from '@/components/compare/AIDecisionWorkspace'
+import { trackComparisonStarted, trackComparisonCompleted } from '@/lib/analytics'
 
 function ScoreBar({ value, max, delay = 0, winner = false }: { value: number; max: number; delay?: number; winner?: boolean }) {
   const percent = Math.min((value / max) * 100, 100)
@@ -120,6 +121,16 @@ export default function CompareWorkspaceClient() {
     if (score0 === score1) return null
     return score0 > score1 ? 0 : 1
   }, [selected])
+
+  // Track head-to-head comparison events anonymously
+  useEffect(() => {
+    if (selected[0]?.id && selected[1]?.id) {
+      const ids = [selected[0].id, selected[1].id]
+      trackComparisonStarted(ids)
+      const winnerId = winner !== null && selected[winner]?.id ? selected[winner].id : undefined
+      trackComparisonCompleted(ids, winnerId)
+    }
+  }, [selected, winner])
 
   return (
     <div className="min-h-screen pt-40 pb-56">

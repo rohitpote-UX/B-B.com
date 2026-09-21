@@ -3,6 +3,7 @@ Brand Battle - Admin Router
 Admin dashboard: product management, analytics, and system overview.
 """
 
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
@@ -12,6 +13,7 @@ from models import (
     User, Product, Brand, Deal, PriceAlert, SearchHistory,
     Comparison, AnalyticsEvent, AffiliateLink, Notification
 )
+from analytics_platform.models import AnalyticsEvent as PlatformAnalyticsEvent
 from schemas import AnalyticsSummary, ProductResponse, BrandResponse
 from auth import get_admin_user
 
@@ -23,13 +25,57 @@ async def get_dashboard(
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Get admin dashboard analytics summary."""
+    """Get admin dashboard analytics summary with safe, read-only aggregations."""
     total_users = db.query(func.count(User.id)).scalar() or 0
     total_products = db.query(func.count(Product.id)).filter(Product.is_active == True).scalar() or 0
     total_searches = db.query(func.count(SearchHistory.id)).scalar() or 0
     total_comparisons = db.query(func.count(Comparison.id)).scalar() or 0
     total_deals = db.query(func.count(Deal.id)).filter(Deal.status == "active").scalar() or 0
     active_alerts = db.query(func.count(PriceAlert.id)).filter(PriceAlert.status == "active").scalar() or 0
+
+    # User registration breakdown (trailing timeframes)
+    now = datetime.now(timezone.utc)
+    today_start = datetime(now.year, now.month, now.day, tzinfo=timezone.utc)
+    seven_days_ago = now - timedelta(days=7)
+    thirty_days_ago = now - timedelta(days=30)
+    day_ago = now - timedelta(hours=24)
+
+    users_today = db.query(func.count(User.id)).filter(User.created_at >= today_start).scalar() or 0
+    users_this_week = db.query(func.count(User.id)).filter(User.created_at >= seven_days_ago).scalar() or 0
+    users_this_month = db.query(func.count(User.id)).filter(User.created_at >= thirty_days_ago).scalar() or 0
+
+    registered_users = {
+        "total": total_users,
+        "today": users_today,
+        "this_week": users_this_week,
+        "this_month": users_this_month,
+    }
+
+    # Platform activity & visitor metrics (strictly distinct from requests)
+    total_product_views = db.query(func.sum(Product.view_count)).scalar() or 0
+    unique_visitors_24h = (
+        db.query(func.count(func.distinct(PlatformAnalyticsEvent.session_id)))
+        .filter(PlatformAnalyticsEvent.created_at >= day_ago)
+        .scalar() or 0
+    )
+    active_users_24h = (
+        db.query(func.count(func.distinct(PlatformAnalyticsEvent.user_id)))
+        .filter(
+            PlatformAnalyticsEvent.user_id.isnot(None),
+            PlatformAnalyticsEvent.created_at >= day_ago
+        )
+        .scalar() or 0
+    )
+    total_events_logged = db.query(func.count(PlatformAnalyticsEvent.id)).scalar() or 0
+
+    platform_activity = {
+        "unique_visitors_24h": unique_visitors_24h,
+        "active_users_24h": active_users_24h,
+        "total_product_views": total_product_views,
+        "total_comparisons": total_comparisons,
+        "total_searches": total_searches,
+        "total_events_logged": total_events_logged,
+    }
 
     # Top searches
     top_searches_q = (
@@ -67,6 +113,8 @@ async def get_dashboard(
         top_searches=top_searches,
         top_products=top_products,
         revenue=round(revenue, 2),
+        registered_users=registered_users,
+        platform_activity=platform_activity,
     )
 
 

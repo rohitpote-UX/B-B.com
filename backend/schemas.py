@@ -419,6 +419,8 @@ class AnalyticsSummary(BaseModel):
     top_searches: List[Dict[str, Any]]
     top_products: List[Dict[str, Any]]
     revenue: float
+    registered_users: Optional[Dict[str, Any]] = None
+    platform_activity: Optional[Dict[str, Any]] = None
 
 
 # ─── Vote Schemas ────────────────────────────────────────────────────

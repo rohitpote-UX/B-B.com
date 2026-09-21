@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal, ArrowRight, X } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
 import { handleProductImageError } from '@/lib/image-fallback'
+import { trackSearch } from '@/lib/analytics'
 
 const POPULAR_BRANDS = [
   'Samsung',
@@ -38,6 +39,16 @@ export default function SearchClient() {
       localStorage.setItem('bb_user_interest', selectedCategory)
     }
   }, [selectedCategory])
+
+  // Track search queries anonymously with debounce
+  useEffect(() => {
+    const trimmed = query.trim()
+    if (!trimmed) return
+    const timer = setTimeout(() => {
+      trackSearch(trimmed)
+    }, 750)
+    return () => clearTimeout(timer)
+  }, [query])
 
   const categories = ['all', ...Array.from(new Set(PRODUCTS.map(p => p.category)))]
 
