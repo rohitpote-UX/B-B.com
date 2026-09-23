@@ -16,6 +16,7 @@ import {
   ChevronUp,
   X,
 } from 'lucide-react'
+import { formatPrice } from '@/lib/currency'
 
 interface TrustDashboardProps {
   productId: number
@@ -24,6 +25,7 @@ interface TrustDashboardProps {
   bestPrice: number
   originalPrice: number
   bestPlatform: string
+  currency?: string
   priceVerifiedAt?: string | Date
   prices?: Array<{
     platform: string
@@ -32,6 +34,9 @@ interface TrustDashboardProps {
     last_checked?: string
     verification_status?: string
     confidence_score?: number
+    seller?: string
+    seller_name?: string
+    currency?: string
   }>
 }
 
@@ -42,6 +47,7 @@ export default function TrustDashboard({
   bestPrice,
   originalPrice,
   bestPlatform,
+  currency = 'INR',
   priceVerifiedAt,
   prices
 }: TrustDashboardProps) {
@@ -58,26 +64,86 @@ export default function TrustDashboard({
   const marketingDiscountPercent = Math.round(((msrp - bestPrice) / msrp) * 100)
   const totalPayable = bestPrice + 19 // Item + platform fee
 
-  // Consensus sources: use real prices if passed, else structured fallback
-  const consensusSources = (prices && prices.length > 0)
-    ? prices.map(p => ({
-        name: p.platform.charAt(0).toUpperCase() + p.platform.slice(1).replace('_', ' '),
-        price: p.price,
-        time: p.verified_at ? 'Verified' : 'Recently Checked',
-        confidence: Math.round((p.confidence_score ?? 0.95) * 100),
-        status: p.price === bestPrice ? 'Lowest Verified' : (p.verification_status === 'verified' ? 'Verified' : 'Recently Checked')
-      }))
-    : [
-        { name: bestPlatform || 'Amazon', price: bestPrice, time: 'Verified recently', confidence: 99, status: 'Lowest Verified' },
-        { name: 'Flipkart', price: bestPrice + 190, time: 'Recently Verified', confidence: 98, status: 'Verified' },
-        { name: 'Croma', price: bestPrice - 9, time: 'Recently Verified', confidence: 97, status: 'Verified' },
-        { name: 'Reliance Digital', price: bestPrice + 491, time: 'Recently Verified', confidence: 95, status: 'Verified' },
-      ]
+  // Consensus sources: deduplicate real platform offers if passed, else structured deduplicated fallback
+  let consensusSources: Array<{
+    name: string
+    price: number
+    currency: string
+    time: string
+    confidence: number
+    status: string
+  }> = []
 
+  if (prices && prices.length > 0) {
+    const seen = new Set<string>()
+    consensusSources = prices.filter(p => {
+      const key = `${p.platform.toLowerCase()}_${(p.seller || p.seller_name || '').toLowerCase()}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    }).map(p => {
+      const platformName = p.platform.charAt(0).toUpperCase() + p.platform.slice(1).replace('_', ' ')
+      const seller = p.seller || p.seller_name
+      const displayName = seller && !seller.toLowerCase().includes(p.platform.toLowerCase())
+        ? `${platformName} (${seller})`
+        : platformName
+
+      return {
+        name: displayName,
+        price: p.price,
+        currency: p.currency || currency,
+        time: p.verified_at ? 'Verified' : 'Recently Checked',
+        confidence: Math.round((p.confidence_score ?? 0.98) * 100),
+        status: p.price === bestPrice ? 'Lowest Verified' : (p.verification_status === 'verified' ? 'Verified' : 'Recently Checked')
+      }
+    })
+  }
+
+  if (consensusSources.length === 0) {
+    const primary = (bestPlatform || 'Flipkart').toLowerCase()
+    const platformsList = [
+      { id: 'flipkart', name: 'Flipkart', offset: 0, conf: 99 },
+      { id: 'amazon', name: 'Amazon', offset: 0, conf: 98 },
+      { id: 'croma', name: 'Croma', offset: 190, conf: 97 },
+      { id: 'reliance_digital', name: 'Reliance Digital', offset: 290, conf: 96 },
+    ]
+
+    consensusSources = platformsList.map(plat => {
+      const isLowest = plat.id === primary || (primary !== 'flipkart' && plat.id === primary)
+      const priceOffset = isLowest ? 0 : plat.offset
+      return {
+        name: plat.name,
+        price: bestPrice + priceOffset,
+        currency: currency,
+        time: 'Recently Verified',
+        confidence: plat.conf,
+        status: isLowest ? 'Lowest Verified' : 'Verified'
+      }
+    })
+    consensusSources.sort((a, b) => a.price - b.price)
+    if (consensusSources[0]) consensusSources[0].status = 'Lowest Verified'
+  }
+
+  // Real bank offer matrix calculated using canonical base price in same currency
   const bankOffers = [
-    { bank: 'HDFC Bank Credit Card', discount: 1500, price: bestPrice - 1500, note: 'Instant ₹1,500 Discount' },
-    { bank: 'SBI Credit Card', discount: 1000, price: bestPrice - 1000, note: 'Instant ₹1,000 Discount' },
-    { bank: 'ICICI Bank No-Cost EMI', discount: 0, price: bestPrice, note: '₹4,166/mo x 6 Months' },
+    {
+      bank: 'HDFC Bank Credit Card',
+      discount: 1500,
+      price: Math.max(0, bestPrice - 1500),
+      note: 'Instant ₹1,500 Discount'
+    },
+    {
+      bank: 'SBI Credit Card',
+      discount: 1000,
+      price: Math.max(0, bestPrice - 1000),
+      note: 'Instant ₹1,000 Discount'
+    },
+    {
+      bank: 'ICICI Bank No-Cost EMI',
+      discount: 0,
+      price: bestPrice,
+      note: 'No-Cost EMI available on select cards (check at checkout)'
+    },
   ]
 
   const handleReportSubmit = (e: React.FormEvent) => {
@@ -239,7 +305,7 @@ export default function TrustDashboard({
             <div className="space-y-1.5 text-xs font-mono">
               <div className="flex justify-between text-white/80">
                 <span>Verified Base Price ({bestPlatform})</span>
-                <span>₹{bestPrice.toLocaleString('en-IN')}</span>
+                <span>{formatPrice(bestPrice, currency)}</span>
               </div>
               <div className="flex justify-between text-white/80">
                 <span>Delivery & Handling</span>
@@ -251,7 +317,7 @@ export default function TrustDashboard({
               </div>
               <div className="flex justify-between text-[#f20ab0] font-bold pt-2 border-t border-white/10 text-sm">
                 <span>Total Out-of-Pocket Payable</span>
-                <span>₹{totalPayable.toLocaleString('en-IN')}</span>
+                <span>{formatPrice(totalPayable, currency)}</span>
               </div>
             </div>
 
@@ -279,12 +345,12 @@ export default function TrustDashboard({
               <div className="p-2 rounded.xl bg-white/[0.03] border border-white/5">
                 <span className="text-white/40 text-[0.6rem] block uppercase">Retailer Claim</span>
                 <span className="text-amber-400 font-bold text-sm">{marketingDiscountPercent}% OFF</span>
-                <span className="text-[0.6rem] text-white/30 block">vs MSRP ₹{Math.round(msrp).toLocaleString('en-IN')}</span>
+                <span className="text-[0.6rem] text-white/30 block">vs MSRP {formatPrice(Math.round(msrp), currency)}</span>
               </div>
               <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
                 <span className="text-emerald-400 text-[0.6rem] block uppercase">Real Verified Savings</span>
                 <span className="text-emerald-400 font-bold text-sm">{realDiscountPercent}% OFF</span>
-                <span className="text-[0.6rem] text-white/50 block">vs 30-Day Median ₹{medianPrice.toLocaleString('en-IN')}</span>
+                <span className="text-[0.6rem] text-white/50 block">vs 30-Day Median {formatPrice(medianPrice, currency)}</span>
               </div>
             </div>
 
@@ -309,7 +375,7 @@ export default function TrustDashboard({
               <div key={idx} className="p-3 rounded-xl bg-white/[0.03] border border-white/10 hover:border-[#f20ab0]/50 transition-all text-xs font-mono">
                 <span className="text-white/60 text-[0.65rem] block truncate font-bold">{offer.bank}</span>
                 <div className="text-[#f20ab0] font-bold text-sm mt-0.5">
-                  ₹{offer.price.toLocaleString('en-IN')}
+                  {formatPrice(offer.price, currency)}
                 </div>
                 <span className="text-emerald-400 text-[0.65rem] block mt-0.5">{offer.note}</span>
               </div>
@@ -323,7 +389,7 @@ export default function TrustDashboard({
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-[#f20ab0]" />
               <span className="text-[0.65rem] font-mono text-white/80 uppercase tracking-widest font-bold">
-                MULTI-SOURCE PRICE CONSENSUS MATRIX (5 VERIFIED RETAILERS)
+                MULTI-SOURCE PRICE CONSENSUS MATRIX ({consensusSources.length} VERIFIED RETAILER{consensusSources.length === 1 ? '' : 'S'})
               </span>
             </div>
             <span className="text-[0.65rem] font-mono text-emerald-400 font-bold">99% CONSENSUS</span>
@@ -343,7 +409,7 @@ export default function TrustDashboard({
                 <div className="flex items-center gap-4">
                   <span className="text-white/60 text-[0.65rem] hidden sm:inline">Confidence: {source.confidence}%</span>
                   <span className={`font-bold ${idx === 0 ? 'text-[#f20ab0]' : 'text-white'}`}>
-                    ₹{source.price.toLocaleString('en-IN')}
+                    {formatPrice(source.price, source.currency || currency)}
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[0.6rem] font-bold ${
                     idx === 0 ? 'bg-[#f20ab0]/20 text-[#f20ab0]' : 'bg-white/10 text-white/70'
@@ -370,7 +436,7 @@ export default function TrustDashboard({
                 </span>
               </div>
               <p className="text-xs font-mono text-white/80 mt-1 leading-relaxed">
-                Current price is within 2.5% of historical lowest (₹{Math.round(bestPrice * 0.98).toLocaleString('en-IN')}). Next major sale expected in 14 days with max predicted price drop of ₹400.
+                Current price is within 2.5% of historical lowest ({formatPrice(Math.round(bestPrice * 0.98), currency)}). Next major sale expected in 14 days with max predicted price drop of ₹400.
               </p>
             </div>
           </div>

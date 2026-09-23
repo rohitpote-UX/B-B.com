@@ -157,6 +157,42 @@ class AuditEventType(str, enum.Enum):
     CACHE_INVALIDATED = "cache_invalidated"
 
 
+class SourceType(str, enum.Enum):
+    MANUFACTURER = "MANUFACTURER"
+    AFFILIATE = "AFFILIATE"
+    LICENSED_DATABASE = "LICENSED_DATABASE"
+    MERCHANT_FEED = "MERCHANT_FEED"
+    PUBLIC_DATASET = "PUBLIC_DATASET"
+    PARTNER_API = "PARTNER_API"
+    ADMIN_IMPORT = "ADMIN_IMPORT"
+
+
+class RawRecordStatus(str, enum.Enum):
+    RECEIVED = "RECEIVED"
+    NORMALIZED = "NORMALIZED"
+    VALIDATED = "VALIDATED"
+    DUPLICATE = "DUPLICATE"
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+    REJECTED = "REJECTED"
+    PUBLISHED = "PUBLISHED"
+    FAILED = "FAILED"
+
+
+class JobStatus(str, enum.Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    PAUSED = "PAUSED"
+    COMPLETED = "COMPLETED"
+    PARTIAL = "PARTIAL"
+    FAILED = "FAILED"
+
+
+class JobType(str, enum.Enum):
+    FULL_SYNC = "FULL_SYNC"
+    DELTA_SYNC = "DELTA_SYNC"
+    FILE_IMPORT = "FILE_IMPORT"
+
+
 # ─── Users ───────────────────────────────────────────────────────────
 
 class User(Base):
@@ -250,6 +286,7 @@ class Product(Base):
     highest_price = Column(Float, nullable=True)
     current_best_price = Column(Float, nullable=True)
     current_best_platform = Column(String(50), nullable=True)
+    currency = Column(String(10), default="INR")
     deal_score = Column(Float, nullable=True)  # AI-calculated deal quality 0-100
     ai_summary = Column(Text, nullable=True)
     is_active = Column(Boolean, default=True)
@@ -294,7 +331,7 @@ class Price(Base):
     price = Column(Float, nullable=False)
     original_price = Column(Float, nullable=True)  # Before discount
     discount_percentage = Column(Float, nullable=True)
-    currency = Column(String(10), default="USD")
+    currency = Column(String(10), default="INR")
     url = Column(String(1000), nullable=True)
     is_available = Column(Boolean, default=True)
     delivery_days = Column(Integer, nullable=True)
@@ -332,7 +369,7 @@ class PriceHistory(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     platform = Column(String(50), nullable=False)
     price = Column(Float, nullable=False)
-    currency = Column(String(10), default="USD")
+    currency = Column(String(10), default="INR")
     recorded_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -517,6 +554,7 @@ class Deal(Base):
     description = Column(Text, nullable=True)
     deal_price = Column(Float, nullable=False)
     original_price = Column(Float, nullable=False)
+    currency = Column(String(10), default="INR")
     discount_percentage = Column(Float, nullable=False)
     deal_score = Column(Float, nullable=True)  # AI quality score 0-100
     is_fake_discount = Column(Boolean, default=False)
@@ -1101,3 +1139,99 @@ class DataFreshnessConfig(Base):
     description = Column(String(500), nullable=True)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── Catalog Ingestion Engine ─────────────────────────────────────────
+
+
+class CatalogSource(Base):
+    """
+    Source Registry for all catalog sources.
+    Tracks legal permissions, license types, adapter bindings, and sync status.
+    """
+    __tablename__ = "catalog_sources"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False, index=True)
+    source_type = Column(String(50), nullable=False, default=SourceType.AFFILIATE.value)
+    base_url = Column(String(500), nullable=True)
+    adapter_key = Column(String(50), nullable=False, index=True)
+    license_type = Column(String(100), nullable=True)
+    commercial_use_allowed = Column(Boolean, default=True, nullable=False)
+    automated_access_allowed = Column(Boolean, default=True, nullable=False)
+    requires_auth = Column(Boolean, default=False, nullable=False)
+    active = Column(Boolean, default=True, nullable=False, index=True)
+    priority = Column(Integer, default=10, nullable=False)
+    terms_url = Column(String(500), nullable=True)
+    data_scope = Column(String(255), nullable=True)
+    last_sync_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+    raw_records = relationship("RawCatalogRecord", back_populates="source", cascade="all, delete-orphan")
+    jobs = relationship("CatalogIngestionJob", back_populates="source", cascade="all, delete-orphan")
+
+
+class RawCatalogRecord(Base):
+    """
+    Immutable raw staging record. Untrusted data is preserved here before
+    normalization, validation, deduplication, and publishing.
+    """
+    __tablename__ = "raw_catalog_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_id = Column(Integer, ForeignKey("catalog_sources.id"), nullable=False, index=True)
+    external_id = Column(String(255), nullable=False, index=True)
+    source_url = Column(String(1000), nullable=True)
+    raw_payload = Column(JSON, nullable=False)
+    content_hash = Column(String(64), nullable=False, index=True)
+    retrieved_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    parser_version = Column(String(50), nullable=True)
+    processing_status = Column(String(30), nullable=False, default=RawRecordStatus.RECEIVED.value, index=True)
+    failure_reason = Column(String(500), nullable=True)
+    master_product_id = Column(Integer, ForeignKey("master_products.id"), nullable=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+    source = relationship("CatalogSource", back_populates="raw_records")
+    master_product = relationship("MasterProduct")
+
+    __table_args__ = (
+        Index("idx_raw_source_external", "source_id", "external_id"),
+        Index("idx_raw_source_hash", "source_id", "content_hash"),
+        Index("idx_raw_status_created", "processing_status", "created_at"),
+    )
+
+
+class CatalogIngestionJob(Base):
+    """
+    Asynchronous and batch ingestion job tracker.
+    Supports resumable pagination cursors, status polling, and error summaries.
+    """
+    __tablename__ = "catalog_ingestion_jobs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_id = Column(Integer, ForeignKey("catalog_sources.id"), nullable=False, index=True)
+    job_type = Column(String(30), nullable=False, default=JobType.FULL_SYNC.value)
+    status = Column(String(30), nullable=False, default=JobStatus.QUEUED.value, index=True)
+    started_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    cursor = Column(String(500), nullable=True)
+    next_cursor = Column(String(500), nullable=True)
+    records_seen = Column(Integer, default=0, nullable=False)
+    records_created = Column(Integer, default=0, nullable=False)
+    records_updated = Column(Integer, default=0, nullable=False)
+    records_merged = Column(Integer, default=0, nullable=False)
+    records_reviewed = Column(Integer, default=0, nullable=False)
+    records_rejected = Column(Integer, default=0, nullable=False)
+    records_failed = Column(Integer, default=0, nullable=False)
+    error_summary = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
+
+    source = relationship("CatalogSource", back_populates="jobs")
+
+    __table_args__ = (
+        Index("idx_job_source_status", "source_id", "status"),
+    )
+

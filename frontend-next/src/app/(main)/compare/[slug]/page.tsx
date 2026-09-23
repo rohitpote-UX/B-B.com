@@ -90,7 +90,7 @@ export default async function SeoCompareSlugPage({ params }: SeoCompareSlugPageP
   const faqs = [
     {
       question: `Which is cheaper: ${p1.name} or ${p2.name}?`,
-      answer: `${cheaperProduct.name} is currently available at a lower price point starting from ₹${cheaperProduct.bestPrice.toLocaleString()} compared to ₹${(cheaperProduct.id === p1.id ? p2.bestPrice : p1.bestPrice).toLocaleString()}.`,
+      answer: `${cheaperProduct.name} is currently available at a lower price point starting from ₹${cheaperProduct.bestPrice.toLocaleString('en-IN')} compared to ₹${(cheaperProduct.id === p1.id ? p2.bestPrice : p1.bestPrice).toLocaleString('en-IN')}.`,
     },
     {
       question: `Should I buy ${p1.name} or ${p2.name}?`,
@@ -108,6 +108,7 @@ export default async function SeoCompareSlugPage({ params }: SeoCompareSlugPageP
     p1Price: p1.bestPrice,
     p2Price: p2.bestPrice,
     category: p1.category,
+    currency: p1.currency || 'INR',
     winnerName: winnerProduct.name,
     winnerReason: `${winnerProduct.name} achieved higher deal confidence (${winnerProduct.dealScore}/100) and verified satisfaction ratings.`,
   })
@@ -121,6 +122,7 @@ export default async function SeoCompareSlugPage({ params }: SeoCompareSlugPageP
       brand: p1.brand,
       category: p1.category,
       price: p1.bestPrice,
+      currency: p1.currency || 'INR',
       originalPrice: p1.originalPrice,
       bestPlatform: p1.bestPlatform,
       rating: p1.rating,
@@ -136,6 +138,7 @@ export default async function SeoCompareSlugPage({ params }: SeoCompareSlugPageP
       brand: p2.brand,
       category: p2.category,
       price: p2.bestPrice,
+      currency: p2.currency || 'INR',
       originalPrice: p2.originalPrice,
       bestPlatform: p2.bestPlatform,
       rating: p2.rating,

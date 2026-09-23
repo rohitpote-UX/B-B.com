@@ -81,6 +81,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
       image: apiProduct.image_url || demoProduct.image,
       price_verified_at: apiProduct.price_verified_at,
       price_verification_status: apiProduct.price_verification_status,
+      currency: apiProduct.currency || demoProduct.currency || 'INR',
     }
   }, [apiProduct, demoProduct])
 
@@ -323,7 +324,8 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
               originalPrice={product.originalPrice}
               bestPlatform={product.bestPlatform}
               priceVerifiedAt={(product as any).price_verified_at}
-              prices={apiPrices || undefined}
+              prices={apiPrices && apiPrices.length > 0 ? apiPrices : (product.prices?.length ? product.prices : undefined)}
+              currency={(product as any).currency || 'INR'}
             />
 
             {/* ─── PREMIUM PRICING CARD ─── */}
@@ -648,6 +650,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                   tick={{ fontSize: 11, fill: '#71717a' }}
                   domain={['dataMin - 50', 'dataMax + 50']}
                   dx={-10}
+                  tickFormatter={v => formatPrice(v, (product as any).currency || 'INR')}
                 />
                 <Tooltip
                   contentStyle={{
@@ -657,6 +660,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                     fontSize: '12px',
                     color: '#fff'
                   }}
+                  formatter={(value: any) => [formatPrice(Number(value), (product as any).currency || 'INR'), '']}
                 />
                 <Area type="monotone" dataKey="amazon" stroke="#f20ab0" strokeWidth={3} fill="url(#gradientAmazon)" />
                 <Area type="monotone" dataKey="flipkart" stroke="#71717a" strokeWidth={2} fill="transparent" strokeDasharray="4 4" />

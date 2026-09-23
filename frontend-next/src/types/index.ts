@@ -5,6 +5,7 @@ export interface ProductPrice {
   original: number;
   delivery: number;
   rating: number;
+  currency?: string;
 }
 
 export interface Product {
@@ -18,6 +19,7 @@ export interface Product {
   bestPrice: number;
   originalPrice: number;
   bestPlatform: string;
+  currency?: string;
   dealScore: number;
   tags: string[];
   description: string;

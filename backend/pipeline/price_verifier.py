@@ -47,12 +47,15 @@ class PriceVerifier:
         marketplace: str,
         source_method: str = "scraper",
         original_price: Optional[float] = None,
+        currency: str = "INR",
+        previous_currency: Optional[str] = "INR",
     ) -> PriceVerificationResult:
         """
         Validates an incoming price observation against the previous known price.
 
         Anomaly detection rules:
         - Price change > anomaly_threshold_pct triggers anomaly flag
+        - Raw cross-currency comparisons (INR vs USD) trigger currency_error
         - Price <= 0 is impossible
         - Price > 10,000,000 is impossible
         - Original price < current price is suspicious
@@ -81,15 +84,32 @@ class PriceVerifier:
         anomaly_type = None
 
         if previous_price is not None and previous_price > 0:
-            abs_diff = abs(new_price - previous_price)
-            pct_diff = (abs_diff / previous_price) * 100.0
+            norm_prev = previous_price
+            # Normalize to same currency for comparison if cross-currency detected
+            if currency and previous_currency and currency != previous_currency:
+                if currency == "INR" and previous_currency == "USD":
+                    norm_prev = previous_price * 84.0
+                elif currency == "USD" and previous_currency == "INR":
+                    norm_prev = previous_price / 84.0
 
-            if pct_diff > self.anomaly_threshold_pct:
+            # Detect raw un-normalized cross-currency bug (e.g. 179900 INR vs 2141.67 without currency tag)
+            ratio = previous_price / new_price if new_price > 0 else 0
+            inv_ratio = new_price / previous_price if previous_price > 0 else 0
+            if (75.0 <= ratio <= 95.0) or (75.0 <= inv_ratio <= 95.0):
                 is_anomaly = True
-                if new_price < previous_price:
-                    anomaly_type = "sudden_drop"
-                else:
-                    anomaly_type = "sudden_spike"
+                anomaly_type = "currency_error"
+                abs_diff = abs(new_price - norm_prev)
+                pct_diff = (abs_diff / norm_prev) * 100.0 if norm_prev > 0 else 0.0
+            else:
+                abs_diff = abs(new_price - norm_prev)
+                pct_diff = (abs_diff / norm_prev) * 100.0 if norm_prev > 0 else 0.0
+
+                if pct_diff > self.anomaly_threshold_pct:
+                    is_anomaly = True
+                    if new_price < norm_prev:
+                        anomaly_type = "sudden_drop"
+                    else:
+                        anomaly_type = "sudden_spike"
 
         # Confidence scoring
         confidence = self._calculate_confidence(
@@ -164,6 +184,8 @@ class PriceVerifier:
         new_price: float,
         previous_price: Optional[float],
         marketplace: str,
+        currency: str = "INR",
+        previous_currency: Optional[str] = "INR",
     ) -> Optional[Dict[str, Any]]:
         """
         Returns anomaly metadata dict if an anomaly is detected, else None.
@@ -172,16 +194,46 @@ class PriceVerifier:
         if previous_price is None or previous_price <= 0:
             return None
 
-        abs_diff = abs(new_price - previous_price)
-        pct_diff = (abs_diff / previous_price) * 100.0
+        if new_price <= 0:
+            return {
+                "product_id": product_id,
+                "marketplace": marketplace,
+                "previous_price": previous_price,
+                "new_price": new_price,
+                "absolute_difference": round(previous_price, 2),
+                "percentage_difference": 100.0,
+                "anomaly_type": "impossible_price",
+            }
+
+        norm_prev = previous_price
+        if currency and previous_currency and currency != previous_currency:
+            if currency == "INR" and previous_currency == "USD":
+                norm_prev = previous_price * 84.0
+            elif currency == "USD" and previous_currency == "INR":
+                norm_prev = previous_price / 84.0
+
+        ratio = previous_price / new_price if new_price > 0 else 0
+        inv_ratio = new_price / previous_price if previous_price > 0 else 0
+        if (75.0 <= ratio <= 95.0) or (75.0 <= inv_ratio <= 95.0):
+            abs_diff = abs(new_price - norm_prev)
+            pct_diff = (abs_diff / norm_prev) * 100.0 if norm_prev > 0 else 0.0
+            return {
+                "product_id": product_id,
+                "marketplace": marketplace,
+                "previous_price": previous_price,
+                "new_price": new_price,
+                "absolute_difference": round(abs_diff, 2),
+                "percentage_difference": round(pct_diff, 2),
+                "anomaly_type": "currency_error",
+            }
+
+        abs_diff = abs(new_price - norm_prev)
+        pct_diff = (abs_diff / norm_prev) * 100.0 if norm_prev > 0 else 0.0
 
         if pct_diff <= self.anomaly_threshold_pct:
             return None
 
-        anomaly_type = "sudden_drop" if new_price < previous_price else "sudden_spike"
-
-        if new_price <= 0:
-            anomaly_type = "impossible_price"
+        anomaly_type = "sudden_drop" if new_price < norm_prev else "sudden_spike"
 
         return {
             "product_id": product_id,

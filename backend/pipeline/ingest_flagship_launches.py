@@ -1119,9 +1119,7 @@ def sync_to_demodata_js():
     new_demo_objects = []
     current_id = max_id + 1
 
-    # Conversion rate: INR to USD (matching existing demoData 84 factor: usdPrice * 84 = inrPrice)
-    INR_RATE = 84.0
-
+    # Canonical pricing: preserve authoritative marketplace INR amount and currency
     for item in NEW_LAUNCHES:
         # Check if product name already in demoData
         if f'"{item["canonical_name"]}"' in content or f'"{item["slug"]}"' in content:
@@ -1130,18 +1128,15 @@ def sync_to_demodata_js():
 
         best_inr = item["lowest_price"]
         orig_inr = item["highest_price"]
-        best_usd = round(best_inr / INR_RATE, 2)
-        orig_usd = round(orig_inr / INR_RATE, 2)
 
-        # Build platform prices array
+        # Build platform prices array using canonical INR prices
         prices_arr = []
         for off in item["offers"]:
-            p_usd = round(off["price"] / INR_RATE, 2)
-            o_usd = round(off["original_price"] / INR_RATE, 2)
             prices_arr.append({
                 "platform": off["marketplace"],
-                "price": p_usd,
-                "original": o_usd,
+                "price": off["price"],
+                "original": off["original_price"],
+                "currency": "INR",
                 "delivery": 1 if "Prime" in off.get("delivery_time", "") else 2,
                 "rating": 4.8,
                 "seller": off["seller_name"],
@@ -1166,8 +1161,9 @@ def sync_to_demodata_js():
             "image": item["primary_image_url"],
             "rating": item["average_rating"],
             "totalReviews": item["total_reviews"],
-            "bestPrice": best_usd,
-            "originalPrice": orig_usd,
+            "bestPrice": best_inr,
+            "originalPrice": orig_inr,
+            "currency": "INR",
             "bestPlatform": item["offers"][0]["marketplace"],
             "dealScore": item["deal_score"],
             "tags": item["tags"],

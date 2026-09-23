@@ -165,6 +165,7 @@ def make_prices(base_price, original_price, source_platform, category, real_pric
                     "platform": pl,
                     "price": pdata["price"],
                     "original": pdata["original"],
+                    "currency": "INR",
                     "delivery": pdata["delivery"],
                     "rating": pdata["rating"]
                 })
@@ -177,6 +178,7 @@ def make_prices(base_price, original_price, source_platform, category, real_pric
             "platform": primary_pl,
             "price": base_price,
             "original": original_price,
+            "currency": "INR",
             "delivery": 1,
             "rating": round(random.uniform(4.0, 4.7), 1)
         })
@@ -199,6 +201,7 @@ def make_prices(base_price, original_price, source_platform, category, real_pric
             "platform": pl,
             "price": p,
             "original": original_price,
+            "currency": "INR",
             "delivery": random.randint(1, 5),
             "rating": round(random.uniform(3.8, 4.8), 1)
         })
@@ -238,8 +241,9 @@ def load_csv():
                     if rating < 3.0:
                         continue  # skip very low-rated items
 
-                    price = inr_to_usd(price_inr)
-                    orig = inr_to_usd(orig_inr)
+                    # Authoritative canonical marketplace pricing is in INR
+                    price = price_inr
+                    orig = orig_inr
                     disc = round(((orig - price) / orig) * 100) if orig > price else 0
 
                     platform = row.get("platform", "").lower()
@@ -378,16 +382,17 @@ def build_demodata(products):
         if override:
             p_inr = override["price_inr"]
             p["price_inr"] = p_inr
-            p["price"] = inr_to_usd(p_inr)
-            p["originalPrice"] = inr_to_usd(override["original_price_inr"])
+            p["price"] = p_inr
+            p["originalPrice"] = override["original_price_inr"]
             p["discount"] = round(((p["originalPrice"] - p["price"]) / p["originalPrice"]) * 100) if p["originalPrice"] > p["price"] else 0
             
             prices = []
             for op in override["prices"]:
                 prices.append({
                     "platform": op["platform"],
-                    "price": inr_to_usd(op["price_inr"]),
-                    "original": inr_to_usd(op["original_price_inr"]),
+                    "price": op["price_inr"],
+                    "original": op["original_price_inr"],
+                    "currency": "INR",
                     "delivery": op["delivery"],
                     "rating": op["rating"]
                 })
@@ -411,7 +416,7 @@ def build_demodata(products):
             except Exception:
                 pass
 
-        specs_dict = {"Price (INR)": f"₹{round(best['price'] * 84):,.0f}", "Rating": f"{p['rating']}/5", "Reviews": p["totalReviews"]}
+        specs_dict = {"Price (INR)": f"₹{round(best['price']):,.0f}", "Rating": f"{p['rating']}/5", "Reviews": p["totalReviews"]}
         specs_dict.update(real_specs)
 
         desc = p.get("description")
@@ -428,6 +433,7 @@ def build_demodata(products):
             "totalReviews": p["totalReviews"],
             "bestPrice": best["price"],
             "originalPrice": p["originalPrice"],
+            "currency": "INR",
             "bestPlatform": best["platform"],
             "dealScore": deal_score,
             "tags": make_tags(p["name"], p["category"]),

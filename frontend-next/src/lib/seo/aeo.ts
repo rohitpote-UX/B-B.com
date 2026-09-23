@@ -15,6 +15,7 @@ export function buildProductAeoAnswers(props: {
   price: number
   bestPlatform: string
   category: string
+  currency?: string
   priceVerifiedAt?: string | Date
   specs?: Record<string, string | number>
   alternativeName?: string
@@ -22,11 +23,14 @@ export function buildProductAeoAnswers(props: {
   const verifiedDate = props.priceVerifiedAt
     ? new Date(props.priceVerifiedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : 'Recent'
+  const sym = props.currency === 'USD' ? '$' : '₹'
+  const locale = props.currency === 'USD' ? 'en-US' : 'en-IN'
+  const formattedPrice = `${sym}${props.price.toLocaleString(locale)}`
 
   const answers: AeoAnswerBlock[] = [
     {
       question: `What is the current verified price of ${props.name}?`,
-      directAnswer: `The lowest verified price for ${props.name} is ₹${props.price.toLocaleString()}, available on ${props.bestPlatform}.`,
+      directAnswer: `The lowest verified price for ${props.name} is ${formattedPrice}, available on ${props.bestPlatform}.`,
       supportingFacts: [
         `Price verified by Brand Battle Price Intelligence Engine as of ${verifiedDate}.`,
         `Includes cross-platform verification across major marketplaces.`,
@@ -36,7 +40,7 @@ export function buildProductAeoAnswers(props: {
     },
     {
       question: `Where is the best place to buy ${props.name}?`,
-      directAnswer: `Currently, ${props.bestPlatform} offers the best verified price at ₹${props.price.toLocaleString()}.`,
+      directAnswer: `Currently, ${props.bestPlatform} offers the best verified price at ${formattedPrice}.`,
       supportingFacts: [
         `Monitored across Amazon, Flipkart, Croma, and authorized brand sellers.`,
         `Only in-stock and authentic retailer listings are considered.`,
@@ -71,11 +75,14 @@ export function buildComparisonAeoVerdict(props: {
   p1Price: number
   p2Price: number
   category: string
+  currency?: string
   winnerName?: string
   winnerReason?: string
 }): AeoAnswerBlock {
   const priceDiff = Math.abs(props.p1Price - props.p2Price)
   const cheaperProduct = props.p1Price < props.p2Price ? props.p1Name : props.p2Name
+  const sym = props.currency === 'USD' ? '$' : '₹'
+  const locale = props.currency === 'USD' ? 'en-US' : 'en-IN'
 
   const directAnswer = props.winnerName
     ? `${props.winnerName} is the recommended choice in the ${props.category} category due to superior overall value and performance.`
@@ -85,7 +92,7 @@ export function buildComparisonAeoVerdict(props: {
     question: `Which is better: ${props.p1Name} or ${props.p2Name}?`,
     directAnswer,
     supportingFacts: [
-      `${cheaperProduct} holds a ₹${priceDiff.toLocaleString()} price advantage.`,
+      `${cheaperProduct} holds a ${sym}${priceDiff.toLocaleString(locale)} price advantage.`,
       props.winnerReason || `Evaluation computed across hardware specifications, marketplace trust, and 5-year total ownership cost.`,
     ],
     source: 'Brand Battle 5-System Consensus Engine',

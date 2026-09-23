@@ -125,6 +125,7 @@ from comparison_workspace import comparison_workspace_router
 from seo_platform import seo_router
 from affiliate_platform import affiliate_router
 from verification_platform import verification_router
+from routers.catalog import router as catalog_router
 
 app.include_router(auth_router)
 app.include_router(products_router)
@@ -147,6 +148,7 @@ app.include_router(comparison_workspace_router)
 app.include_router(seo_router)
 app.include_router(affiliate_router)
 app.include_router(verification_router)
+app.include_router(catalog_router)
 
 
 # ─── Root & Health Endpoints ─────────────────────────────────────────

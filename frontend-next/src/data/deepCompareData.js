@@ -155,18 +155,21 @@ function completeSentiment(s) {
 
 // User persona scoring
 function generatePersonaScores(product, profile, rng) {
-  const priceFactor = product.bestPrice < 200 ? 1.1 : product.bestPrice < 400 ? 1.0 : 0.9
+  const inrPrice = (product.currency === 'USD' || product.bestPrice < 1000) ? product.bestPrice * 84 : product.bestPrice
+  const priceFactor = inrPrice < 15000 ? 1.1 : inrPrice < 35000 ? 1.0 : 0.9
   return {
     gamer: clamp(Math.round((profile.gaming * 0.5 + (100 - profile.heating) * 0.2 + profile.battery * 0.15 + rng() * 15) * priceFactor), 30, 98),
-    student: clamp(Math.round((profile.battery * 0.35 + (product.bestPrice < 250 ? 85 : 55) * 0.3 + profile.camera * 0.15 + rng() * 12), 30, 98), 30, 98),
+    student: clamp(Math.round((profile.battery * 0.35 + (inrPrice < 20000 ? 85 : 55) * 0.3 + profile.camera * 0.15 + rng() * 12), 30, 98), 30, 98),
     creator: clamp(Math.round((profile.camera * 0.4 + profile.gaming * 0.2 + profile.updates * 0.15 + profile.ecosystem * 0.15 + rng() * 10)), 30, 98),
-    parent: clamp(Math.round((profile.battery * 0.3 + profile.service * 0.25 + (product.bestPrice < 200 ? 90 : 50) * 0.25 + profile.privacy * 0.1 + rng() * 10)), 30, 98),
+    parent: clamp(Math.round((profile.battery * 0.3 + profile.service * 0.25 + (inrPrice < 15000 ? 90 : 50) * 0.25 + profile.privacy * 0.1 + rng() * 10)), 30, 98),
   }
 }
 
 // India/Asia intelligence
 function generateIndiaIntel(product, profile, rng) {
-  const priceTier = product.bestPrice < 150 ? 'budget' : product.bestPrice < 300 ? 'mid' : 'premium'
+  const inrPrice = (product.currency === 'USD' || product.bestPrice < 1000) ? product.bestPrice * 84 : product.bestPrice
+  const priceTier = inrPrice < 15000 ? 'budget' : inrPrice < 35000 ? 'mid' : 'premium'
+  const maxDiscount = Math.round(inrPrice * (0.15 + rng() * 0.2))
   
   return {
     serviceCenters: {
@@ -186,14 +189,14 @@ function generateIndiaIntel(product, profile, rng) {
     emiOptions: {
       available: true,
       banks: Math.round(6 + rng() * 10),
-      minEmi: Math.round(product.bestPrice / 12 * 83.5), // INR approximation
+      minEmi: Math.round(inrPrice / 12),
       noCostEmi: priceTier !== 'budget' && rng() > 0.3,
       note: `No-cost EMI available on select bank cards for up to ${priceTier === 'premium' ? 18 : 12} months`,
     },
     exchangeOffers: {
-      maxDiscount: Math.round(product.bestPrice * (0.15 + rng() * 0.2) * 83.5),
-      platforms: product.prices.map(p => p.platform).slice(0, 3),
-      note: `Exchange your old phone for up to ₹${Math.round(product.bestPrice * (0.15 + rng() * 0.2) * 83.5).toLocaleString()} off`,
+      maxDiscount: maxDiscount,
+      platforms: (product.prices || []).map(p => p.platform).slice(0, 3),
+      note: `Exchange your old phone for up to ₹${maxDiscount.toLocaleString('en-IN')} off`,
     },
     sellerTrust: {
       amazon: clamp(Math.round(78 + rng() * 20), 60, 98),

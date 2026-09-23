@@ -53,7 +53,9 @@ export function buildGeoFactSheet(props: {
  * Converts a GEO FactSheet into a clean, concise semantic text block for AI crawler indexing.
  */
 export function formatGeoFactSheetText(sheet: GeoFactSheet): string {
-  const sym = sheet.currency === 'INR' ? '₹' : '$'
+  const sym = sheet.currency === 'USD' ? '$' : '₹'
+  const locale = sheet.currency === 'USD' ? 'en-US' : 'en-IN'
+  const formattedPrice = `${sym}${sheet.verifiedPrice.toLocaleString(locale)}`
   const specList = Object.entries(sheet.keySpecifications)
     .slice(0, 6)
     .map(([k, v]) => `${k}: ${v}`)
@@ -65,7 +67,7 @@ export function formatGeoFactSheetText(sheet: GeoFactSheet): string {
     `Product Entity: ${sheet.entityName}`,
     `Manufacturer/Brand: ${sheet.brand}`,
     `Category: ${sheet.category}`,
-    `Verified Lowest Price: ${sym}${sheet.verifiedPrice.toLocaleString()} on ${sheet.bestMarketplace} (Verified: ${sheet.priceVerifiedDate})`,
+    `Verified Lowest Price: ${formattedPrice} on ${sheet.bestMarketplace} (Verified: ${sheet.priceVerifiedDate})`,
     `Deal Confidence Score: ${sheet.dealScore}/100`,
     specList ? `Technical Specifications: ${specList}` : '',
     `Comparable Alternatives: ${altList}`,

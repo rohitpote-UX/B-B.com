@@ -24,7 +24,8 @@ export function buildProductDescription({
   const brandStr = brand ? `${brand} ` : ''
   const catStr = category ? ` in ${category}` : ''
   const sym = currency === 'INR' ? '₹' : '$'
-  const priceStr = price && price > 0 ? ` Starting from ${sym}${price.toLocaleString()}.` : ''
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US'
+  const priceStr = price && price > 0 ? ` Starting from ${sym}${price.toLocaleString(locale)}.` : ''
   const storeStr = marketplaceCount && marketplaceCount > 1 ? ` Compare across ${marketplaceCount} verified stores.` : ''
   const specStr = specSnippet ? ` Key specs: ${specSnippet}.` : ''
 
@@ -47,8 +48,9 @@ export function buildComparisonDescription({
   winnerName,
 }: ComparisonDescriptionProps): string {
   const sym = currency === 'INR' ? '₹' : '$'
-  const p1Str = price1 && price1 > 0 ? ` (${sym}${price1.toLocaleString()})` : ''
-  const p2Str = price2 && price2 > 0 ? ` (${sym}${price2.toLocaleString()})` : ''
+  const locale = currency === 'INR' ? 'en-IN' : 'en-US'
+  const p1Str = price1 && price1 > 0 ? ` (${sym}${price1.toLocaleString(locale)})` : ''
+  const p2Str = price2 && price2 > 0 ? ` (${sym}${price2.toLocaleString(locale)})` : ''
   const catStr = category ? ` in ${category}` : ''
   const verdictStr = winnerName ? ` AI Verdict: ${winnerName} leads on overall value.` : ''
 

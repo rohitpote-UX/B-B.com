@@ -95,6 +95,7 @@ class ProductBase(BaseModel):
     specifications: Optional[Dict[str, Any]] = None
     features: Optional[List[str]] = None
     tags: Optional[List[str]] = None
+    currency: str = "INR"
 
 
 class ProductCreate(ProductBase):
@@ -122,6 +123,7 @@ class ProductResponse(BaseModel):
     highest_price: Optional[float] = None
     current_best_price: Optional[float] = None
     current_best_platform: Optional[str] = None
+    currency: str = "INR"
     deal_score: Optional[float] = None
     ai_summary: Optional[str] = None
     view_count: int
@@ -283,6 +285,7 @@ class DealResponse(BaseModel):
     description: Optional[str] = None
     deal_price: float
     original_price: float
+    currency: str = "INR"
     discount_percentage: float
     deal_score: Optional[float] = None
     is_fake_discount: bool

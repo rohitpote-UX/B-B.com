@@ -97,7 +97,7 @@ export default function DiscoverClient() {
   const handleShare = async (product: Product) => {
     const shareData = {
       title: `Brand Battle: ${product.name}`,
-      text: `Found a massive deal on the ${product.name} for $${product.bestPrice} (₹${Math.round(product.bestPrice * 84).toLocaleString()})!`,
+      text: `Found a massive deal on the ${product.name} for ${formatPrice(product.bestPrice, (product as any).currency || 'INR')}!`,
       url: window.location.origin + `/product/${product.id}`
     }
     if (navigator.share) {
