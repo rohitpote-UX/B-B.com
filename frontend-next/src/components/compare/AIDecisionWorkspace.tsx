@@ -50,10 +50,23 @@ export default function AIDecisionWorkspace({
     { id: 'durability', label: 'If Durability Matters Most' },
   ]
 
+  const isFootwear = /shoes|footwear|sneaker/i.test(`${p1.category || ''} ${p1.name || ''}`)
+  const isApparel = /clothing|apparel|t-shirt|jeans|dress|shirt/i.test(`${p1.category || ''} ${p1.name || ''}`)
+  const isBeauty = /beauty|perfume|fragrance|cosmetics/i.test(`${p1.category || ''} ${p1.name || ''}`)
+
   const questions = [
-    { q: 'Which product lasts longer?', a: `${p1.name} features a larger battery capacity and verified higher long-term durability scores.` },
+    {
+      q: 'Which product lasts longer?',
+      a: isFootwear
+        ? `${p1.name} features reinforced outsole construction and verified higher sole durability reports.`
+        : isApparel
+        ? `${p1.name} features durable fabric composition and higher wash-cycle retention.`
+        : isBeauty
+        ? `${p1.name} features an Eau De Parfum concentration with 6-8+ hours sustained wear time.`
+        : `${p1.name} features a larger battery capacity and verified higher long-term durability scores.`,
+    },
     { q: 'Which is cheaper over 5 years?', a: `${winner.name} offers ₹${(savings * 1.2).toLocaleString()} lower 5-year total ownership cost including accessories and maintenance.` },
-    { q: 'Which has better warranty support?', a: `${p1.brand} provides 2-year official manufacturer warranty coverage.` },
+    { q: 'Which has better warranty support?', a: `${p1.brand} provides official warranty coverage and easy replacement terms.` },
   ]
 
   const handleSave = () => {

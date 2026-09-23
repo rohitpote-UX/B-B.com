@@ -9,7 +9,8 @@ import {
   MessageCircle, Youtube, Globe, IndianRupee, DollarSign,
   Heart, Flame, Camera, BatteryFull, MapPin, CreditCard, Repeat,
   ShieldCheck, Lock, RefreshCw, Plug, Leaf, BarChart3, Activity,
-  TrendingUp, TrendingDown
+  TrendingUp, TrendingDown, Footprints, Shirt, Ruler, Droplets, Clock,
+  AlertTriangle, ShoppingBag, Scale, Award, Layers, Wind
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -17,9 +18,41 @@ import {
   AreaChart, Area, PieChart, Pie, Cell
 } from 'recharts'
 import { generateDeepCompareData } from '@/data/deepCompareData'
+import { resolveComparisonProfile } from '@/lib/comparisonProfiles'
 import { formatPrice } from '@/data/demoData'
 import { handleProductImageError } from '@/lib/image-fallback'
 import { Product } from '@/types'
+
+// Dynamic icon resolver for category profiles
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getIconByName(iconName: string): any {
+  switch (iconName) {
+    case 'BatteryFull': return BatteryFull
+    case 'Flame': return Flame
+    case 'Gamepad2': return Gamepad2
+    case 'Camera': return Camera
+    case 'Footprints': return Footprints
+    case 'Layers': return Layers
+    case 'Activity': return Activity
+    case 'Shield': return Shield
+    case 'ShieldCheck': return ShieldCheck
+    case 'Wind': return Wind
+    case 'Heart': return Heart
+    case 'Shirt': return Shirt
+    case 'Ruler': return Ruler
+    case 'Clock': return Clock
+    case 'Palette': return Palette
+    case 'Droplets': return Droplets
+    case 'Sparkles': return Sparkles
+    case 'DollarSign': return DollarSign
+    case 'ShoppingBag': return ShoppingBag
+    case 'TrendingUp': return TrendingUp
+    case 'GraduationCap': return GraduationCap
+    case 'Scale': return Scale
+    case 'Award': return Award
+    default: return Sparkles
+  }
+}
 
 // -- Shared animation variants --
 const sectionVariants = {
@@ -112,7 +145,11 @@ function GlassCard({ children, className = '', glow = false, winner = false }: G
 
 interface MetricBarProps {
   label: string
-  value: number
+  value: number | null
+  displayValue?: string
+  evidenceLevel?: string
+  evidenceNote?: string
+  isUnavailable?: boolean
   maxValue?: number
   winner?: boolean
   delay?: number
@@ -121,34 +158,71 @@ interface MetricBarProps {
   color?: string
 }
 
-function MetricBar({ label, value, maxValue = 100, winner = false, delay = 0, icon: Icon, color = COLORS.green }: MetricBarProps) {
-  const pct = Math.min((value / maxValue) * 100, 100)
+function MetricBar({
+  label,
+  value,
+  displayValue,
+  evidenceLevel,
+  evidenceNote,
+  isUnavailable = false,
+  maxValue = 100,
+  winner = false,
+  delay = 0,
+  icon: Icon,
+  color = COLORS.green
+}: MetricBarProps) {
+  const hasNumericValue = value !== null && !isUnavailable
+  const pct = hasNumericValue ? Math.min((value! / maxValue) * 100, 100) : 0
+  const formattedDisplay = displayValue || (value !== null ? `${value}/100` : 'Data unavailable')
+
   return (
     <div className="mb-5 last:mb-0">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {Icon && <Icon className="w-3.5 h-3.5" style={{ color }} />}
-          <span className="text-[0.75rem] text-theme-secondary">{label}</span>
+      <div className="flex items-center justify-between mb-2 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {Icon && <Icon className="w-3.5 h-3.5 shrink-0" style={{ color }} />}
+          <span className="text-[0.75rem] text-theme-secondary truncate">{label}</span>
         </div>
-        <span className={`text-[0.8rem] font-semibold ${winner ? 'text-[#22c55e]' : 'text-theme-text'}`}>
-          {value}/100
-          {winner && <span className="ml-1.5 text-[0.6rem]">★</span>}
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          {evidenceLevel && evidenceLevel !== 'DERIVED' && (
+            <span className={`text-[0.55rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+              evidenceLevel === 'VERIFIED_SPEC' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+              : evidenceLevel === 'SOURCE_SUPPORTED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+              : evidenceLevel === 'USER_FEEDBACK' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+              : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+            }`}>
+              {evidenceLevel === 'VERIFIED_SPEC' ? 'Verified Spec'
+               : evidenceLevel === 'SOURCE_SUPPORTED' ? 'Source Backed'
+               : evidenceLevel === 'USER_FEEDBACK' ? 'User Feedback'
+               : 'Unavailable'}
+            </span>
+          )}
+          <span className={`text-[0.8rem] font-semibold ${isUnavailable ? 'text-theme-muted italic' : winner ? 'text-[#22c55e]' : 'text-theme-text'}`}>
+            {formattedDisplay}
+            {winner && <span className="ml-1.5 text-[0.6rem]">★</span>}
+          </span>
+        </div>
       </div>
-      <div className="w-full h-2 bg-theme-subtle rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${pct}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, delay, ease: [0.22, 1, 0.36, 1] }}
-          className="h-full rounded-full"
-          style={{
-            background: winner
-              ? `linear-gradient(90deg, ${color}, ${COLORS.green})`
-              : `linear-gradient(90deg, ${color}90, ${color}50)`
-          }}
-        />
-      </div>
+      {hasNumericValue ? (
+        <div className="w-full h-2 bg-theme-subtle rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: `${pct}%` }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, delay, ease: [0.22, 1, 0.36, 1] }}
+            className="h-full rounded-full"
+            style={{
+              background: winner
+                ? `linear-gradient(90deg, ${color}, ${COLORS.green})`
+                : `linear-gradient(90deg, ${color}90, ${color}50)`
+            }}
+          />
+        </div>
+      ) : (
+        <div className="w-full h-1 bg-theme-subtle/50 rounded-full" />
+      )}
+      {evidenceNote && (
+        <p className="text-[0.65rem] text-theme-dim mt-1.5 line-clamp-1">{evidenceNote}</p>
+      )}
     </div>
   )
 }
@@ -256,13 +330,20 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
   const winnerProduct = winnerIndex !== null ? (winnerIndex === 0 ? product1 : product2) : null
   const winnerName = winnerProduct ? winnerProduct.name.split('(')[0].trim() : null
 
-  // Prepare radar chart data
-  const radarData = [
-    { subject: 'Gaming', p1: data.personaScores.product1.gamer, p2: data.personaScores.product2.gamer },
-    { subject: 'Student', p1: data.personaScores.product1.student, p2: data.personaScores.product2.student },
-    { subject: 'Creator', p1: data.personaScores.product1.creator, p2: data.personaScores.product2.creator },
-    { subject: 'Parent', p1: data.personaScores.product1.parent, p2: data.personaScores.product2.parent },
-  ]
+  // Category comparison profile
+  const categoryProfile = data.categoryProfile || resolveComparisonProfile(product1, product2)
+
+  // Prepare radar chart data from category personas
+  const radarData = (categoryProfile.personas || []).map((persona: any) => ({
+    subject: persona.label.split('&')[0].split('/')[0].trim().slice(0, 12),
+    fullName: persona.label,
+    p1: (data.personaScores.product1 && data.personaScores.product1[persona.key] !== undefined)
+      ? data.personaScores.product1[persona.key]
+      : (data.personaScores.product1?.student || 75),
+    p2: (data.personaScores.product2 && data.personaScores.product2[persona.key] !== undefined)
+      ? data.personaScores.product2[persona.key]
+      : (data.personaScores.product2?.student || 75),
+  }))
 
   // Prepare price history data
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -281,13 +362,15 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
     { name: 'Brand', value: 10 },
   ]
 
-  // Performance bar chart data
-  const perfData = [
-    { name: 'Battery', p1: data.realWorldPerformance.product1.battery, p2: data.realWorldPerformance.product2.battery },
-    { name: 'Thermal', p1: data.realWorldPerformance.product1.heating, p2: data.realWorldPerformance.product2.heating },
-    { name: 'Gaming', p1: data.realWorldPerformance.product1.gaming, p2: data.realWorldPerformance.product2.gaming },
-    { name: 'Camera', p1: data.realWorldPerformance.product1.camera, p2: data.realWorldPerformance.product2.camera },
-  ]
+  // Performance bar chart data (Category-Aware: Shoes show Comfort/Cushioning/Grip/etc., Electronics show Battery/Thermal/Gaming/Camera)
+  const perfData = (categoryProfile.metrics || [])
+    .filter((m: any) => m.p1.value !== null && m.p2.value !== null && !m.p1.isUnavailable && !m.p2.isUnavailable)
+    .map((m: any) => ({
+      name: m.label.split('&')[0].split('/')[0].trim().slice(0, 14),
+      fullName: m.label,
+      p1: m.p1.value,
+      p2: m.p2.value,
+    }))
 
   return (
     <div className="mt-2">
@@ -490,22 +573,18 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
                 </ResponsiveContainer>
               </div>
 
-              {/* Persona Breakdown */}
+              {/* Persona Breakdown (Category-Aware) */}
               <div className="space-y-6">
-                {[
-                  { icon: Gamepad2, label: 'Gamers', k: 'gamer', color: COLORS.purple, desc: 'Frame rates, thermals, performance' },
-                  { icon: GraduationCap, label: 'Students', k: 'student', color: COLORS.blue, desc: 'Battery, price, productivity' },
-                  { icon: Palette, label: 'Creators', k: 'creator', color: COLORS.pink, desc: 'Camera, display, editing power' },
-                  { icon: Heart, label: 'Parents', k: 'parent', color: COLORS.amber, desc: 'Safety, price, durability' },
-                ].map((persona) => {
-                  const v1 = data.personaScores.product1[persona.k]
-                  const v2 = data.personaScores.product2[persona.k]
+                {(categoryProfile.personas || []).map((persona: any) => {
+                  const v1 = data.personaScores.product1 ? (data.personaScores.product1[persona.key] ?? 75) : 75
+                  const v2 = data.personaScores.product2 ? (data.personaScores.product2[persona.key] ?? 75) : 75
                   const w1 = v1 > v2
                   const w2 = v2 > v1
+                  const PersonaIcon = getIconByName(persona.iconName)
                   return (
-                    <div key={persona.k} className="flex items-center gap-4">
+                    <div key={persona.key} className="flex items-center gap-4">
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${persona.color}15`, border: `1px solid ${persona.color}25` }}>
-                        <persona.icon className="w-4 h-4" style={{ color: persona.color }} />
+                        <PersonaIcon className="w-4 h-4" style={{ color: persona.color }} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -529,7 +608,7 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
 
       {/* ═══════ 4. REAL-WORLD PERFORMANCE HISTOGRAM ═══════ */}
       <div className="mb-16">
-        <SectionHeader icon={Activity} title="REAL-WORLD PERFORMANCE" subtitle="Simulated benchmarks based on brand DNA and user feedback" index={6} />
+        <SectionHeader icon={Activity} title="REAL-WORLD PERFORMANCE" subtitle={categoryProfile.subtitle} index={6} />
         <motion.div
           custom={7}
           variants={sectionVariants}
@@ -538,6 +617,13 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
           viewport={{ once: true }}
         >
           <GlassCard>
+            {categoryProfile.isCrossCategory && categoryProfile.compatibilityWarning && (
+              <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-xs text-amber-300">
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>{categoryProfile.compatibilityWarning}</span>
+              </div>
+            )}
+
             <div className="h-80 mb-6">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={perfData} barGap={4} barCategoryGap="20%">
@@ -570,22 +656,34 @@ export default function DeepCompare({ product1, product2, winnerIndex }: DeepCom
               </ResponsiveContainer>
             </div>
 
-            {/* Side-by-side metric bars */}
+            {/* Side-by-side metric bars (Category-Aware) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 pt-8 border-t border-theme-border">
               {[
-                { label: p1Name.slice(0, 22), perf: data.realWorldPerformance.product1, isWinner: winnerIndex === 0 },
-                { label: p2Name.slice(0, 22), perf: data.realWorldPerformance.product2, isWinner: winnerIndex === 1 },
+                { label: p1Name.slice(0, 22), isWinner: winnerIndex === 0, sideIdx: 0 },
+                { label: p2Name.slice(0, 22), isWinner: winnerIndex === 1, sideIdx: 1 },
               ].map((side, si) => (
                 <div key={si}>
                   <p className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-theme-muted mb-5">{side.label}</p>
-                  <MetricBar label="Battery Backup" value={side.perf.battery} icon={BatteryFull} color={COLORS.green}
-                    winner={side.perf.battery > (si === 0 ? data.realWorldPerformance.product2.battery : data.realWorldPerformance.product1.battery)} delay={0.1} />
-                  <MetricBar label="Thermal Control" value={side.perf.heating} icon={Flame} color={COLORS.amber}
-                    winner={side.perf.heating > (si === 0 ? data.realWorldPerformance.product2.heating : data.realWorldPerformance.product1.heating)} delay={0.2} />
-                  <MetricBar label="Gaming Performance" value={side.perf.gaming} icon={Gamepad2} color={COLORS.purple}
-                    winner={side.perf.gaming > (si === 0 ? data.realWorldPerformance.product2.gaming : data.realWorldPerformance.product1.gaming)} delay={0.3} />
-                  <MetricBar label="Camera Quality" value={side.perf.camera} icon={Camera} color={COLORS.blue}
-                    winner={side.perf.camera > (si === 0 ? data.realWorldPerformance.product2.camera : data.realWorldPerformance.product1.camera)} delay={0.4} />
+                  {(categoryProfile.metrics || []).map((metric: any, mi: number) => {
+                    const mSide = si === 0 ? metric.p1 : metric.p2
+                    const isMetricWinner = metric.winnerIndex === si
+                    const MetricIcon = getIconByName(metric.iconName)
+                    return (
+                      <MetricBar
+                        key={metric.key}
+                        label={metric.label}
+                        value={mSide.value}
+                        displayValue={mSide.displayValue}
+                        evidenceLevel={mSide.evidenceLevel}
+                        evidenceNote={mSide.evidenceNote}
+                        isUnavailable={mSide.isUnavailable}
+                        icon={MetricIcon}
+                        color={metric.color}
+                        winner={isMetricWinner}
+                        delay={0.1 * (mi + 1)}
+                      />
+                    )
+                  })}
                 </div>
               ))}
             </div>
