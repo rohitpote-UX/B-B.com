@@ -31,11 +31,12 @@ import { trackProductView } from '@/lib/analytics'
 
 interface ProductDetailClientProps {
   initialId: string
+  initialProduct?: any
 }
 
-export default function ProductDetailClient({ initialId }: ProductDetailClientProps) {
+export default function ProductDetailClient({ initialId, initialProduct }: ProductDetailClientProps) {
   const id = initialId
-  const demoProduct = PRODUCTS.find(p => p.id === parseInt(id)) || PRODUCTS[0]
+  const demoProduct = initialProduct || PRODUCTS.find(p => p.id === parseInt(id)) || PRODUCTS[0]
 
   const [apiProduct, setApiProduct] = useState<any>(null)
   const [apiPrices, setApiPrices] = useState<any[] | null>(null)
@@ -122,7 +123,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
   // Price Tracking Radar Modal State
   const [showTrackModal, setShowTrackModal] = useState(false)
   const [targetPrice, setTargetPrice] = useState(Math.round(product.bestPrice * 0.9))
-  const [trackedPlatforms, setTrackedPlatforms] = useState(product.prices.map(p => p.platform))
+  const [trackedPlatforms, setTrackedPlatforms] = useState((product.prices || []).map((p: any) => p.platform))
   const [isAlertSubmitting, setIsAlertSubmitting] = useState(false)
   const [alertSuccess, setAlertSuccess] = useState(false)
   const [alertEmail, setAlertEmail] = useState('')
@@ -130,7 +131,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
 
   useEffect(() => {
     setTargetPrice(Math.round(product.bestPrice * 0.9))
-    setTrackedPlatforms(product.prices.map(p => p.platform))
+    setTrackedPlatforms((product.prices || []).map((p: any) => p.platform))
     setAlertSuccess(false)
   }, [product.id, product.bestPrice, product.prices])
 
@@ -563,7 +564,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
 
           <div className="bg-[#0c0c0e] border border-[#1a1a20] rounded-3xl p-8 lg:p-12">
             <div className="divide-y divide-[#1a1a20]">
-              {product.prices.sort((a, b) => a.price - b.price).map((p, i) => {
+              {(product.prices || []).slice().sort((a: any, b: any) => a.price - b.price).map((p: any, i: number) => {
                 const isBest = i === 0
                 const premiumPct = Math.round(((p.price - product.bestPrice) / product.bestPrice) * 100)
                 return (
@@ -863,7 +864,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                   <div className="mb-8">
                     <label className="text-[0.7rem] font-mono font-medium uppercase tracking-[0.15em] text-[#a1a1aa] block mb-3">Monitor Stores</label>
                     <div className="flex flex-wrap gap-2.5">
-                      {product.prices.map(p => {
+                      {(product.prices || []).map((p: any) => {
                         const isSel = trackedPlatforms.includes(p.platform)
                         return (
                           <button
@@ -872,7 +873,7 @@ export default function ProductDetailClient({ initialId }: ProductDetailClientPr
                             onClick={() => {
                               if (isSel) {
                                 if (trackedPlatforms.length > 1) {
-                                  setTrackedPlatforms(trackedPlatforms.filter(pl => pl !== p.platform))
+                                  setTrackedPlatforms(trackedPlatforms.filter((pl: any) => pl !== p.platform))
                                 }
                               } else {
                                 setTrackedPlatforms([...trackedPlatforms, p.platform])

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight, ShieldCheck, Tag, Sparkles, Scale, ExternalLink } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
+import { adaptApiProduct } from '@/lib/catalog'
+import api from '@/lib/api'
 import BrandCatalogClient, { BrandProductItem } from '@/components/brand/BrandCatalogClient'
 import StructuredDataScript from '@/seo/structuredData'
 import {
@@ -49,10 +51,10 @@ const CANONICAL_BRAND_NAMES: Record<string, string> = {
 }
 
 // Helper to filter products cleanly for a given brand
-function getBrandProducts(brandSlug: string) {
+async function getBrandProducts(brandSlug: string) {
   const sLower = brandSlug.toLowerCase().trim()
 
-  const products = PRODUCTS.filter(p => {
+  let products = PRODUCTS.filter(p => {
     const b = (p.brand || '').toLowerCase().trim()
     const specB = (p.specs && (p.specs as any)['Brand Name'] ? String((p.specs as any)['Brand Name']).toLowerCase().trim() : '')
     
@@ -67,6 +69,26 @@ function getBrandProducts(brandSlug: string) {
 
     return b === sLower || (p.name.toLowerCase().startsWith(sLower + ' '))
   })
+
+  // Also query API for this brand to discover any database-exclusive products
+  try {
+    const res = await Promise.race([
+      api.products.list({ brand: brandSlug, page_size: 100 }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Brand timeout')), 3000)),
+    ])
+    if (res?.data?.products && Array.isArray(res.data.products) && res.data.products.length > 0) {
+      const existingIds = new Set(products.map(p => p.id))
+      const apiProds = res.data.products.map(adaptApiProduct)
+      apiProds.forEach((ap: any) => {
+        if (!existingIds.has(ap.id)) {
+          products.push(ap as any)
+          existingIds.add(ap.id)
+        }
+      })
+    }
+  } catch {
+    // Proceed with local matches
+  }
 
   // Format canonical name
   const canonicalName = CANONICAL_BRAND_NAMES[sLower] ||
@@ -110,7 +132,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
   const { brand } = await params
-  const { canonicalName, products, categories } = getBrandProducts(brand)
+  const { canonicalName, products, categories } = await getBrandProducts(brand)
 
   if (products.length === 0) {
     return {
@@ -146,7 +168,7 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
 
 export default async function BrandPage({ params }: BrandPageProps) {
   const { brand } = await params
-  const { canonicalName, products, categories, minPrice, maxPrice } = getBrandProducts(brand)
+  const { canonicalName, products, categories, minPrice, maxPrice } = await getBrandProducts(brand)
 
   if (products.length === 0) {
     notFound()

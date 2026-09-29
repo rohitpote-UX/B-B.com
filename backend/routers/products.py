@@ -40,12 +40,15 @@ async def search_products(
     """Search products with filters and pagination."""
     q = db.query(Product).filter(Product.is_active == True)
 
-    # Text search
+    # Text search across name, description, and brand/category names
     if query:
+        search_term = query.strip()
         search_filter = or_(
-            Product.name.ilike(f"%{query}%"),
-            Product.description.ilike(f"%{query}%"),
-            Product.short_description.ilike(f"%{query}%"),
+            Product.name.ilike(f"%{search_term}%"),
+            Product.description.ilike(f"%{search_term}%"),
+            Product.short_description.ilike(f"%{search_term}%"),
+            Product.brand.has(Brand.name.ilike(f"%{search_term}%")),
+            Product.category.has(Category.name.ilike(f"%{search_term}%")),
         )
         q = q.filter(search_filter)
 
@@ -57,13 +60,27 @@ async def search_products(
         db.add(search_log)
         db.commit()
 
-    # Category filter
-    if category:
-        q = q.join(Category).filter(Category.slug == category)
+    # Category filter (matches slug or name, case-insensitive)
+    if category and category.lower() != 'all':
+        c_val = category.strip().lower()
+        q = q.join(Category).filter(
+            or_(Category.slug == c_val, func.lower(Category.name) == c_val)
+        )
 
-    # Brand filter
-    if brand:
-        q = q.join(Brand).filter(Brand.slug == brand)
+    # Brand filter (matches slug or name, case-insensitive)
+    if brand and brand.lower() != 'all':
+        b_val = brand.strip().lower()
+        if b_val == 'nothing':
+            q = q.join(Brand).filter(
+                or_(
+                    Brand.slug.in_(['nothing', 'cmf-by-nothing']),
+                    func.lower(Brand.name).in_(['nothing', 'cmf by nothing'])
+                )
+            )
+        else:
+            q = q.join(Brand).filter(
+                or_(Brand.slug == b_val, func.lower(Brand.name) == b_val)
+            )
 
     # Price range
     if min_price is not None:
@@ -86,12 +103,20 @@ async def search_products(
     elif sort_by == "rating":
         q = q.order_by(Product.average_rating.desc())
     elif sort_by == "newest":
-        q = q.order_by(Product.created_at.desc())
+        q = q.order_by(Product.created_at.desc().nullslast())
+    elif sort_by == "deal_score":
+        q = q.order_by(Product.deal_score.desc().nullslast())
+    elif sort_by == "verified":
+        q = q.order_by(Product.price_verified_at.desc().nullslast())
     elif sort_by == "popular":
         q = q.order_by(Product.view_count.desc())
-    else:  # relevance - boost by rating and views
+    else:  # relevance - boost by rating, deal_score, and views
         q = q.order_by(
-            desc(Product.average_rating * 0.6 + Product.view_count * 0.0001)
+            desc(
+                func.coalesce(Product.deal_score, 50.0) * 0.4 +
+                func.coalesce(Product.average_rating, 0.0) * 10.0 +
+                func.coalesce(Product.view_count, 0) * 0.001
+            )
         )
 
     # Pagination

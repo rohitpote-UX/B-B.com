@@ -2,6 +2,7 @@ import React from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { PRODUCTS } from '@/data/demoData'
+import { getProductById } from '@/lib/catalog'
 import ProductDetailClient from '@/components/product/ProductDetailClient'
 import StructuredDataScript from '@/seo/structuredData'
 import {
@@ -32,7 +33,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { id } = await params
-  const product = PRODUCTS.find(p => p.id === parseInt(id))
+  const product = await getProductById(id)
 
   if (!product) {
     return {
@@ -81,7 +82,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { id } = await params
-  const product = PRODUCTS.find(p => p.id === parseInt(id))
+  const product = await getProductById(id)
 
   if (!product) {
     notFound()
@@ -187,7 +188,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       </section>
 
       {/* Render 100% untouched interactive client UI */}
-      <ProductDetailClient initialId={id} />
+      <ProductDetailClient initialId={id} initialProduct={product} />
     </>
   )
 }

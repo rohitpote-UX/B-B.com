@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Share2, RefreshCcw } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 import { Product } from '@/types'
 
 export default function DiscoverClient() {
@@ -165,7 +166,7 @@ export default function DiscoverClient() {
                          
                          {/* Premium Framed Image Showcase Box */}
                          <div className="absolute top-20 left-6 right-6 h-[38%] bg-theme-bg/40 backdrop-blur-md border border-theme-border/50 rounded-2xl flex items-center justify-center p-4 z-10 overflow-hidden group/img">
-                            <img src={product.image} className="max-w-full max-h-full object-contain filter drop-shadow-2xl group-hover/img:scale-105 transition-transform duration-[2s] ease-out mix-blend-normal" alt={product.name} />
+                            <img src={product.image} className="max-w-full max-h-full object-contain filter drop-shadow-2xl group-hover/img:scale-105 transition-transform duration-[2s] ease-out mix-blend-normal" alt={product.name} onError={handleProductImageError} />
                          </div>
                          
                          {/* Product Information Overlay with higher opacity background gradient */}

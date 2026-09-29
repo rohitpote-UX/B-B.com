@@ -5,7 +5,7 @@ Brand listing, detail, and reputation scores.
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, or_, func
 from typing import Optional, List
 
 from database import get_db
@@ -44,7 +44,10 @@ async def list_brands(
 @router.get("/{brand_slug}", response_model=BrandResponse)
 async def get_brand(brand_slug: str, db: Session = Depends(get_db)):
     """Get brand detail by slug."""
-    brand = db.query(Brand).filter(Brand.slug == brand_slug).first()
+    b_val = brand_slug.strip().lower()
+    brand = db.query(Brand).filter(
+        or_(Brand.slug == b_val, func.lower(Brand.name) == b_val)
+    ).first()
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
     return BrandResponse.model_validate(brand)
@@ -54,11 +57,14 @@ async def get_brand(brand_slug: str, db: Session = Depends(get_db)):
 async def get_brand_products(
     brand_slug: str,
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(24, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     """Get all products for a brand."""
-    brand = db.query(Brand).filter(Brand.slug == brand_slug).first()
+    b_val = brand_slug.strip().lower()
+    brand = db.query(Brand).filter(
+        or_(Brand.slug == b_val, func.lower(Brand.name) == b_val)
+    ).first()
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
 
@@ -77,7 +83,10 @@ async def get_brand_products(
 @router.get("/{brand_slug}/reputation")
 async def get_brand_reputation(brand_slug: str, db: Session = Depends(get_db)):
     """Get detailed brand reputation breakdown."""
-    brand = db.query(Brand).filter(Brand.slug == brand_slug).first()
+    b_val = brand_slug.strip().lower()
+    brand = db.query(Brand).filter(
+        or_(Brand.slug == b_val, func.lower(Brand.name) == b_val)
+    ).first()
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
 

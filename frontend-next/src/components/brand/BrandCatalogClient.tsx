@@ -3,8 +3,9 @@
 import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShieldCheck, ArrowRight, SlidersHorizontal } from 'lucide-react'
+import { ShieldCheck, ArrowRight, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
 import { formatPrice } from '@/data/demoData'
+import { handleProductImageError } from '@/lib/image-fallback'
 
 export interface BrandProductItem {
   id: number
@@ -27,6 +28,8 @@ interface BrandCatalogClientProps {
   categories: string[]
 }
 
+const BRAND_PAGE_SIZE = 24
+
 export default function BrandCatalogClient({
   brandName,
   products,
@@ -34,12 +37,16 @@ export default function BrandCatalogClient({
 }: BrandCatalogClientProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'score'>('featured')
+  const [currentPage, setCurrentPage] = useState<number>(1)
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let list = selectedCategory === 'all'
-      ? products
-      : products.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase())
+    let list =
+      selectedCategory === 'all'
+        ? products
+        : products.filter(
+            (p) => (p.category || '').toLowerCase() === selectedCategory.toLowerCase()
+          )
 
     if (sortBy === 'price-asc') {
       list = [...list].sort((a, b) => a.bestPrice - b.bestPrice)
@@ -52,6 +59,30 @@ export default function BrandCatalogClient({
     return list
   }, [products, selectedCategory, sortBy])
 
+  // Pagination calculations
+  const total = filteredProducts.length
+  const totalPages = Math.max(1, Math.ceil(total / BRAND_PAGE_SIZE))
+  const safePage = Math.max(1, Math.min(currentPage, totalPages))
+  const offset = (safePage - 1) * BRAND_PAGE_SIZE
+  const pagedProducts = filteredProducts.slice(offset, offset + BRAND_PAGE_SIZE)
+
+  const handleCategorySelect = (cat: string) => {
+    setSelectedCategory(cat)
+    setCurrentPage(1)
+  }
+
+  const handleSortChange = (newSort: 'featured' | 'price-asc' | 'price-desc' | 'score') => {
+    setSortBy(newSort)
+    setCurrentPage(1)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages || newPage === safePage) return
+    setCurrentPage(newPage)
+    const el = document.getElementById('brand-catalog-heading')
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <div className="space-y-8">
       {/* Category Pills & Sort Controls */}
@@ -59,7 +90,7 @@ export default function BrandCatalogClient({
         {/* Category Filters */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
           <button
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => handleCategorySelect('all')}
             className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
               selectedCategory === 'all'
                 ? 'bg-[#ff1695] text-white font-semibold shadow-[0_0_16px_rgba(255,22,149,0.35)]'
@@ -68,13 +99,15 @@ export default function BrandCatalogClient({
           >
             All Categories ({products.length})
           </button>
-          {categories.map(cat => {
-            const catCount = products.filter(p => (p.category || '').toLowerCase() === cat.toLowerCase()).length
+          {categories.map((cat) => {
+            const catCount = products.filter(
+              (p) => (p.category || '').toLowerCase() === cat.toLowerCase()
+            ).length
             const isSelected = selectedCategory.toLowerCase() === cat.toLowerCase()
             return (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategorySelect(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#ff1695] text-white font-semibold shadow-[0_0_16px_rgba(255,22,149,0.35)]'
@@ -93,7 +126,7 @@ export default function BrandCatalogClient({
           <span>Sort:</span>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => handleSortChange(e.target.value as any)}
             className="bg-[#0c0c0e] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#ff1695] transition cursor-pointer"
           >
             <option value="featured">Featured Catalog</option>
@@ -104,17 +137,25 @@ export default function BrandCatalogClient({
         </div>
       </div>
 
+      {/* Results Count & Current Range */}
+      <div className="flex items-center justify-between text-xs font-mono text-white/50 pt-2">
+        <span>
+          Showing {offset + 1}–{Math.min(offset + BRAND_PAGE_SIZE, total)} of {total} {brandName} Products
+        </span>
+        {totalPages > 1 && <span>Page {safePage} of {totalPages}</span>}
+      </div>
+
       {/* Product Grid */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${selectedCategory}-${sortBy}`}
+          key={`${selectedCategory}-${sortBy}-${safePage}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.25 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         >
-          {filteredProducts.map((product) => {
+          {pagedProducts.map((product) => {
             const hasDeal = product.originalPrice && product.originalPrice > product.bestPrice
             const discountPct = hasDeal
               ? Math.round(((product.originalPrice! - product.bestPrice) / product.originalPrice!) * 100)
@@ -150,10 +191,7 @@ export default function BrandCatalogClient({
                       alt={product.name}
                       loading="lazy"
                       className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80'
-                      }}
+                      onError={handleProductImageError}
                     />
                   </div>
 
@@ -165,7 +203,11 @@ export default function BrandCatalogClient({
                   {/* Key Spec Snippet if present */}
                   {product.specs && (
                     <p className="text-xs text-white/50 line-clamp-1 mb-3 font-mono">
-                      {(product.specs as any)['Processor'] || (product.specs as any)['Display'] || (product.specs as any)['Battery'] || (product.specs as any)['Colour'] || ''}
+                      {(product.specs as any)['Processor'] ||
+                        (product.specs as any)['Display'] ||
+                        (product.specs as any)['Battery'] ||
+                        (product.specs as any)['Colour'] ||
+                        ''}
                     </p>
                   )}
                 </div>
@@ -205,6 +247,59 @@ export default function BrandCatalogClient({
           })}
         </motion.div>
       </AnimatePresence>
+
+      {/* Pagination Bar */}
+      {totalPages > 1 && (
+        <nav
+          aria-label="Brand Catalog Pagination"
+          className="pt-8 border-t border-white/10 flex items-center justify-between gap-4"
+        >
+          <button
+            type="button"
+            onClick={() => handlePageChange(safePage - 1)}
+            disabled={safePage <= 1}
+            className="px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-white/80 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition flex items-center gap-1.5"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Previous</span>
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
+              let pNum: number
+              if (totalPages <= 5) pNum = idx + 1
+              else if (safePage <= 3) pNum = idx + 1
+              else if (safePage >= totalPages - 2) pNum = totalPages - 4 + idx
+              else pNum = safePage - 2 + idx
+
+              return (
+                <button
+                  key={pNum}
+                  type="button"
+                  onClick={() => handlePageChange(pNum)}
+                  className={`w-8 h-8 rounded-lg text-xs font-mono transition ${
+                    safePage === pNum
+                      ? 'bg-[#ff1695] text-white font-bold shadow-[0_0_12px_rgba(255,22,149,0.35)]'
+                      : 'bg-white/[0.03] hover:bg-white/[0.08] text-white/70 hover:text-white border border-white/10'
+                  }`}
+                >
+                  {pNum}
+                </button>
+              )
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handlePageChange(safePage + 1)}
+            disabled={safePage >= totalPages}
+            className="px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-white/80 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition flex items-center gap-1.5"
+          >
+            <span>Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </nav>
+      )}
 
       {filteredProducts.length === 0 && (
         <div className="p-12 text-center rounded-2xl bg-white/[0.02] border border-white/10 text-white/60">
