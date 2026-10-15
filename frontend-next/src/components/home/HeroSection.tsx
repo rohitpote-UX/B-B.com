@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, ShieldCheck, TrendingDown, Cpu, CheckCircle2 } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
-import { handleProductImageError } from '@/lib/image-fallback'
+import { handleProductImageError, resolveSafeProductImage } from '@/lib/image-fallback'
 
 export default function HeroSection() {
   const heroProduct = PRODUCTS[0] || {
@@ -152,7 +152,7 @@ export default function HeroSection() {
                     </div>
                     <div className="w-20 h-20 sm:w-28 sm:h-28 my-2 sm:my-3 flex items-center justify-center relative">
                       <img
-                        src={heroProduct.image}
+                        src={resolveSafeProductImage(heroProduct)}
                         alt={heroProduct.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-700"
                         onError={handleProductImageError}
@@ -173,7 +173,7 @@ export default function HeroSection() {
                   <div className="relative rounded-2xl bg-white/[0.03] border border-white/10 p-3 sm:p-4 flex flex-col items-center text-center">
                     <div className="w-20 h-20 sm:w-28 sm:h-28 my-2 sm:my-3 flex items-center justify-center relative">
                       <img
-                        src={competitorProduct.image}
+                        src={resolveSafeProductImage(competitorProduct)}
                         alt={competitorProduct.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_24px_rgba(0,0,0,0.8)] opacity-90 group-hover:scale-105 transition-transform duration-700"
                         onError={handleProductImageError}

@@ -36,7 +36,7 @@ class IndexabilityEngine:
             return "SEO_LOW_QUALITY"
 
         img = getattr(product, "primary_image_url", None) or getattr(product, "image_url", None)
-        if not img or not str(img).startswith("http"):
+        if not img or not (str(img).startswith("http") or str(img).startswith("data:image")):
             return "SEO_LOW_QUALITY"
 
         has_specs = bool(getattr(product, "specifications", None))

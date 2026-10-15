@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Tag, Star, ArrowLeftRight } from 'lucide-react'
 import { PRODUCTS, DEALS, formatPrice } from '@/data/demoData'
-import { handleProductImageError } from '@/lib/image-fallback'
+import { handleProductImageError, resolveSafeProductImage } from '@/lib/image-fallback'
 
 export default function CuratedProductsGrid() {
   const showcaseProducts = PRODUCTS.slice(0, 8)
@@ -69,7 +69,7 @@ export default function CuratedProductsGrid() {
                 {/* Image Container with Soft Glass Framing & Zoom */}
                 <div className="relative aspect-square w-full rounded-2xl bg-white/[0.02] p-6 mb-6 flex items-center justify-center overflow-hidden border border-white/[0.05]">
                   <img
-                    src={product.image}
+                    src={resolveSafeProductImage(product)}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-110 transition-transform duration-700 ease-out"
                     onError={handleProductImageError}

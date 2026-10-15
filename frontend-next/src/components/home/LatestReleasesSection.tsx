@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeftRight, ShieldCheck, Sparkles, Zap, CheckCircle2 } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
 import { FEATURE_FLAGS } from '@/lib/flags'
-import { handleProductImageError } from '@/lib/image-fallback'
+import { handleProductImageError, resolveSafeProductImage } from '@/lib/image-fallback'
 import api from '@/lib/api'
 
 export default function LatestReleasesSection() {
@@ -125,7 +125,7 @@ export default function LatestReleasesSection() {
                       aria-label={`View ${product.name}`}
                     >
                       <img
-                        src={product.image}
+                        src={resolveSafeProductImage(product)}
                         alt={product.name}
                         className="max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"
@@ -133,11 +133,11 @@ export default function LatestReleasesSection() {
                       />
                     </Link>
 
-                    {/* Verified Marketplace Observations Indicator */}
+                    {/* Verified Marketplace Price Observations Indicator */}
                     <div className="flex items-center gap-1.5 mb-3">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                       <span className="text-[0.7rem] font-mono text-white/60">
-                        {platforms.length >= 2 ? 'Flipkart + Amazon Verified' : 'Verified Marketplace Offer'}
+                        {platforms.length >= 2 ? 'Flipkart + Amazon Price Verified' : 'Verified Marketplace Price'}
                       </span>
                     </div>
 

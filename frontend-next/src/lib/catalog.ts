@@ -1,6 +1,6 @@
 import { PRODUCTS } from '@/data/demoData'
 import { Product } from '@/types'
-import { FALLBACK_PRODUCT_IMAGE } from '@/lib/image-fallback'
+import { FALLBACK_PRODUCT_IMAGE, resolveSafeProductImage } from '@/lib/image-fallback'
 import api from '@/lib/api'
 
 export interface CatalogQueryOptions {
@@ -31,13 +31,14 @@ export function adaptApiProduct(item: any): Product {
   const categoryName = item.category?.name || (typeof item.category === 'string' ? item.category : 'General')
   const bestPrice = Number(item.current_best_price || item.bestPrice || item.lowest_price || 0)
   const originalPrice = Number(item.highest_price || item.originalPrice || bestPrice)
+  const rawImage = item.image_url || item.image
 
   return {
     id: Number(item.id),
     name: item.name || 'Unnamed Product',
     brand: brandName,
     category: categoryName,
-    image: item.image_url || item.image || FALLBACK_PRODUCT_IMAGE,
+    image: resolveSafeProductImage({ name: item.name, image: rawImage }),
     rating: Number(item.average_rating || item.rating || 0),
     totalReviews: Number(item.total_reviews || item.totalReviews || 0),
     bestPrice,

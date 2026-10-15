@@ -3,6 +3,9 @@ backend/brandbattle.db
 backend/brandbattle.db-shm
 backend/brandbattle.db-wal
 backend/brandbattle.db.backup_*
+brandbattle.db.backup_*
+*.backup_*
+*.backup
 backend/recovery-backup/
 backend_db_inventory.json
 

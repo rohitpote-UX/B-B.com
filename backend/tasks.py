@@ -133,24 +133,36 @@ def verify_product_images_task(limit: int = 50):
         now_utc = datetime.now(timezone.utc)
 
         for product in products:
-            result = image_verifier.verify_image_url(product.image_url)
+            result = image_verifier.verify_product_image_for_product(
+                product_name=product.name,
+                image_url=product.image_url
+            )
 
-            if result.is_valid:
+            if result.is_valid and result.verification_status == "verified":
                 product.image_verified_at = now_utc
                 verified_images += 1
             else:
                 failed_images += 1
-                logger.warning(f"Product #{product.id} image failed verification ({result.failure_reason}): {product.image_url}")
+                product.image_verified_at = None
+                logger.warning(f"Product #{product.id} image failed verification ({result.verification_status} - {result.failure_reason}): {product.image_url}")
 
-                # Attempt fallback recovery
-                fallback_url = image_verifier.find_fallback_image(product.id, db)
-                if fallback_url:
-                    fb_result = image_verifier.verify_image_url(fallback_url)
-                    if fb_result.is_valid:
-                        product.image_url = fallback_url
-                        product.image_verified_at = now_utc
-                        recovered_images += 1
-                        logger.info(f"✅ Recovered fallback image for Product #{product.id}: {fallback_url}")
+                if result.verification_status == "quarantined_mismatch":
+                    from pipeline.image_verifier import FALLBACK_PRODUCT_IMAGE
+                    product.image_url = FALLBACK_PRODUCT_IMAGE
+                    recovered_images += 1
+                else:
+                    # Attempt fallback recovery with identity validation
+                    fallback_url = image_verifier.find_fallback_image(product.id, db)
+                    if fallback_url:
+                        fb_result = image_verifier.verify_product_image_for_product(
+                            product_name=product.name,
+                            image_url=fallback_url
+                        )
+                        if fb_result.is_valid and fb_result.verification_status == "verified":
+                            product.image_url = fallback_url
+                            product.image_verified_at = now_utc
+                            recovered_images += 1
+                            logger.info(f"✅ Recovered fallback image for Product #{product.id}: {fallback_url}")
 
         db.commit()
         return {

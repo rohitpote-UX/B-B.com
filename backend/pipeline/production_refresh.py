@@ -561,14 +561,18 @@ class ProductionDataRefreshEngine:
             # 2. Image Verification
             img_url = offer.image_url
             if img_url:
-                img_res = image_verifier.verify_image_url(img_url)
-                if img_res.is_valid:
+                prod_name = offer.title or (offer.master_product.canonical_name if offer.master_product else "")
+                img_res = image_verifier.verify_product_image_for_product(prod_name, img_url)
+                if img_res.is_valid and img_res.verification_status == "verified":
                     report.image_verified += 1
                 else:
                     report.image_failed += 1
-                    if offer.master_product and offer.master_product.primary_image_url:
-                        fallback_res = image_verifier.verify_image_url(offer.master_product.primary_image_url)
-                        if fallback_res.is_valid:
+                    if img_res.verification_status == "quarantined_mismatch":
+                        from pipeline.image_verifier import FALLBACK_PRODUCT_IMAGE
+                        offer.image_url = FALLBACK_PRODUCT_IMAGE
+                    elif offer.master_product and offer.master_product.primary_image_url:
+                        fallback_res = image_verifier.verify_product_image_for_product(prod_name, offer.master_product.primary_image_url)
+                        if fallback_res.is_valid and fallback_res.verification_status == "verified":
                             offer.image_url = offer.master_product.primary_image_url
                             report.image_verified += 1
                         else:

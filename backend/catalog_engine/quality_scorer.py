@@ -72,9 +72,22 @@ class ProductQualityScorer:
             reasons.append("Missing or insufficient specifications (0/15)")
 
         # 6. Valid Primary Image (10 pts)
-        if candidate.primary_image_url and candidate.primary_image_url.startswith("http"):
-            score += 10.0
-            reasons.append("Primary image present (+10)")
+        if candidate.primary_image_url and (candidate.primary_image_url.startswith("http") or candidate.primary_image_url.startswith("data:image")):
+            try:
+                from pipeline.image_verifier import image_verifier
+                prod_title = candidate.canonical_name or candidate.clean_title or ""
+                is_valid, status, reason = image_verifier.validate_product_image_association(prod_title, candidate.primary_image_url)
+                if not is_valid and status == "quarantined_mismatch":
+                    reasons.append(f"Quarantined mismatched image (0/10): {reason}")
+                elif candidate.primary_image_url.startswith("data:image"):
+                    score += 5.0
+                    reasons.append("Neutral fallback image present (+5)")
+                else:
+                    score += 10.0
+                    reasons.append("Primary image present (+10)")
+            except Exception:
+                score += 10.0
+                reasons.append("Primary image present (+10)")
         else:
             reasons.append("Missing primary image (0/10)")
 
