@@ -249,6 +249,105 @@ class TestImageIdentityIntegrity(unittest.TestCase):
         self.assertEqual(len(report["products_repaired"]), 0, "Repaired database should have 0 products needing repair")
         self.assertEqual(len(report["marketplace_offers_repaired"]), 0, "Repaired database should have 0 offers needing repair")
 
+    def test_canonical_flagships_associate_with_authentic_images(self):
+        """
+        Acceptance Criterion: Canonical flagship records (iPhone 16 Pro, iPhone 16 Pro Max,
+        iPhone 16, Samsung Galaxy S24 Ultra) associate correctly with authentic manufacturer/marketplace images.
+        """
+        flagship_tests = [
+            ("Apple iPhone 16 Pro (256 GB)", "https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg"),
+            ("Apple iPhone 16 Pro Max (256 GB)", "https://m.media-amazon.com/images/I/71T5NVOgbpL._SX679_.jpg"),
+            ("Apple iPhone 16 (128 GB)", "https://m.media-amazon.com/images/I/713SsA7gftL._SX679_.jpg"),
+            ("Samsung Galaxy S24 Ultra 5G (256 GB)", "https://m.media-amazon.com/images/I/81njZjDqc6L._SX679_.jpg"),
+            ("Google Pixel 9 Pro (256 GB)", "https://m.media-amazon.com/images/I/71eXN-gLdBL._SX679_.jpg"),
+            ("OnePlus 12 5G (512 GB)", "https://m.media-amazon.com/images/I/717Qo4MH97L._SX679_.jpg"),
+        ]
+
+        for prod_name, img_url in flagship_tests:
+            is_valid, status, reason = image_verifier.validate_product_image_association(
+                product_name=prod_name,
+                image_url=img_url
+            )
+            self.assertTrue(is_valid, f"{prod_name} must associate successfully with {img_url}. Reason: {reason}")
+            self.assertEqual(status, "verified")
+
+            # Safe image resolver must preserve authentic URL, not downgrade to SVG
+            safe_url = image_verifier.get_safe_image_for_product(prod_name, img_url)
+            self.assertEqual(safe_url, img_url)
+            self.assertNotEqual(safe_url, FALLBACK_PRODUCT_IMAGE)
+
+    def test_temporary_network_timeout_returns_pending_retry_not_permanent_rejection(self):
+        """
+        Acceptance Criterion: A transient network timeout or connection error
+        does not mark an image as permanently invalid or quarantined.
+        """
+        from unittest.mock import patch
+        import requests
+
+        with patch("requests.head", side_effect=requests.exceptions.Timeout("Connection timed out")):
+            result = image_verifier.verify_image_url("https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg")
+            self.assertFalse(result.is_valid)
+            self.assertEqual(result.verification_status, "pending_retry")
+            self.assertIn("transient network delay", result.failure_reason)
+
+    def test_candidate_alternate_fallback_recovery(self):
+        """
+        Acceptance Criterion: If a primary image URL fails or is empty,
+        get_safe_image_for_product checks candidate alternate URLs before resorting to SVG.
+        """
+        prod_name = "Apple iPhone 16 Pro (256 GB)"
+        bad_primary = f"https://m.media-amazon.com/images/I/{S22_ON_S26_SIGNATURE}.jpg"
+        good_alternate = "https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg"
+
+        resolved = image_verifier.get_safe_image_for_product(
+            product_name=prod_name,
+            image_url=bad_primary,
+            candidate_alternates=[good_alternate]
+        )
+        self.assertEqual(resolved, good_alternate)
+
+    def test_malformed_url_returns_fallback_cleanly(self):
+        """
+        Acceptance Criterion: Malformed image URLs produce the neutral SVG fallback
+        without crashing or breaking the application.
+        """
+        malformed_urls = [
+            "not-a-valid-url",
+            "ftp://invalid-protocol.com/image.jpg",
+            "   ",
+            None,
+        ]
+        for url in malformed_urls:
+            safe = image_verifier.get_safe_image_for_product("Apple iPhone 16 Pro", url)
+            self.assertEqual(safe, FALLBACK_PRODUCT_IMAGE)
+
+    def test_price_and_deal_score_integrity_preserved(self):
+        """
+        Acceptance Criterion: Image verification repairs have not altered product prices,
+        ratings, deal scores, or marketplace offer details.
+        """
+        import sqlite3
+        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brandbattle.db")
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+
+        expected = {
+            67: {"price": 164900.0, "deal_score": 92.0},
+            68: {"price": 179900.0, "deal_score": 90.0},
+            69: {"price": 79900.0, "deal_score": 88.0},
+            70: {"price": 129999.0, "deal_score": 94.0},
+        }
+
+        for pid, exp in expected.items():
+            c.execute("SELECT lowest_price, deal_score FROM products WHERE id = ?", (pid,))
+            row = c.fetchone()
+            self.assertIsNotNone(row, f"Product ID {pid} must exist in database")
+            self.assertEqual(row[0], exp["price"], f"Product {pid} lowest_price must remain {exp['price']}")
+            self.assertEqual(row[1], exp["deal_score"], f"Product {pid} deal_score must remain {exp['deal_score']}")
+
+        conn.close()
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -25,13 +25,18 @@ export function isImageMismatch(productName?: string, imageUrl?: string): boolea
   if (!imageUrl || typeof imageUrl !== 'string') return true
   if (imageUrl === FALLBACK_PRODUCT_IMAGE) return false
 
-  const urlLower = imageUrl.toLowerCase()
+  const cleanUrl = imageUrl.trim()
+  if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+    return true
+  }
+
+  const urlLower = cleanUrl.toLowerCase()
   const prodLower = (productName || '').toLowerCase()
 
-  // 1. Check known quarantined signatures
+  // 1. Check known quarantined signatures (brand & generation)
   for (const [sig, meta] of Object.entries(QUARANTINED_IMAGE_SIGNATURES)) {
     if (urlLower.includes(sig)) {
-      if (prodLower.includes(meta.brand) && !prodLower.includes(meta.generation)) {
+      if (!prodLower.includes(meta.brand) || !prodLower.includes(meta.generation)) {
         return true
       }
     }
@@ -59,25 +64,73 @@ export function isImageMismatch(productName?: string, imageUrl?: string): boolea
   return false
 }
 
+export interface ProductImageSubject {
+  name?: string
+  image?: string
+  image_url?: string
+  primary_image_url?: string
+  images?: Array<string | { url?: string; image_url?: string }>
+  alternateImages?: string[]
+}
+
 /**
  * Resolves safe image URL for any product card or detail page.
- * Strictly guarantees that no mismatched generation image is ever displayed.
+ * Evaluates candidate URLs in order, guaranteeing no mismatched generation
+ * image is displayed while ensuring available valid images are not discarded.
  */
-export function resolveSafeProductImage(product?: { name?: string; image?: string; image_url?: string } | null): string {
+export function resolveSafeProductImage(product?: ProductImageSubject | null): string {
   if (!product) return FALLBACK_PRODUCT_IMAGE
-  const rawUrl = product.image || product.image_url
-  if (!rawUrl || typeof rawUrl !== 'string' || rawUrl.trim() === '') {
-    return FALLBACK_PRODUCT_IMAGE
+
+  // Pool candidate image URLs in order of preference
+  const candidates: string[] = []
+
+  if (typeof product.image === 'string' && product.image.trim()) {
+    candidates.push(product.image.trim())
   }
-  if (isImageMismatch(product.name, rawUrl)) {
-    return FALLBACK_PRODUCT_IMAGE
+  if (typeof product.image_url === 'string' && product.image_url.trim()) {
+    candidates.push(product.image_url.trim())
   }
-  return rawUrl
+  if (typeof product.primary_image_url === 'string' && product.primary_image_url.trim()) {
+    candidates.push(product.primary_image_url.trim())
+  }
+  if (Array.isArray(product.alternateImages)) {
+    for (const alt of product.alternateImages) {
+      if (typeof alt === 'string' && alt.trim()) {
+        candidates.push(alt.trim())
+      }
+    }
+  }
+  if (Array.isArray(product.images)) {
+    for (const img of product.images) {
+      if (typeof img === 'string' && img.trim()) {
+        candidates.push(img.trim())
+      } else if (img && typeof img === 'object') {
+        const item = img as { url?: string; image_url?: string }
+        const u = item.url || item.image_url
+        if (typeof u === 'string' && u.trim()) {
+          candidates.push(u.trim())
+        }
+      }
+    }
+  }
+
+  // Find the first candidate that is a legitimate URL and matches product identity
+  for (const cand of candidates) {
+    if (cand === FALLBACK_PRODUCT_IMAGE || cand.startsWith('data:image/svg+xml')) {
+      continue
+    }
+    if (!isImageMismatch(product.name, cand)) {
+      return cand
+    }
+  }
+
+  return FALLBACK_PRODUCT_IMAGE
 }
 
 /**
  * Graceful onError handler for <img> tags.
  * Prevents browser broken-image placeholder from ever rendering.
+ * Does not permanently alter backend/database data on client-side errors.
  */
 export function handleProductImageError(
   e: React.SyntheticEvent<HTMLImageElement, Event>,
@@ -87,6 +140,7 @@ export function handleProductImageError(
   const fallback = customFallback || FALLBACK_PRODUCT_IMAGE
   if (target.src !== fallback) {
     target.onerror = null // Prevent infinite error loops
+    target.setAttribute('data-image-error', 'fallback-applied')
     target.src = fallback
   }
 }

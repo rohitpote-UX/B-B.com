@@ -14,11 +14,14 @@ export const PLATFORMS = {
 export const PRODUCTS = [
   {
     "id": 1462,
-    "name": "Apple iPhone 18 Pro (256 GB)",
-    "slug": "apple-iphone-18-pro-256gb",
+    "name": "Apple iPhone 16 Pro (256 GB)",
+    "slug": "apple-iphone-16-pro-256gb",
     "brand": "Apple",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/61bK6PMOC3L._SX679_.jpg"
+    ],
     "rating": 4.8,
     "totalReviews": 4200,
     "bestPrice": 164900,
@@ -31,31 +34,33 @@ export const PRODUCTS = [
       "5g",
       "flagship",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "iphone 16 pro",
+      "iphone 18 pro"
     ],
-    "description": "Apple iPhone 18 Pro with next-generation A20 Pro 2nm chip, 6.3-inch Super Retina XDR OLED with ProMotion 120Hz, triple 48MP camera system with variable mechanical aperture and 5x optical zoom, titanium frame, and Camera Control.",
-    "shortDescription": "Apple iPhone 18 Pro (256 GB) — A20 Pro chip, 6.3\" Super Retina XDR 120Hz, 48MP Pro Camera.",
+    "description": "Apple iPhone 16 Pro features the advanced A18 Pro 3nm chip, 6.3-inch Super Retina XDR OLED with ProMotion 120Hz, triple 48MP Pro camera system with 5x optical zoom, Grade 5 Titanium frame, and Camera Control.",
+    "shortDescription": "Apple iPhone 16 Pro (256 GB) — A18 Pro chip, 6.3\" Super Retina XDR 120Hz, 48MP Pro Camera.",
     "specs": {
       "Price (INR)": "₹164,900",
       "Rating": "4.8/5",
       "Reviews": 4200,
-      "Processor": "Apple A20 Pro (2nm TSMC N2)",
+      "Processor": "Apple A18 Pro (3nm TSMC N3E)",
       "Display": "6.3-inch Super Retina XDR OLED (2622 x 1206), ProMotion 1-120Hz, 3000 nits peak",
       "Storage": "256 GB NVMe",
-      "RAM": "12 GB LPDDR5X",
-      "Rear Camera": "48MP Fusion (f/1.4-f/2.4 dual aperture) + 48MP Ultra Wide + 48MP 5x Telephoto",
-      "Front Camera": "18MP TrueDepth with Center Stage",
-      "Battery": "3650 mAh, 35W wired fast charge, 25W MagSafe / Qi2",
-      "Operating System": "iOS 20 with Apple Intelligence",
-      "Build": "Grade 5 Titanium Frame with Ceramic Shield 3 front glass",
+      "RAM": "8 GB LPDDR5X",
+      "Rear Camera": "48MP Fusion + 48MP Ultra Wide + 12MP 5x Telephoto",
+      "Front Camera": "12MP TrueDepth with Center Stage",
+      "Battery": "3582 mAh, 25W MagSafe / Qi2",
+      "Operating System": "iOS 18 with Apple Intelligence",
+      "Build": "Grade 5 Titanium Frame with Ceramic Shield",
       "Connectivity": "5G Sub-6 & mmWave, Wi-Fi 7, Bluetooth 5.4, Thread, USB-C 3.2 Gen 2 (10Gbps)",
       "Warranty": "1 Year Apple India Manufacturer Warranty"
     },
     "features": [
-      "A20 Pro 2nm Bionic Architecture with on-device Apple Intelligence",
+      "A18 Pro 3nm architecture with hardware ray tracing & Apple Intelligence",
       "6.3-inch ProMotion OLED with 3000 nits peak outdoor brightness",
-      "Mechanical variable aperture on primary 48MP Fusion sensor",
-      "Action Button & Dedicated Pressure-Sensitive Camera Control Button",
+      "Dedicated capacitive sapphire Camera Control button",
+      "Action Button customizable for quick workflow shortcuts",
       "Titanium chassis with IP68 water resistance up to 6 meters"
     ],
     "prices": [
@@ -66,7 +71,7 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "SuperComNet (Apple Authorized)",
-        "url": "https://www.flipkart.com/apple-iphone-18-pro-titanium-burgundy-256-gb/p/itmeff18pro256",
+        "url": "https://www.flipkart.com/apple-iphone-16-pro-natural-titanium-256-gb/p/itmeff16pro256",
         "conditionalOffer": "Flat ₹8,000 Instant Discount on HDFC & ICICI Bank Credit Cards (Effective: ₹1,56,900)",
         "currency": "INR"
       },
@@ -77,12 +82,12 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "Appario Retail (Apple Authorized)",
-        "url": "https://www.amazon.in/dp/B0D18PRO256",
+        "url": "https://www.amazon.in/dp/B0D16PRO256",
         "conditionalOffer": "Flat ₹7,500 Instant Bank Discount + Up to ₹12,000 Exchange Bonus",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.flipkart.com/apple-iphone-18-pro-titanium-burgundy-256-gb/p/itmeff18pro256",
+    "productUrl": "https://www.flipkart.com/apple-iphone-16-pro-natural-titanium-256-gb/p/itmeff16pro256",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,
@@ -91,11 +96,14 @@ export const PRODUCTS = [
   },
   {
     "id": 1463,
-    "name": "Apple iPhone 18 Pro Max (256 GB)",
-    "slug": "apple-iphone-18-pro-max-256gb",
+    "name": "Apple iPhone 16 Pro Max (256 GB)",
+    "slug": "apple-iphone-16-pro-max-256gb",
     "brand": "Apple",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/71T5NVOgbpL._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/71T5NVOgbpL._SX679_.jpg"
+    ],
     "rating": 4.9,
     "totalReviews": 3100,
     "bestPrice": 179900,
@@ -108,30 +116,32 @@ export const PRODUCTS = [
       "5g",
       "flagship",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "iphone 16 pro max",
+      "iphone 18 pro max"
     ],
-    "description": "Apple iPhone 18 Pro Max features an expansive 6.9-inch Super Retina XDR display, A20 Pro chip, 48MP Triple Camera with 10x Tetraprism Periscope Zoom, and industry-leading all-day battery life.",
-    "shortDescription": "Apple iPhone 18 Pro Max (256 GB) — A20 Pro, 6.9\" Super Retina XDR 120Hz, 10x Optical Zoom.",
+    "description": "Apple iPhone 16 Pro Max features an expansive 6.9-inch Super Retina XDR display, A18 Pro chip, 48MP Triple Camera with 5x Tetraprism Periscope Zoom, and industry-leading all-day battery life.",
+    "shortDescription": "Apple iPhone 16 Pro Max (256 GB) — A18 Pro, 6.9\" Super Retina XDR 120Hz, 5x Optical Zoom.",
     "specs": {
       "Price (INR)": "₹179,900",
       "Rating": "4.9/5",
       "Reviews": 3100,
-      "Processor": "Apple A20 Pro (2nm TSMC N2)",
+      "Processor": "Apple A18 Pro (3nm TSMC N3E)",
       "Display": "6.9-inch Super Retina XDR OLED (2868 x 1320), ProMotion 1-120Hz, 3000 nits peak",
       "Storage": "256 GB NVMe",
-      "RAM": "12 GB LPDDR5X",
-      "Rear Camera": "48MP Fusion + 48MP Ultra Wide + 48MP 10x Tetraprism Periscope Zoom",
-      "Front Camera": "18MP TrueDepth with Center Stage",
-      "Battery": "4850 mAh, 35W fast charge, 25W MagSafe",
-      "Operating System": "iOS 20 with Apple Intelligence",
-      "Build": "Grade 5 Titanium Frame, Ceramic Shield 3",
+      "RAM": "8 GB LPDDR5X",
+      "Rear Camera": "48MP Fusion + 48MP Ultra Wide + 12MP 5x Tetraprism Periscope Zoom",
+      "Front Camera": "12MP TrueDepth with Center Stage",
+      "Battery": "4685 mAh, 25W MagSafe fast wireless",
+      "Operating System": "iOS 18 with Apple Intelligence",
+      "Build": "Grade 5 Titanium Frame, Ceramic Shield",
       "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, USB-C 3.2 Gen 2",
       "Warranty": "1 Year Apple India Manufacturer Warranty"
     },
     "features": [
-      "Largest 6.9-inch Super Retina XDR OLED with ultra-slim bezels",
-      "10x Tetraprism Optical Zoom lens with 3D sensor-shift OIS",
-      "A20 Pro 2nm architecture with 6-core GPU ray tracing",
+      "Largest 6.9-inch Super Retina XDR OLED with ultra-slim 1.15mm bezels",
+      "5x Tetraprism 120mm Optical Zoom lens with 3D sensor-shift OIS",
+      "A18 Pro 3nm architecture with 6-core GPU and Apple Intelligence",
       "Up to 33 hours video playback battery life",
       "Camera Control button with haptic slide zoom"
     ],
@@ -143,7 +153,7 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "SuperComNet (Apple Authorized)",
-        "url": "https://www.flipkart.com/apple-iphone-18-pro-max-natural-titanium-256-gb/p/itmeff18promax256",
+        "url": "https://www.flipkart.com/apple-iphone-16-pro-max-desert-titanium-256-gb/p/itmeff16promax256",
         "conditionalOffer": "Flat ₹8,000 Instant Discount on Axis & HDFC Bank Cards",
         "currency": "INR"
       },
@@ -154,12 +164,12 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "Appario Retail (Apple Authorized)",
-        "url": "https://www.amazon.in/dp/B0D18PMAX256",
+        "url": "https://www.amazon.in/dp/B0D16PMAX256",
         "conditionalOffer": "Up to ₹15,000 Exchange Value + No Cost EMI up to 24 Months",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.flipkart.com/apple-iphone-18-pro-max-natural-titanium-256-gb/p/itmeff18promax256",
+    "productUrl": "https://www.flipkart.com/apple-iphone-16-pro-max-desert-titanium-256-gb/p/itmeff16promax256",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,
@@ -168,11 +178,14 @@ export const PRODUCTS = [
   },
   {
     "id": 1464,
-    "name": "Apple iPhone 18 (128 GB)",
-    "slug": "apple-iphone-18-128gb",
+    "name": "Apple iPhone 16 (128 GB)",
+    "slug": "apple-iphone-16-128gb",
     "brand": "Apple",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/713SsA7gftL._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/713SsA7gftL._SX679_.jpg"
+    ],
     "rating": 4.7,
     "totalReviews": 5600,
     "bestPrice": 79900,
@@ -184,29 +197,31 @@ export const PRODUCTS = [
       "apple",
       "5g",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "iphone 16",
+      "iphone 18"
     ],
-    "description": "Apple iPhone 18 powered by the A19 Bionic chip, 6.1-inch Super Retina XDR OLED display with ProMotion 120Hz, 48MP Dual Fusion Camera, Dynamic Island, and Camera Control.",
-    "shortDescription": "Apple iPhone 18 (128 GB) — A19 Bionic, 6.1\" Super Retina XDR 120Hz, 48MP Fusion Camera.",
+    "description": "Apple iPhone 16 powered by the A18 chip, 6.1-inch Super Retina XDR OLED display, 48MP Dual Fusion Camera with 2x optical-quality telephoto, Dynamic Island, and Camera Control in signature Ultramarine.",
+    "shortDescription": "Apple iPhone 16 (128 GB) — A18 Bionic, 6.1\" Super Retina XDR, 48MP Fusion Camera.",
     "specs": {
       "Price (INR)": "₹79,900",
       "Rating": "4.7/5",
       "Reviews": 5600,
-      "Processor": "Apple A19 Bionic (3nm)",
-      "Display": "6.1-inch Super Retina XDR OLED (2556 x 1179), ProMotion 120Hz, 2500 nits peak",
+      "Processor": "Apple A18 (3nm TSMC N3E)",
+      "Display": "6.1-inch Super Retina XDR OLED (2556 x 1179), 2000 nits peak",
       "Storage": "128 GB NVMe",
       "RAM": "8 GB LPDDR5X",
       "Rear Camera": "48MP Fusion (f/1.6 OIS) + 12MP Ultra Wide with Macro",
       "Front Camera": "12MP TrueDepth",
       "Battery": "3561 mAh, 25W fast charge, 25W MagSafe",
-      "Operating System": "iOS 20 with Apple Intelligence",
+      "Operating System": "iOS 18 with Apple Intelligence",
       "Build": "Aerospace-grade Aluminum with color-infused glass back",
       "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.3, USB-C 2.0",
       "Warranty": "1 Year Apple India Manufacturer Warranty"
     },
     "features": [
-      "A19 Bionic processor with 16-core Neural Engine",
-      "6.1-inch OLED with 120Hz ProMotion smoothness",
+      "A18 processor with 16-core Neural Engine and Apple Intelligence",
+      "6.1-inch OLED with Ceramic Shield next-generation durability",
       "48MP 2-in-1 Fusion camera offering optical-quality 2x telephoto",
       "Dynamic Island & physical Camera Control button",
       "IP68 dust and water resistance"
@@ -219,7 +234,7 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "SuperComNet (Apple Authorized)",
-        "url": "https://www.flipkart.com/apple-iphone-18-ultramarine-128-gb/p/itmeff18128",
+        "url": "https://www.flipkart.com/apple-iphone-16-ultramarine-128-gb/p/itmeff16128",
         "conditionalOffer": "Flat ₹5,000 Bank Discount on SBI & HDFC Cards",
         "currency": "INR"
       },
@@ -230,12 +245,12 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "Appario Retail (Apple Authorized)",
-        "url": "https://www.amazon.in/dp/B0D18BASE128",
+        "url": "https://www.amazon.in/dp/B0D16BASE128",
         "conditionalOffer": "Flat ₹5,000 Instant Discount with Amazon Pay ICICI Card",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.flipkart.com/apple-iphone-18-ultramarine-128-gb/p/itmeff18128",
+    "productUrl": "https://www.flipkart.com/apple-iphone-16-ultramarine-128-gb/p/itmeff16128",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,
@@ -244,11 +259,14 @@ export const PRODUCTS = [
   },
   {
     "id": 1465,
-    "name": "Samsung Galaxy S26 Ultra 5G (256 GB)",
-    "slug": "samsung-galaxy-s26-ultra-5g-256gb",
+    "name": "Samsung Galaxy S24 Ultra 5G (256 GB)",
+    "slug": "samsung-galaxy-s24-ultra-5g-256gb",
     "brand": "Samsung",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/81njZjDqc6L._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/81njZjDqc6L._SX679_.jpg"
+    ],
     "rating": 4.8,
     "totalReviews": 6800,
     "bestPrice": 129999,
@@ -261,32 +279,34 @@ export const PRODUCTS = [
       "5g",
       "flagship",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "galaxy s24 ultra",
+      "galaxy s26 ultra"
     ],
-    "description": "Samsung Galaxy S26 Ultra 5G features a 6.8-inch Dynamic AMOLED 2X QHD+ 120Hz display, Snapdragon 8 Elite Galaxy Edition, 200MP Quad Camera with 100x Space Zoom, built-in S-Pen, and Galaxy AI 3.0.",
-    "shortDescription": "Samsung Galaxy S26 Ultra 5G (256 GB) — Snapdragon 8 Elite, 200MP Quad Camera, Built-in S-Pen.",
+    "description": "Samsung Galaxy S24 Ultra 5G features a 6.8-inch Dynamic AMOLED 2X QHD+ 120Hz display, Snapdragon 8 Gen 3 for Galaxy, 200MP Quad Camera with 100x Space Zoom, built-in S-Pen, and Galaxy AI.",
+    "shortDescription": "Samsung Galaxy S24 Ultra 5G (256 GB) — Snapdragon 8 Gen 3, 200MP Quad Camera, Built-in S-Pen.",
     "specs": {
       "Price (INR)": "₹129,999",
       "Rating": "4.8/5",
       "Reviews": 6800,
-      "Processor": "Qualcomm Snapdragon 8 Elite for Galaxy (3nm)",
-      "Display": "6.8-inch Dynamic AMOLED 2X QHD+ (3120 x 1440), 1-120Hz LTPO, 3200 nits peak",
+      "Processor": "Qualcomm Snapdragon 8 Gen 3 for Galaxy (4nm)",
+      "Display": "6.8-inch Dynamic AMOLED 2X QHD+ (3120 x 1440), 1-120Hz LTPO, 2600 nits peak",
       "Storage": "256 GB UFS 4.0",
       "RAM": "12 GB LPDDR5X",
-      "Rear Camera": "200MP Main (f/1.7 OIS) + 50MP 5x Periscope + 10MP 3x Telephoto + 50MP Ultra Wide",
+      "Rear Camera": "200MP Main (f/1.7 OIS) + 50MP 5x Periscope + 10MP 3x Telephoto + 12MP Ultra Wide",
       "Front Camera": "12MP Dual Pixel AF",
       "Battery": "5000 mAh, 45W wired, 15W wireless, Wireless PowerShare",
-      "Operating System": "One UI 8.0 based on Android 16 (7 years updates)",
-      "Build": "Titanium Armor Frame, Gorilla Armor 2 antireflective glass",
-      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, Ultra-Wideband (UWB)",
+      "Operating System": "One UI 6.1 based on Android 14 (7 years OS upgrades)",
+      "Build": "Titanium Armor Frame, Gorilla Armor antireflective glass",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.3, Ultra-Wideband (UWB)",
       "Warranty": "1 Year Samsung India Comprehensive Warranty"
     },
     "features": [
-      "Snapdragon 8 Elite with custom 4.47GHz Oryon CPU cores",
-      "200MP ISOCELL HP2+ main sensor with 100x AI Space Zoom",
-      "Antireflective Corning Gorilla Armor 2 reduces glare by 75%",
+      "Snapdragon 8 Gen 3 for Galaxy with custom overclocked CPU/GPU",
+      "200MP ISOCELL HP2 main sensor with 100x AI Space Zoom",
+      "Antireflective Corning Gorilla Armor reduces reflections by up to 75%",
       "Integrated low-latency Bluetooth S-Pen stylus in chassis",
-      "Galaxy AI 3.0 suite with real-time bidirectional translation"
+      "Galaxy AI suite with Circle to Search, Live Translate, and Note Assist"
     ],
     "prices": [
       {
@@ -296,7 +316,7 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "STPL (Samsung Authorized)",
-        "url": "https://www.amazon.in/dp/B0DGS26ULTRA256",
+        "url": "https://www.amazon.in/dp/B0DGS24ULTRA256",
         "conditionalOffer": "Flat ₹10,000 Instant Bank Discount on HDFC & SBI Cards (Effective: ₹1,19,999)",
         "currency": "INR"
       },
@@ -307,12 +327,12 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "TrueComRetail (Samsung Authorized)",
-        "url": "https://www.flipkart.com/samsung-galaxy-s26-ultra-5g-titanium-black-256-gb/p/itmgs26u256",
+        "url": "https://www.flipkart.com/samsung-galaxy-s24-ultra-5g-titanium-black-256-gb/p/itmgs24u256",
         "conditionalOffer": "Up to ₹12,000 Additional Exchange Bonus",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.amazon.in/dp/B0DGS26ULTRA256",
+    "productUrl": "https://www.amazon.in/dp/B0DGS24ULTRA256",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,
@@ -321,11 +341,14 @@ export const PRODUCTS = [
   },
   {
     "id": 1466,
-    "name": "Google Pixel 10 Pro (256 GB)",
-    "slug": "google-pixel-10-pro-256gb",
+    "name": "Google Pixel 9 Pro (256 GB)",
+    "slug": "google-pixel-9-pro-256gb",
     "brand": "Google",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/71eXN-gLdBL._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/71eXN-gLdBL._SX679_.jpg"
+    ],
     "rating": 4.7,
     "totalReviews": 2400,
     "bestPrice": 109999,
@@ -338,29 +361,31 @@ export const PRODUCTS = [
       "5g",
       "flagship",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "pixel 9 pro",
+      "pixel 10 pro"
     ],
-    "description": "Google Pixel 10 Pro with custom TSMC-built Tensor G5 processor, 6.3-inch Super Actua LTPO display, 50MP Pro triple camera with 5x telephoto, Gemini Nano Gen 2 on-device AI, and 7 years of OS upgrades.",
-    "shortDescription": "Google Pixel 10 Pro (256 GB) — Tensor G5 (TSMC 3nm), 50MP Triple Camera, Gemini Nano Gen 2.",
+    "description": "Google Pixel 9 Pro with Tensor G4 processor, 6.3-inch Super Actua LTPO display, 50MP Pro triple camera with 5x telephoto, Gemini Nano on-device AI, and 7 years of OS upgrades.",
+    "shortDescription": "Google Pixel 9 Pro (256 GB) — Tensor G4, 50MP Triple Camera, Gemini Nano.",
     "specs": {
       "Price (INR)": "₹109,999",
       "Rating": "4.7/5",
       "Reviews": 2400,
-      "Processor": "Google Tensor G5 (3nm TSMC foundry)",
+      "Processor": "Google Tensor G4 (4nm)",
       "Display": "6.3-inch Super Actua LTPO OLED (2856 x 1280), 1-120Hz, 3000 nits peak",
-      "Storage": "256 GB UFS 4.0",
+      "Storage": "256 GB UFS 3.1",
       "RAM": "16 GB LPDDR5X",
       "Rear Camera": "50MP Wide (f/1.68 OIS) + 48MP Ultra Wide with Macro + 48MP 5x Telephoto",
       "Front Camera": "42MP Dual PD Selfie with AF",
-      "Battery": "4700 mAh, 30W wired, 23W Pixel Stand wireless",
-      "Operating System": "Android 16 with Pixel Drop features",
+      "Battery": "4700 mAh, 27W wired, 21W wireless",
+      "Operating System": "Android 14 with 7 years of Pixel Drops",
       "Build": "Polished metal frame, Matte glass back, Gorilla Glass Victus 2",
-      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.4, UWB, Satellite SOS",
+      "Connectivity": "5G, Wi-Fi 7, Bluetooth 5.3, UWB, Satellite SOS",
       "Warranty": "1 Year Google India Warranty"
     },
     "features": [
-      "First TSMC-fabricated Tensor G5 chip with extreme power efficiency",
-      "16GB RAM standard for uninterrupted Gemini Nano AI workloads",
+      "Tensor G4 chip optimized for on-device Gemini multimodal AI",
+      "16GB RAM standard for seamless AI background operations",
       "50MP Triple Camera with Super Res Zoom up to 30x and 8K Video Boost",
       "7 Years of guaranteed OS updates, security patches, and Feature Drops",
       "IP68 dust and water resistance with Corning Gorilla Glass Victus 2"
@@ -373,7 +398,7 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "Flashstar Commerce (Google Authorized)",
-        "url": "https://www.flipkart.com/google-pixel-10-pro-obsidian-256-gb/p/itmpix10pro256",
+        "url": "https://www.flipkart.com/google-pixel-9-pro-obsidian-256-gb/p/itmpix9pro256",
         "conditionalOffer": "Flat ₹10,000 Instant Discount on ICICI Bank Credit Cards",
         "currency": "INR"
       },
@@ -384,12 +409,12 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "Appario Retail (Authorized)",
-        "url": "https://www.amazon.in/dp/B0DPIX10PRO256",
+        "url": "https://www.amazon.in/dp/B0DPIX9PRO256",
         "conditionalOffer": "Up to ₹8,000 Instant Bank Discount + Free Pixel Care Plan",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.flipkart.com/google-pixel-10-pro-obsidian-256-gb/p/itmpix10pro256",
+    "productUrl": "https://www.flipkart.com/google-pixel-9-pro-obsidian-256-gb/p/itmpix9pro256",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,
@@ -398,11 +423,14 @@ export const PRODUCTS = [
   },
   {
     "id": 1467,
-    "name": "OnePlus 15 Pro (512 GB)",
-    "slug": "oneplus-15-pro-512gb",
+    "name": "OnePlus 12 5G (512 GB)",
+    "slug": "oneplus-12-5g-512gb",
     "brand": "OnePlus",
     "category": "Smartphones",
-    "image": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='%23050505'><rect width='600' height='600' fill='%230c0c0e' rx='24'/><rect x='40' y='40' width='520' height='520' fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='2' rx='16'/><circle cx='300' cy='270' r='70' fill='%23ff1695' fill-opacity='0.08' stroke='%23ff1695' stroke-opacity='0.25' stroke-width='2'/><circle cx='300' cy='270' r='24' fill='none' stroke='%23ff1695' stroke-width='2' stroke-dasharray='4 4'/><path d='M290 270 h20 M300 260 v20' stroke='%23ff1695' stroke-width='2' stroke-linecap='round'/><text x='50%' y='390' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='13' font-weight='600' letter-spacing='2' fill='%23ffffff' fill-opacity='0.65'>BRAND BATTLE HARDWARE</text><text x='50%' y='416' dominant-baseline='middle' text-anchor='middle' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' font-size='10' letter-spacing='1.5' fill='%23ffffff' fill-opacity='0.35'>OFFICIAL INTEL ACTIVE</text></svg>",
+    "image": "https://m.media-amazon.com/images/I/717Qo4MH97L._SX679_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/717Qo4MH97L._SX679_.jpg"
+    ],
     "rating": 4.6,
     "totalReviews": 4500,
     "bestPrice": 64999,
@@ -415,32 +443,34 @@ export const PRODUCTS = [
       "5g",
       "flagship",
       "new_launch",
-      "festive_pick"
+      "festive_pick",
+      "oneplus 12",
+      "oneplus 15 pro"
     ],
-    "description": "OnePlus 15 Pro powered by Snapdragon 8 Elite, 6.82-inch 2K ProXDR 120Hz LTPO display, 50MP Hasselblad triple camera with 3x periscope zoom, 6000mAh Glacier Battery, and 100W SuperVOOC charging.",
-    "shortDescription": "OnePlus 15 Pro (512 GB) — Snapdragon 8 Elite, 6000mAh Glacier Battery, Hasselblad Optics.",
+    "description": "OnePlus 12 5G powered by Snapdragon 8 Gen 3, 6.82-inch 2K ProXDR 120Hz LTPO display, 50MP Hasselblad triple camera with 3x periscope zoom, 5400mAh battery, and 100W SuperVOOC charging in Silky Black.",
+    "shortDescription": "OnePlus 12 5G (512 GB) — Snapdragon 8 Gen 3, 5400mAh Battery, Hasselblad Optics.",
     "specs": {
       "Price (INR)": "₹64,999",
       "Rating": "4.6/5",
       "Reviews": 4500,
-      "Processor": "Qualcomm Snapdragon 8 Elite (3nm)",
+      "Processor": "Qualcomm Snapdragon 8 Gen 3 (4nm)",
       "Display": "6.82-inch 2K ProXDR LTPO AMOLED (3168 x 1440), 1-120Hz, 4500 nits peak",
       "Storage": "512 GB UFS 4.0",
       "RAM": "16 GB LPDDR5X",
-      "Rear Camera": "50MP Sony LYT-808 (OIS) + 50MP Ultra Wide + 50MP Sony LYT-600 3x Periscope",
+      "Rear Camera": "50MP Sony LYT-808 (OIS) + 48MP Ultra Wide + 64MP 3x Periscope Telephoto",
       "Front Camera": "32MP Sony IMX615",
-      "Battery": "6000 mAh Silicon-Carbon Glacier Battery, 100W SuperVOOC wired, 50W AIRVOOC",
-      "Operating System": "OxygenOS 16 based on Android 16",
+      "Battery": "5400 mAh Battery, 100W SuperVOOC wired, 50W AIRVOOC wireless",
+      "Operating System": "OxygenOS 14 based on Android 14",
       "Build": "Aluminum Alloy middle frame with Silk Glass back",
       "Connectivity": "5G Dual SIM, Wi-Fi 7, Bluetooth 5.4, Infrared blaster",
       "Warranty": "1 Year OnePlus India Manufacturer Warranty"
     },
     "features": [
-      "Massive 6000mAh Glacier Battery with 100W flash charging (0 to 100% in 26 mins)",
-      "Hasselblad Camera for Mobile Gen 4 with master portrait filters",
+      "Massive 5400mAh Battery with 100W flash charging (0 to 100% in 26 mins)",
+      "4th Gen Hasselblad Camera for Mobile with master portrait filters",
       "DisplayMate A+ certified 2K display with 4500 nits peak brightness",
       "Alert Slider with customizable haptic states",
-      "IP68 and IP69 high-pressure water/dust protection"
+      "Dual Cryo-velocity VC cooling system for sustained gaming performance"
     ],
     "prices": [
       {
@@ -450,7 +480,7 @@ export const PRODUCTS = [
         "delivery": 1,
         "rating": 4.8,
         "seller": "OnePlus Official Store via Amazon",
-        "url": "https://www.amazon.in/dp/B0DOP15PRO512",
+        "url": "https://www.amazon.in/dp/B0DOP12PRO512",
         "conditionalOffer": "Flat ₹5,000 Instant Discount with OneCard & ICICI Cards",
         "currency": "INR"
       },
@@ -461,12 +491,12 @@ export const PRODUCTS = [
         "delivery": 2,
         "rating": 4.8,
         "seller": "Flashtech Retail (Authorized)",
-        "url": "https://www.flipkart.com/oneplus-15-pro-silky-black-512-gb/p/itmop15p512",
+        "url": "https://www.flipkart.com/oneplus-12-silky-black-512-gb/p/itmop12p512",
         "conditionalOffer": "Up to ₹6,000 Exchange Bonus on OnePlus devices",
         "currency": "INR"
       }
     ],
-    "productUrl": "https://www.amazon.in/dp/B0DOP15PRO512",
+    "productUrl": "https://www.amazon.in/dp/B0DOP12PRO512",
     "isLatestRelease": true,
     "releaseYear": 2026,
     "isFestiveDeal": true,

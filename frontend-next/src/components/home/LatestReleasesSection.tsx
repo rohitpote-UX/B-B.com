@@ -1,30 +1,56 @@
 'use client'
 
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, ArrowLeftRight, ShieldCheck, Sparkles, Zap, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, ArrowLeftRight, ShieldCheck, Sparkles, Zap } from 'lucide-react'
 import { PRODUCTS, formatPrice } from '@/data/demoData'
 import { FEATURE_FLAGS } from '@/lib/flags'
 import { handleProductImageError, resolveSafeProductImage } from '@/lib/image-fallback'
-import api from '@/lib/api'
+
+function ReleaseCardImage({ product }: { product: any }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const safeSrc = resolveSafeProductImage(product)
+  const isSvg = safeSrc.startsWith('data:image/svg+xml')
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      {/* Subtle skeleton pulse during network fetch (omitted for inline SVG) */}
+      {!isLoaded && !isSvg && (
+        <div className="absolute inset-0 rounded-2xl bg-white/[0.04] animate-pulse" />
+      )}
+      <img
+        src={safeSrc}
+        alt={product.name}
+        className={`max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-105 transition-all duration-700 ease-out ${
+          isLoaded || isSvg ? 'opacity-100' : 'opacity-0'
+        }`}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setIsLoaded(true)}
+        onError={(e) => {
+          setIsLoaded(true)
+          handleProductImageError(e)
+        }}
+      />
+    </div>
+  )
+}
+
+// Filter latest releases from active catalog
+const latestCatalogProducts = (() => {
+  const flagged = PRODUCTS.filter((p: any) => p.isLatestRelease)
+  if (flagged.length >= 4) {
+    return flagged.slice(0, 8)
+  }
+  return PRODUCTS.slice(0, 8)
+})()
 
 export default function LatestReleasesSection() {
   // If feature flag is toggled off, section renders nothing
   if (!FEATURE_FLAGS.LATEST_PRODUCTS_ENABLED) {
     return null
   }
-
-  // Dynamic products: filter latest releases from active catalog
-  const latestCatalogProducts = useMemo(() => {
-    // 1. Prioritize products marked with isLatestRelease
-    const flagged = PRODUCTS.filter((p: any) => p.isLatestRelease)
-    if (flagged.length >= 4) {
-      return flagged.slice(0, 8)
-    }
-    // 2. Fallback to newest additions
-    return PRODUCTS.slice(0, 8)
-  }, [])
 
   return (
     <section
@@ -91,7 +117,6 @@ export default function LatestReleasesSection() {
         {/* Responsive Editorial Grid: 1 col mobile, 2 cols tablet, 4 cols desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {latestCatalogProducts.map((product: any, idx: number) => {
-            const hasMultipleOffers = (product.prices && product.prices.length > 1) || true
             const platforms = product.prices
               ? Array.from(new Set(product.prices.map((pr: any) => pr.platform)))
               : ['flipkart', 'amazon']
@@ -124,13 +149,7 @@ export default function LatestReleasesSection() {
                       className="relative aspect-square w-full rounded-2xl bg-white/[0.02] p-6 mb-6 flex items-center justify-center overflow-hidden border border-white/[0.05] block"
                       aria-label={`View ${product.name}`}
                     >
-                      <img
-                        src={resolveSafeProductImage(product)}
-                        alt={product.name}
-                        className="max-h-full max-w-full object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-700 ease-out"
-                        loading="lazy"
-                        onError={handleProductImageError}
-                      />
+                      <ReleaseCardImage product={product} />
                     </Link>
 
                     {/* Verified Marketplace Price Observations Indicator */}

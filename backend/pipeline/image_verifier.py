@@ -194,8 +194,8 @@ class ImageVerifier:
                 is_valid=False,
                 http_status=None,
                 content_type=None,
-                verification_status="failed_verification",
-                failure_reason="Request timed out",
+                verification_status="pending_retry",
+                failure_reason="Request timed out (transient network delay)",
                 verified_at=now,
             )
         except requests.exceptions.ConnectionError:
@@ -204,8 +204,8 @@ class ImageVerifier:
                 is_valid=False,
                 http_status=None,
                 content_type=None,
-                verification_status="failed_verification",
-                failure_reason="Connection error",
+                verification_status="pending_retry",
+                failure_reason="Connection error (transient network failure)",
                 verified_at=now,
             )
         except Exception as e:
@@ -239,6 +239,10 @@ class ImageVerifier:
             # Fallback placeholder is intentionally safe & neutral
             return True, "unverified_neutral_fallback", None
 
+        # Reject malformed URLs that do not begin with http:// or https://
+        if not clean_url.startswith(("http://", "https://")):
+            return False, "failed_verification", "URL does not start with http/https"
+
         url_lower = clean_url.lower()
         prod_lower = (product_name or "").lower()
 
@@ -249,8 +253,13 @@ class ImageVerifier:
                 gen = meta.get("generation", "").lower()
                 actual_model = meta.get("actual_model", "")
 
-                # If the product does NOT match the signature's actual model generation, reject as quarantined mismatch
-                if brand in prod_lower and gen not in prod_lower:
+                # If the product does NOT match the signature's actual brand or model generation, reject
+                if brand not in prod_lower:
+                    reason = f"Brand mismatch: image portrays {actual_model} ({brand.title()}), but canonical product is '{product_name}'"
+                    logger.warning(f"[QUARANTINE_MISMATCH] {reason} (URL: {image_url})")
+                    return False, "quarantined_mismatch", reason
+
+                if gen not in prod_lower:
                     reason = f"Generation mismatch: image portrays {actual_model}, but canonical product is '{product_name}'"
                     logger.warning(f"[QUARANTINE_MISMATCH] {reason} (URL: {image_url})")
                     return False, "quarantined_mismatch", reason
@@ -355,20 +364,32 @@ class ImageVerifier:
             verified_at=now,
         )
 
-    def get_safe_image_for_product(self, product_name: str, image_url: Optional[str]) -> str:
+    def get_safe_image_for_product(
+        self,
+        product_name: str,
+        image_url: Optional[str],
+        candidate_alternates: Optional[List[str]] = None
+    ) -> str:
         """
         Safe image resolver:
-        Returns image_url only if it passes identity and generation association.
-        Returns neutral on-brand fallback SVG otherwise.
+        Returns image_url if it passes identity and generation association.
+        If primary candidate fails or is missing, checks candidate_alternates.
+        Returns neutral on-brand fallback SVG only if no candidate passes.
         """
-        if not image_url or image_url.strip() == "":
-            return FALLBACK_PRODUCT_IMAGE
+        candidates: List[str] = []
+        if image_url and image_url.strip() and image_url != FALLBACK_PRODUCT_IMAGE:
+            candidates.append(image_url.strip())
+        if candidate_alternates:
+            for alt in candidate_alternates:
+                if alt and alt.strip() and alt.strip() not in candidates and alt.strip() != FALLBACK_PRODUCT_IMAGE:
+                    candidates.append(alt.strip())
 
-        is_assoc_valid, _, _ = self.validate_product_image_association(product_name, image_url)
-        if not is_assoc_valid:
-            return FALLBACK_PRODUCT_IMAGE
+        for cand in candidates:
+            is_assoc_valid, _, _ = self.validate_product_image_association(product_name, cand)
+            if is_assoc_valid:
+                return cand
 
-        return image_url
+        return FALLBACK_PRODUCT_IMAGE
 
     def find_fallback_image(self, product_id: int, db) -> Optional[str]:
         """
