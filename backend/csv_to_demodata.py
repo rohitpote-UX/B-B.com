@@ -22,45 +22,52 @@ OUT_PATHS = [
     os.path.join(os.path.dirname(__file__), "..", "frontend-next", "src", "data", "demoData.js")
 ]
 
-BRAND_MAP = {
-    "iphone": "Apple", "apple": "Apple", "macbook": "Apple",
-    "samsung": "Samsung", "galaxy": "Samsung",
-    "oneplus": "OnePlus",
-    "realme": "Realme",
-    "xiaomi": "Xiaomi", "redmi": "Xiaomi", "poco": "Xiaomi",
-    "vivo": "Vivo",
-    "oppo": "OPPO",
-    "nokia": "Nokia",
-    "dell": "Dell",
-    "hp": "HP",
-    "lenovo": "Lenovo",
-    "asus": "Asus",
-    "acer": "Acer",
-    "msi": "MSI",
-    "sony": "Sony",
-    "bose": "Bose",
-    "jbl": "JBL",
-    "boat": "boAt",
-    "sennheiser": "Sennheiser",
-    "nike": "Nike",
-    "adidas": "Adidas",
-    "puma": "Puma",
-    "reebok": "Reebok",
-    "allen solly": "Allen Solly",
-    "us polo": "US Polo",
-    "levi": "Levi's",
-    "zara": "Zara",
-    "lg": "LG",
-    "tcl": "TCL",
-    "mi": "Xiaomi",
-    "fossil": "Fossil",
-    "casio": "Casio",
-    "titan": "Titan",
-    "noise": "Noise",
-    "fire-boltt": "Fire-Boltt",
-    "ambrane": "Ambrane",
-    "portronics": "Portronics",
-}
+KNOWN_BRANDS = [
+    ("ASUS", [r"\b(?:vivobook|zenbook|rog\s+strix|tuf\s+gaming|expertbook|chromebook\s+cx)\b", r"^\s*asus\b", r"\basus\b"]),
+    ("Apple", [r"\b(?:macbook|iphone|ipad|airpods|apple\s+watch)\b", r"^\s*apple\b"]),
+    ("Samsung", [r"\b(?:galaxy\s+s\d+|galaxy\s+z|galaxy\s+a\d+|galaxy\s+m\d+|galaxy\s+f\d+|galaxy\s+tab)\b", r"^\s*samsung\b", r"\bsamsung\b"]),
+    ("Sony", [r"\b(?:bravia|playstation\s+5|playstation\s+4|dualsense|dualshock|wh-1000xm\d|wf-1000xm\d|wh-ch\d+)\b", r"^\s*sony\b", r"\bsony\b"]),
+    ("Dell", [r"\b(?:inspiron|xps|alienware|vostro|latitude)\b", r"^\s*dell\b", r"\bdell\b"]),
+    ("HP", [r"\b(?:pavilion|omen|envy|spectre|victus)\b", r"^\s*hp\b", r"\bhp\b"]),
+    ("Lenovo", [r"\b(?:thinkpad|ideapad|legion|yoga|loq)\b", r"^\s*lenovo\b", r"\blenovo\b"]),
+    ("Acer", [r"\b(?:predator|aspire|swift|nitro)\b", r"^\s*acer\b", r"\bacer\b"]),
+    ("Canon", [r"^\s*canon\b", r"\bcanon\s+(?:eos|powershot|pixma|r\d+|m\d+)\b", r"\bcanon\b"]),
+    ("Nikon", [r"^\s*nikon\b", r"\bnikon\s+(?:z\s*\d+|d\d+|coolpix)\b", r"\bnikon\b"]),
+    ("EVOFOX", [r"\bevofox\b"]),
+    ("Zebronics", [r"\bzebronics\b|\bzeb-"]),
+    ("Boult", [r"\b(?:goboult|boult\s+audio|boult)\b"]),
+    ("boAt", [r"\bboat\b|\bairdopes\b|\brockerz\b|\bstorm\s+call\b"]),
+    ("URBN", [r"\burbn\b"]),
+    ("Ambrane", [r"\bambrane\b"]),
+    ("Portronics", [r"\bportronics\b"]),
+    ("Noise", [r"\bnoise\b(?!\s+(?:cancell|isolat|reduct))", r"\bcolorfit\b"]),
+    ("Fire-Boltt", [r"\bfire-boltt\b|\bfireboltt\b"]),
+    ("OnePlus", [r"\boneplus\b|\bnord\b"]),
+    ("Realme", [r"\brealme\b"]),
+    ("iQOO", [r"\biqoo\b"]),
+    ("Motorola", [r"\bmotorola\b|\bmotobook\b|\bmoto\s+g\b|\bmoto\s+edge\b"]),
+    ("Nothing", [r"\bnothing\b|\bcmf\s+by\s+nothing\b|\bcmf\b"]),
+    ("Google", [r"\bgoogle\b|\bpixel\s+\d+\b"]),
+    ("MSI", [r"\bmsi\b"]),
+    ("Bose", [r"\bbose\b|\bquietcomfort\b"]),
+    ("JBL", [r"\bjbl\b"]),
+    ("Sennheiser", [r"\bsennheiser\b"]),
+    ("Titan", [r"\btitan\b"]),
+    ("Casio", [r"\bcasio\b|\bg-shock\b|\bedifice\b"]),
+    ("Fossil", [r"\bfossil\b"]),
+    ("LG", [r"^\s*lg\b", r"\blg\s+(?:oled|gram|ultragear|qned)\b"]),
+    ("TCL", [r"^\s*tcl\b"]),
+    ("Xiaomi", [r"^\s*(?:xiaomi|redmi|poco)\b", r"\b(?:xiaomi|redmi|poco)\b"]),
+    ("Vivo", [r"^\s*vivo\b", r"\bvivo\s+(?:v\d+|x\d+|y\d+|t\d+)\b"]),
+    ("OPPO", [r"^\s*oppo\b", r"\boppo\s+(?:reno|find|f\d+|a\d+)\b"]),
+    ("Nike", [r"\bnike\b|\bair\s+force\b|\bair\s+max\b|\bjordan\b"]),
+    ("Adidas", [r"\badidas\b|\bultraboost\b|\bstan\s+smith\b"]),
+    ("Puma", [r"\bpuma\b"]),
+    ("Reebok", [r"\breebok\b"]),
+    ("Levi's", [r"\blevi'?s?\b"]),
+    ("Allen Solly", [r"\ballen\s+solly\b"]),
+    ("US Polo", [r"\bus\s+polo\b"]),
+]
 
 CATEGORY_ALIASES = {
     "smartphones": "Smartphones",
@@ -112,11 +119,25 @@ def clean_product_name(name):
 
 
 def detect_brand(name):
-    name_lower = name.lower()
-    for key, brand in BRAND_MAP.items():
-        if key in name_lower:
+    # Strip accessory clauses before brand detection
+    s = re.sub(r'(?i)\b(?:compatible\s+with|designed\s+for|suitable\s+for|for)\s+(?:apple|iphone|ipad|macbook|android|ps4|ps5|playstation|xbox)\b.*$', '', name).strip()
+    c_lower = s.lower()
+    
+    first_word = s.split()[0].strip(',.-"\'').lower() if s.split() else ""
+    for brand, patterns in KNOWN_BRANDS:
+        if first_word == brand.lower():
             return brand
-    words = name.split()
+
+    for brand, patterns in KNOWN_BRANDS:
+        for p in patterns:
+            if re.search(p, c_lower, re.IGNORECASE):
+                if brand == "Vivo" and "vivobook" in c_lower:
+                    continue
+                if brand == "Xiaomi" and not any(k in c_lower for k in ["xiaomi", "redmi", "poco", "mi "]):
+                    continue
+                return brand
+
+    words = s.split()
     return words[0] if words else "Unknown"
 
 
@@ -403,7 +424,23 @@ def build_demodata(products):
             best = min(prices, key=lambda x: x["price"])
             p_inr = p["price_inr"]
 
-        deal_score = min(99, int(p["rating"] * 15 + p["discount"] * 0.5 + random.randint(10, 20)))
+        # Deterministic Deal Score & 40% Anomaly Rule
+        curr_p = best["price"]
+        orig_p = p.get("originalPrice", curr_p)
+        calc_disc = round(((orig_p - curr_p) / orig_p) * 100) if orig_p > curr_p else 0
+
+        is_anomaly = False
+        if calc_disc > 40:
+            if calc_disc > 70 and p["category"] in ["Smartphones", "Laptops", "Cameras", "Gaming"]:
+                is_anomaly = True
+
+        if is_anomaly:
+            deal_score = 40  # Quarantined anomaly cannot receive verified deal score
+        else:
+            r_pts = (p["rating"] / 5.0) * 40.0
+            d_pts = min(35.0, (calc_disc / 35.0) * 35.0) if calc_disc > 0 else 5.0
+            rev_pts = min(20.0, math.log10(max(1, p["totalReviews"]) + 1) * 5.0)
+            deal_score = max(35, min(95, int(round(r_pts + d_pts + rev_pts))))
 
         # Parse real specs if available
         real_specs = {}

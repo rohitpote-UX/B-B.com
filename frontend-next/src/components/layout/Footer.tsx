@@ -80,8 +80,15 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Affiliate & Commercial Disclosure */}
+        <div className="py-6 my-8 border-t border-b border-theme-border/50 text-[0.75rem] text-theme-muted leading-relaxed font-light">
+          <p>
+            <strong className="text-theme-secondary font-medium">Affiliate Disclosure:</strong> BrandBattle is an independent product intelligence platform. When you buy through links on our site, we may earn an affiliate commission at no additional cost to you. Commercial relationships never influence our algorithmic deal scores, hardware evaluation ratings, or product comparisons.
+          </p>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[0.75rem] font-medium uppercase tracking-[0.15em]">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between text-[0.75rem] font-medium uppercase tracking-[0.15em]">
           <p suppressHydrationWarning>© {new Date().getFullYear()} BRAND BATTLE. A GOLDSPADE PLATFORM.</p>
           <div className="flex gap-6 mt-4 sm:mt-0 items-center">
             <a

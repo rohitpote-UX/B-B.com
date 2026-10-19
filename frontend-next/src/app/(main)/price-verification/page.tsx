@@ -6,11 +6,19 @@ import StructuredDataScript from '@/seo/structuredData'
 import { SEO_CONFIG, buildBreadcrumbSchema } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Price Verification Framework & Trust Standards | BrandBattle',
+  title: {
+    absolute: 'Price Verification Framework & Trust Standards | BrandBattle',
+  },
   description:
     'Technical documentation of BrandBattle’s Data Trust Hardening system: 40% price anomaly quarantine, TTL freshness tiers, and image validation protocols.',
   alternates: {
     canonical: `${SEO_CONFIG.domain}/price-verification`,
+  },
+  openGraph: {
+    title: 'Price Verification Framework & Trust Standards | BrandBattle',
+    description: 'Technical documentation of BrandBattle’s Data Trust Hardening system: 40% price anomaly quarantine, TTL freshness tiers, and image validation protocols.',
+    url: `${SEO_CONFIG.domain}/price-verification`,
+    type: 'website',
   },
 }
 

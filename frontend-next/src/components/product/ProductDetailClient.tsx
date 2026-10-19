@@ -108,6 +108,11 @@ export default function ProductDetailClient({ initialId, initialProduct }: Produ
     return matches.length > 0 ? matches.slice(0, 3) : [suggestedProduct]
   }, [product, suggestedProduct])
 
+  const categoryCompetitorsCount = useMemo(() => {
+    const currentCat = (product.category || '').toLowerCase().trim()
+    return PRODUCTS.filter(p => p.id !== product.id && (p.category || '').toLowerCase().trim() === currentCat).length
+  }, [product])
+
   // Gallery state
   const [selectedImage, setSelectedImage] = useState(product.image)
   useEffect(() => {
@@ -534,7 +539,7 @@ export default function ProductDetailClient({ initialId, initialProduct }: Produ
                   Precision Hardware Evaluation & Value Analysis
                 </h3>
                 <p className="text-[#a1a1aa] leading-relaxed text-[0.95rem] font-light mb-8">
-                  Our Knowledge Graph cross-analyzed {product.name} against {PRODUCTS.length} competing models in the {product.category} class. It maintains a top-tier deal confidence score of {product.dealScore}/100.
+                  Our Knowledge Graph analyzed {product.name} against {categoryCompetitorsCount} competing models in the {product.category} category. It maintains an evidence-backed deal confidence score of {product.dealScore}/100.
                 </p>
               </div>
 

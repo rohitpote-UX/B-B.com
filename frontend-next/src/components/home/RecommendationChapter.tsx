@@ -7,7 +7,7 @@ import { Cpu, Sparkles, ArrowRight, CheckCircle2, MessageSquareText, Shield, Thu
 
 const SAMPLE_PROMPTS = [
   {
-    text: 'Best ANC headphones under $350 for long-haul flights & daily office work',
+    text: 'Best ANC headphones under ₹30,000 for long-haul travel & office work',
     resultProduct: 'Sony WH-1000XM5',
     matchScore: 98,
     reason: 'Top active noise cancellation in class (-30dB cabin noise isolation), 30h battery life, lightweight 250g ergonomics.',
@@ -19,7 +19,7 @@ const SAMPLE_PROMPTS = [
     reason: 'Hardware media engines handle dual 8K ProRes streams with zero fan noise while maintaining 18h real battery.',
   },
   {
-    text: 'Flagship camera phone under $1,200 with best low-light zoom',
+    text: 'Flagship camera phone under ₹1,30,000 with best low-light zoom',
     resultProduct: 'Samsung Galaxy S24 Ultra',
     matchScore: 95,
     reason: '50MP 5x optical telephoto with Quad Tele sensor system & Nightography processing outperforms competitors in low light.',
@@ -51,12 +51,12 @@ export default function RecommendationChapter() {
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-[var(--font-display)] font-semibold tracking-tight uppercase leading-tight">
-              Personalized Matching. <span className="text-[#ff1695] italic">Zero Affiliate Bias.</span>
+              Personalized Matching. <span className="text-[#ff1695] italic">Objective Spec Comparison.</span>
             </h2>
           </div>
           <div className="col-span-12 lg:col-span-5">
             <p className="text-white/60 text-sm sm:text-base font-light leading-relaxed">
-              Generic buyer guides push sponsored products with high commission rates. Brand Battle uses an autonomous neural graph that ranks products solely by engineering merit.
+              Generic buyer guides frequently feature sponsored recommendations. BrandBattle analyzes verified technical specifications, user feedback volume, and multi-retailer pricing to generate unbiased match scores.
             </p>
           </div>
         </div>

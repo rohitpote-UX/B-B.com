@@ -15,6 +15,9 @@ backend_db_inventory.json
 .env.production
 .env.staging
 .env.development
+*.mjs
+test_*.mjs
+bb-intelligence/test_neon.mjs
 
 
 

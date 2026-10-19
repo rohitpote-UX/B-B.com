@@ -6,11 +6,19 @@ import StructuredDataScript from '@/seo/structuredData'
 import { SEO_CONFIG, buildBreadcrumbSchema } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'About BrandBattle — The Most Trusted Place to Verify Any Product',
+  title: {
+    absolute: 'About BrandBattle — The Most Trusted Place to Verify Any Product',
+  },
   description:
     'Learn about BrandBattle’s mission to bring radical transparency and algorithmic price verification to Indian e-commerce. Verify before you spend.',
   alternates: {
     canonical: `${SEO_CONFIG.domain}/about`,
+  },
+  openGraph: {
+    title: 'About BrandBattle — The Most Trusted Place to Verify Any Product',
+    description: 'Learn about BrandBattle’s mission to bring radical transparency and algorithmic price verification to Indian e-commerce.',
+    url: `${SEO_CONFIG.domain}/about`,
+    type: 'website',
   },
 }
 

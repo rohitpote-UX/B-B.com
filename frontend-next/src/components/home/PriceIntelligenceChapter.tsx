@@ -6,10 +6,10 @@ import { TrendingDown, ShieldAlert, ArrowRight, CheckCircle2, ShoppingCart, Tag 
 import { formatPrice } from '@/data/demoData'
 
 const RETAILERS = [
-  { name: 'Amazon', price: 299.99, isLowest: true, inStock: true },
-  { name: 'Reliance Digital', price: 319.00, isLowest: false, inStock: true },
-  { name: 'Flipkart', price: 324.50, isLowest: false, inStock: true },
-  { name: 'Croma', price: 339.99, isLowest: false, inStock: false },
+  { name: 'Amazon India', price: 24990, isLowest: true, inStock: true },
+  { name: 'Flipkart', price: 25490, isLowest: false, inStock: true },
+  { name: 'Reliance Digital', price: 26990, isLowest: false, inStock: true },
+  { name: 'Croma', price: 26990, isLowest: false, inStock: true },
 ]
 
 export default function PriceIntelligenceChapter() {
@@ -37,7 +37,7 @@ export default function PriceIntelligenceChapter() {
             </h2>
           </div>
           <p className="text-white/60 text-sm sm:text-base max-w-md font-light leading-relaxed">
-            Many e-commerce sales boost original list prices right before applying a discount. Our 90-day price history algorithm exposes the true lowest price.
+            E-commerce sellers frequently inflate MRPs right before sales. BrandBattle checks historical price records across major Indian retailers to separate genuine drops from fake markups.
           </p>
         </div>
 
@@ -50,11 +50,11 @@ export default function PriceIntelligenceChapter() {
               <div className="flex items-center justify-between pb-6 border-b border-white/10">
                 <div>
                   <h3 className="text-base font-bold text-white">Sony WH-1000XM5 Price Trajectory</h3>
-                  <p className="text-xs text-white/50 font-mono mt-0.5">90-Day Cross-Platform Aggregation</p>
+                  <p className="text-xs text-white/50 font-mono mt-0.5">Illustrative 90-Day Cross-Platform Trajectory (INR)</p>
                 </div>
                 <div className="px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5">
                   <TrendingDown className="w-3.5 h-3.5" />
-                  <span>25% BELOW 90-DAY AVG</span>
+                  <span>₹5,000 BELOW 90-DAY AVG</span>
                 </div>
               </div>
 
@@ -89,10 +89,10 @@ export default function PriceIntelligenceChapter() {
 
                 {/* Grid baseline labels */}
                 <div className="flex justify-between items-center text-[0.7rem] font-mono text-white/40 pt-4 border-t border-white/10">
-                  <span>90 Days Ago ($399)</span>
-                  <span>60 Days Ago ($349)</span>
-                  <span>30 Days Ago ($329)</span>
-                  <span className="text-emerald-400 font-bold">Today ($299)</span>
+                  <span>90 Days Ago (₹29,990)</span>
+                  <span>60 Days Ago (₹28,490)</span>
+                  <span>30 Days Ago (₹26,990)</span>
+                  <span className="text-emerald-400 font-bold">Observed Low (₹24,990)</span>
                 </div>
               </div>
             </div>
@@ -103,10 +103,10 @@ export default function PriceIntelligenceChapter() {
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
                   <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase">
-                    AUTHENTIC DEAL VERIFIED (SCORE: 94/100)
+                    AUTHENTIC DEAL VERIFIED (SCORE: 88/100)
                   </h4>
                   <p className="text-xs text-white/70 font-light mt-0.5">
-                    This price is within $5 of all-time lowest recorded price.
+                    Selling price is at historical low across verified Indian retailers.
                   </p>
                 </div>
               </div>
@@ -127,10 +127,10 @@ export default function PriceIntelligenceChapter() {
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4 text-[#ff1695]" />
                   <span className="text-xs font-mono tracking-widest uppercase text-white/80">
-                    LIVE RETAILER MATRIX
+                    RETAILER COMPARISON MATRIX
                   </span>
                 </div>
-                <span className="text-[0.65rem] font-mono text-white/50">UPDATED 2 MINS AGO</span>
+                <span className="text-[0.65rem] font-mono text-white/50">CHECKED TODAY (IST)</span>
               </div>
 
               {/* Retailer Price List */}

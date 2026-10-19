@@ -67,10 +67,16 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold font-[var(--font-display)] text-white mb-4">5. Contact Us</h2>
-            <p>
-              For inquiries regarding your personal information, account deletion, or data rights under India&apos;s Digital Personal Data Protection Act (DPDPA), contact us at <a href="mailto:privacy@brandbattle.in" className="text-[#f20ab0] underline">privacy@brandbattle.in</a>.
+            <h2 className="text-2xl font-bold font-[var(--font-display)] text-white mb-4">5. Grievance Officer & Data Protection (DPDPA)</h2>
+            <p className="mb-4">
+              In accordance with India&apos;s Information Technology Act, 2000 and the Digital Personal Data Protection Act (DPDPA), the contact details for data rights requests, rectification, and grievance redressal are provided below:
             </p>
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/10 space-y-1.5 font-mono text-xs">
+              <p><strong className="text-white">Designation:</strong> Grievance Redressal Officer</p>
+              <p><strong className="text-white">Email:</strong> <a href="mailto:grievance@brandbattle.in" className="text-[#f20ab0] underline">grievance@brandbattle.in</a></p>
+              <p><strong className="text-white">General Inquiries:</strong> <a href="mailto:privacy@brandbattle.in" className="text-[#f20ab0] underline">privacy@brandbattle.in</a></p>
+              <p><strong className="text-white">Acknowledgment Timeline:</strong> Within 48 business hours</p>
+            </div>
           </section>
         </div>
       </div>

@@ -19,6 +19,22 @@ export const metadata: Metadata = {
   }),
 }
 
+function CompareSkeleton() {
+  return (
+    <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-8 py-10 animate-pulse">
+      <div className="h-10 w-64 bg-white/5 rounded-xl mb-8" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="h-96 rounded-3xl bg-white/[0.02] border border-white/10 p-8" />
+        <div className="h-96 rounded-3xl bg-white/[0.02] border border-white/10 p-8" />
+      </div>
+    </div>
+  )
+}
+
 export default function ComparePage() {
-  return <CompareWorkspaceClient />
+  return (
+    <React.Suspense fallback={<CompareSkeleton />}>
+      <CompareWorkspaceClient />
+    </React.Suspense>
+  )
 }

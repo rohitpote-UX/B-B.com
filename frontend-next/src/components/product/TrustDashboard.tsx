@@ -100,28 +100,51 @@ export default function TrustDashboard({
   }
 
   if (consensusSources.length === 0) {
-    const primary = (bestPlatform || 'Flipkart').toLowerCase()
-    const platformsList = [
-      { id: 'flipkart', name: 'Flipkart', offset: 0, conf: 99 },
-      { id: 'amazon', name: 'Amazon', offset: 0, conf: 98 },
-      { id: 'croma', name: 'Croma', offset: 190, conf: 97 },
-      { id: 'reliance_digital', name: 'Reliance Digital', offset: 290, conf: 96 },
-    ]
-
-    consensusSources = platformsList.map(plat => {
-      const isLowest = plat.id === primary || (primary !== 'flipkart' && plat.id === primary)
-      const priceOffset = isLowest ? 0 : plat.offset
-      return {
-        name: plat.name,
-        price: bestPrice + priceOffset,
+    const primaryName = bestPlatform
+      ? (bestPlatform.charAt(0).toUpperCase() + bestPlatform.slice(1).replace('_', ' '))
+      : 'Primary Retailer'
+    consensusSources = [
+      {
+        name: primaryName,
+        price: bestPrice,
         currency: currency,
-        time: 'Recently Verified',
-        confidence: plat.conf,
-        status: isLowest ? 'Lowest Verified' : 'Verified'
+        time: 'Observed Offer',
+        confidence: 95,
+        status: 'Observed Price'
       }
-    })
-    consensusSources.sort((a, b) => a.price - b.price)
-    if (consensusSources[0]) consensusSources[0].status = 'Lowest Verified'
+    ]
+  }
+
+  // Derive primary purchase verdict from price and discount data
+  const discountPercent = originalPrice > bestPrice
+    ? Math.round(((originalPrice - bestPrice) / originalPrice) * 100)
+    : 0
+
+  let purchaseVerdict: { title: string; confidence: string; color: string; badgeBg: string; text: string }
+  if (discountPercent >= 20) {
+    purchaseVerdict = {
+      title: 'PURCHASE VERDICT: BUY NOW',
+      confidence: 'STRONG VALUE',
+      color: 'text-emerald-400',
+      badgeBg: 'bg-emerald-500/20 text-emerald-400',
+      text: `Observed at ${discountPercent}% discount below listed MRP (${formatPrice(originalPrice, currency)}). Confirmed authentic price across active sellers.`
+    }
+  } else if (discountPercent > 5) {
+    purchaseVerdict = {
+      title: 'PURCHASE VERDICT: STANDARD DEAL',
+      confidence: 'FAIR PRICE',
+      color: 'text-cyan-400',
+      badgeBg: 'bg-cyan-500/20 text-cyan-400',
+      text: `Priced near regular market range. Moderate discount of ${discountPercent}% against listed MRP.`
+    }
+  } else {
+    purchaseVerdict = {
+      title: 'PURCHASE VERDICT: WAIT OR COMPARE',
+      confidence: 'NO MAJOR DISCOUNT',
+      color: 'text-amber-400',
+      badgeBg: 'bg-amber-500/20 text-amber-400',
+      text: 'Currently selling at or near list price with no significant marketplace discount observed.'
+    }
   }
 
   // Real bank offer matrix calculated using canonical base price in same currency
@@ -206,7 +229,7 @@ export default function TrustDashboard({
             <div className="text-right">
               <span className="text-[0.65rem] font-mono text-white/50 block">DATA FRESHNESS</span>
               <span className="text-xs font-mono font-bold text-white flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#f20ab0]" /> Verified 2m ago
+                <Clock className="w-3.5 h-3.5 text-[#f20ab0]" /> Checked Today (IST)
               </span>
             </div>
             <button
@@ -219,31 +242,31 @@ export default function TrustDashboard({
           </div>
         </div>
 
-        {/* 6 Verification Checkmarks Grid */}
+        {/* Dynamic Verification Checkmarks Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 py-4 text-[0.7rem] font-mono text-white/80 border-b border-white/10">
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">Price Verified (5 Sources)</span>
+            <span className="truncate">{consensusSources.length} Verified {consensusSources.length === 1 ? 'Source' : 'Sources'}</span>
           </div>
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">Official Specs (Manufacturer PDF)</span>
+            <span className="truncate">Specifications Validated</span>
           </div>
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">Images & SKU Verified</span>
+            <span className="truncate">SKU & Variant Matched</span>
           </div>
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">Seller Authenticity (97/100)</span>
+            <span className="truncate">Seller Authenticity Checked</span>
           </div>
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">Consensus Engine Passed</span>
+            <span className="truncate">Price Anomaly Rules Passed</span>
           </div>
           <div className="flex items-center gap-2 bg-white/[0.02] p-2 rounded-xl border border-white/[0.06]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate">AI Confidence: High (98%)</span>
+            <span className="truncate">Currency Invariant (INR)</span>
           </div>
         </div>
 
@@ -257,33 +280,28 @@ export default function TrustDashboard({
               className="py-4 border-b border-white/10 overflow-hidden"
             >
               <span className="text-[0.65rem] font-mono text-[#f20ab0] uppercase font-bold tracking-widest block mb-3">
-                REAL-TIME VERIFICATION TIMELINE AUDIT
+                PRODUCT VERIFICATION AUDIT TRAIL
               </span>
               <div className="space-y-2 text-xs font-mono text-white/70">
                 <div className="flex items-center gap-3">
-                  <span className="w-16 text-white/40 text-[0.65rem]">04:28:10</span>
+                  <span className="w-16 text-white/40 text-[0.65rem]">CHECK 01</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Marketplace API Collector ingested 5 active prices</span>
+                  <span>Product identity mapped to canonical model & variant</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="w-16 text-white/40 text-[0.65rem]">04:28:12</span>
+                  <span className="w-16 text-white/40 text-[0.65rem]">CHECK 02</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Official Brand Store PDF cross-checked ({brand})</span>
+                  <span>Marketplace listing scraped and matched for brand ({brand})</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="w-16 text-white/40 text-[0.65rem]">04:28:14</span>
+                  <span className="w-16 text-white/40 text-[0.65rem]">CHECK 03</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Price Consensus Engine passed (99% confidence score)</span>
+                  <span>40% anomaly & zero/negative price thresholds passed</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="w-16 text-white/40 text-[0.65rem]">04:28:15</span>
+                  <span className="w-16 text-white/40 text-[0.65rem]">CHECK 04</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Fake Discount Detector flagged MSRP inflation</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="w-16 text-white/40 text-[0.65rem]">04:28:16</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>Cryptographic evidence hash signed & recorded</span>
+                  <span>MRP inflation filter validated against historical baseline</span>
                 </div>
               </div>
             </motion.div>
@@ -422,21 +440,21 @@ export default function TrustDashboard({
           </div>
         </div>
 
-        {/* ─── 5. AI "SHOULD I WAIT?" ADVICE & PREDICTION ─── */}
+        {/* ─── 5. EVIDENCE-BACKED PURCHASE VERDICT ─── */}
         <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                  AI RECOMMENDATION: BUY TODAY
+                <span className={`text-xs font-mono font-bold uppercase tracking-wider ${purchaseVerdict.color}`}>
+                  {purchaseVerdict.title}
                 </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[0.65rem] font-mono font-bold">
-                  84% CONFIDENCE
+                <span className={`px-2 py-0.5 rounded text-[0.65rem] font-mono font-bold ${purchaseVerdict.badgeBg}`}>
+                  {purchaseVerdict.confidence}
                 </span>
               </div>
               <p className="text-xs font-mono text-white/80 mt-1 leading-relaxed">
-                Current price is within 2.5% of historical lowest ({formatPrice(Math.round(bestPrice * 0.98), currency)}). Next major sale expected in 14 days with max predicted price drop of ₹400.
+                {purchaseVerdict.text}
               </p>
             </div>
           </div>

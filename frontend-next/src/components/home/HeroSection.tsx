@@ -10,8 +10,8 @@ export default function HeroSection() {
   const heroProduct = PRODUCTS[0] || {
     name: 'Sony WH-1000XM5 Wireless Headphones',
     brand: 'SONY',
-    bestPrice: 299.99,
-    originalPrice: 399.99,
+    bestPrice: 26990,
+    originalPrice: 34990,
     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop',
     rating: 4.8,
   }
@@ -19,8 +19,8 @@ export default function HeroSection() {
   const competitorProduct = PRODUCTS[1] || {
     name: 'Apple AirPods Max',
     brand: 'APPLE',
-    bestPrice: 479.00,
-    originalPrice: 549.00,
+    bestPrice: 59900,
+    originalPrice: 59900,
     image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=800&auto=format&fit=crop',
     rating: 4.6,
   }
@@ -99,16 +99,16 @@ export default function HeroSection() {
               {/* Micro Metrics Strip */}
               <div className="grid grid-cols-3 gap-4 sm:gap-6 pt-8 sm:pt-10 mt-8 sm:mt-10 border-t border-white/10 max-w-lg">
                 <div>
-                  <div className="text-lg sm:text-2xl font-bold font-mono text-white">1K+</div>
-                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Comparisons</div>
+                  <div className="text-lg sm:text-2xl font-bold font-mono text-white">1,400+</div>
+                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Products Tracked</div>
                 </div>
                 <div>
-                  <div className="text-lg sm:text-2xl font-bold font-mono text-white">99.8%</div>
-                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Accuracy</div>
+                  <div className="text-lg sm:text-2xl font-bold font-mono text-white">Multi-Store</div>
+                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Price Consensus</div>
                 </div>
                 <div>
-                  <div className="text-lg sm:text-2xl font-bold font-mono text-[#ff1695]">$0</div>
-                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Sponsored Bias</div>
+                  <div className="text-lg sm:text-2xl font-bold font-mono text-[#ff1695]">Objective</div>
+                  <div className="text-[0.65rem] sm:text-xs text-white/50 tracking-wider uppercase mt-1">Spec Analysis</div>
                 </div>
               </div>
             </motion.div>
